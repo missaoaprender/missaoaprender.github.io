@@ -16,6 +16,7 @@ const DADOS = {
     cabecalho: "../../../icons/icon1.png",
     menu: "../../../icons/menu.png",
     seta: "../../../icons/seta.png",
+    som: "../../../icons/som.png",
     menuAnos: {
       inicio: "../../../icons/inicio.png",
       pre: "../../../icons/iconpre.png",
