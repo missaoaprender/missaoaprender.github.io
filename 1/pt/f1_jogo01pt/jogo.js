@@ -61,7 +61,6 @@ styleJogo.innerHTML = `
     .botao-acao-jogo img {
         width: 22px; height: 22px; object-fit: contain; pointer-events: none;
     }
-    /* Estilo para o botão de ajuda quando desativado */
     .botao-acao-jogo:disabled {
         opacity: 0.4; cursor: not-allowed; transform: none; filter: grayscale(1);
     }
@@ -92,15 +91,16 @@ styleJogo.innerHTML = `
         background: linear-gradient(135deg, #ffffff 0%, #E1F2FA 100%);
         border-radius: 20px; box-shadow: inset 0 2px 8px rgba(15,139,211,0.1);
     }
-    .ecra-feedback-imagem { width: 150px; height: 150px; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2)); }
-    .ecra-feedback-estrelas { font-size: 1.6rem; margin-bottom: 12px; letter-spacing: 3px; }
+    .ecra-feedback-imagem { width: 180px; height: 180px; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.22)); }
+    .ecra-feedback-estrelas { font-size: 1.8rem; margin-bottom: 15px; letter-spacing: 4px; }
 
     .container-botoes-feedback {
-        display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 5px;
+        display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 5px;
     }
     .btn-feedback {
-        padding: 12px 26px; border-radius: 25px; border: none; font-weight: 900; 
-        font-size: 1rem; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.2s ease;
+        width: 190px; height: 50px; border-radius: 25px; border: none; font-weight: 900; 
+        font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        transition: transform 0.1s ease, box-shadow 0.2s ease;
         box-shadow: 0 4px 12px rgba(15,139,211,0.25);
     }
     .btn-feedback-primario { background: #0F8BD3; color: #ffffff; }
@@ -477,8 +477,8 @@ function darAjuda() {
     if (!jogoAtivo || ajudaEmCurso || ajudasUsadas >= 2) return;
     
     ajudasUsadas++; 
-    estrelasGanhas = Math.max(0, estrelasGanhas - 1); // Desconta uma estrela, mínimo 0
-    atualizarBarraEstado(false); // Atualiza a barra para refletir imediatamente a estrela a menos e desativar se atingir o limite
+    estrelasGanhas = Math.max(0, estrelasGanhas - 1); 
+    atualizarBarraEstado(false);
 
     ajudaEmCurso = true; isDrawing = false; 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -571,10 +571,9 @@ function finalizarJogo() {
       <div class="ecra-feedback-container">
         <img src="${imagemFeedback}" alt="Feedback" class="ecra-feedback-imagem">
         <div class="ecra-feedback-estrelas">${estrelasHtml}</div>
-        <p style="font-size: 0.95rem; font-weight: 800; margin-bottom: 10px;">Total de Estrelas: <strong>${estrelasGanhas}</strong></p>
         <div class="container-botoes-feedback">
             <button onclick="iniciarJogo()" class="btn-feedback btn-feedback-primario">Jogar de novo</button>
-            <button onclick="window.location.href='../'" class="btn-feedback btn-feedback-secundario">Escolher outro jogo</button>
+            <button onclick="window.location.href='../'" class="btn-feedback btn-feedback-secundario">Outro jogo</button>
         </div>
       </div>
     `;
