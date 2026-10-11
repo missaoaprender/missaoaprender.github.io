@@ -309,11 +309,14 @@ function configurarCanvas() {
     canvas.addEventListener('touchend', stopDrawing);
 }
 
+// ==========================================
+// CURVAS MATEMÁTICAS MELHORADAS E SUAS
+// ==========================================
 function gerarPontosGrafismos(tipo, sX, sY, eX, eY) {
     let pts = [];
     const w = eX - sX;
-    const h = 75; 
-    const steps = 250; 
+    const h = 70; 
+    const steps = 300; // Maior resolução para curvas mais perfeitas e suaves
     let ciclos = 3;
 
     for(let i = 0; i <= steps; i++) {
@@ -322,35 +325,49 @@ function gerarPontosGrafismos(tipo, sX, sY, eX, eY) {
         let currX = sX + w * prog;
         let currY = sY;
 
-        if (tipo === "onda") currY = sY - (Math.sin(t) * h);
-        else if (tipo === "onda_larga") currY = sY - (Math.sin(prog * Math.PI * 2 * 1.5) * h);
-        else if (tipo === "onda_assimetrica") currY = sY - (Math.sin(t) + 0.5 * Math.sin(2 * t)) * (h * 0.65);
+        if (tipo === "onda") {
+            currY = sY - (Math.sin(t) * h);
+        }
+        else if (tipo === "onda_larga") {
+            currY = sY - (Math.sin(prog * Math.PI * 2 * 1.5) * (h * 1.1));
+        }
+        else if (tipo === "onda_assimetrica") {
+            currY = sY - (Math.sin(t) + 0.4 * Math.sin(2 * t + 0.5)) * (h * 0.7);
+        }
         else if (tipo === "onda_crescente") {
-            let amp = 10 + prog * (h - 10);
-            currY = sY - Math.sin(prog * Math.PI * 2 * 4) * amp;
+            let amp = 12 + prog * (h - 12);
+            currY = sY - Math.sin(prog * Math.PI * 2 * 3.5) * amp;
         }
         else if (tipo === "lacos") {
-            let radius = h * 0.7;
-            currX = sX + w * prog - Math.sin(t) * radius;
-            currY = sY - Math.cos(t) * radius + radius; 
+            let radius = h * 0.65;
+            currX = sX + w * prog - Math.sin(t) * (radius * 0.8);
+            currY = sY - Math.cos(t) * radius + (radius * 0.8); 
         }
         else if (tipo === "lacos_duplos") {
-            let radius3 = h * 0.6;
-            currX = sX + w * prog - Math.sin(t) * radius3 * 0.4; 
+            let radius3 = h * 0.55;
+            currX = sX + w * prog - Math.sin(t) * (radius3 * 0.35); 
             currY = sY - Math.sin(t * 2) * radius3; 
         }
         else if (tipo === "molas") {
-            let tMola = prog * Math.PI * 2 * 6;
+            let tMola = prog * Math.PI * 2 * 5.5;
             let radius2 = h * 0.45;
             currX = sX + w * prog - Math.sin(tMola) * radius2;
             currY = sY - Math.cos(tMola) * radius2;
         }
-        else if (tipo === "montanha") currY = sY - (Math.abs(Math.sin(prog * Math.PI * ciclos)) * h);
-        else if (tipo === "arcos_baixo") currY = sY + (Math.abs(Math.sin(prog * Math.PI * ciclos)) * h);
-        else if (tipo === "castelo_curvo") currY = sY - (Math.sin(t) + (1/3)*Math.sin(3*t) + (1/5)*Math.sin(5*t)) * (h * 0.8);
+        else if (tipo === "montanha") {
+            currY = sY - (Math.abs(Math.sin(prog * Math.PI * ciclos)) * h);
+        }
+        else if (tipo === "arcos_baixo") {
+            currY = sY + (Math.abs(Math.sin(prog * Math.PI * ciclos)) * h);
+        }
+        else if (tipo === "castelo_curvo") {
+            currY = sY - (Math.sin(t) + (1/3)*Math.sin(3*t) + (1/5)*Math.sin(5*t)) * (h * 0.75);
+        }
 
         pts.push({ x: currX, y: currY, hit: false });
     }
+
+    // Suavização leve dos pontos extremos para encaixe perfeito nas extremidades
     pts[0].x = sX; pts[0].y = sY;
     pts[pts.length-1].x = eX; pts[pts.length-1].y = eY;
     return pts;
@@ -381,7 +398,7 @@ function draw(e) {
     e.preventDefault();
     const pos = getClientOffset(e);
     let dist = Math.hypot(pos.x - posAtualX, pos.y - posAtualY);
-    let steps = Math.max(1, Math.floor(dist / 5)); 
+    let steps = Math.max(1, Math.floor(dist / 4)); 
     
     for(let s = 1; s <= steps; s++) {
         let chkX = posAtualX + (pos.x - posAtualX)*(s/steps); 
@@ -391,7 +408,7 @@ function draw(e) {
             let d = Math.hypot(chkX - pontosCaminho[i].x, chkY - pontosCaminho[i].y);
             if(d < minDist) { minDist = d; closestIdx = i; }
         }
-        if (minDist > 40) saiuDoCaminho = true; 
+        if (minDist > 42) saiuDoCaminho = true; 
         else if (closestIdx !== -1) pontosCaminho[closestIdx].hit = true; 
     }
     posAtualX = pos.x; posAtualY = pos.y;
@@ -411,7 +428,7 @@ function avaliarJogada() {
     let accuracia = pontosAtingidos / pontosCaminho.length;
     const areaDesenho = document.getElementById('area-desenho');
 
-    if (distanciaFim < 80 && accuracia >= 0.55 && !saiuDoCaminho) {
+    if (distanciaFim < 80 && accuracia >= 0.52 && !saiuDoCaminho) {
         jogoAtivo = false; certos++; 
         somAcerto.currentTime = 0; somAcerto.play().catch(() => {});
         
@@ -425,11 +442,12 @@ function avaliarJogada() {
         setTimeout(() => { rondaAtual++; jogoAtivo = true; proximaRonda(); }, 1500);
     } else {
         erros++; 
+        certos = Math.max(0, certos - 1); 
         somErro.currentTime = 0; somErro.play().catch(() => {});
 
         if (areaDesenho) {
-            areaDesenho.style.backgroundColor = "#fde8e8";
-            setTimeout(() => { if (areaDesenho) areaDesenno.style.backgroundColor = "#fdfdfd"; }, 600);
+            areaDesenho.style.backgroundColor = "#fde8e8"; 
+            setTimeout(() => { if (areaDesenho) areaDesenho.style.backgroundColor = "#fdfdfd"; }, 600);
         }
 
         ctx.clearRect(0, 0, canvas.width, canvas.height); 
@@ -468,7 +486,7 @@ function darAjuda() {
             step += 2; 
             if (step >= pontosCaminho.length) step = pontosCaminho.length - 1;
             if (step < pontosCaminho.length - 1) {
-                setTimeout(animarAjuda, 12); 
+                setTimeout(animarAjuda, 10); 
             } else {
                 const lastPt = pontosCaminho[pontosCaminho.length - 1];
                 hand.style.left = (lastPt.x - 15) + "px"; hand.style.top = (lastPt.y - 5) + "px";
@@ -487,7 +505,7 @@ function darAjuda() {
 
 function finalizarJogo() {
     jogoAtivo = false;
-    if(audioInstrucao) audioInstrucoes.pause();
+    if(audioInstrucao) audioInstrucao.pause();
     
     let imagemFeedback = DADOS.icons.feedbacks.feedback4;
     if (certos >= 9) imagemFeedback = DADOS.icons.feedbacks.feedback1;
