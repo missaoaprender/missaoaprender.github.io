@@ -45,7 +45,7 @@ styleJogo.innerHTML = `
 
     /* Botão de som e botão de ajuda com exatamente as mesmas dimensões e estilo */
     .botao-acao-jogo {
-        width: 38px; height: 38px; border-radius: 50%; border: none;
+        width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 50%; border: none;
         background: rgba(0,0,0,0.2); color: #FFFFFF; font-size: 16px;
         display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s ease;
         padding: 0; flex-shrink: 0;
@@ -55,13 +55,13 @@ styleJogo.innerHTML = `
         width: 22px; height: 22px; object-fit: contain; pointer-events: none;
     }
 
-    /* Barra de progresso totalmente extensível a ocupar todo o espaço central */
+    /* Barra de progresso totalmente extensível a ocupar todo o espaço central em falta */
     .wrapper-progresso-completo {
-        flex: 1; display: flex; align-items: center; gap: 12px; margin: 0 15px; width: 100%;
+        flex: 1; display: flex; align-items: center; gap: 12px; margin: 0 15px; width: 100%; min-width: 0;
     }
     .container-progresso-jogo {
         flex: 1; width: 100%; height: 16px; background: rgba(0,0,0,0.15);
-        border-radius: 10px; overflow: hidden; position: relative;
+        border-radius: 10px; overflow: hidden; position: relative; min-width: 40px;
     }
     .barra-progresso-interna { width: 0%; height: 100%; background: #FFB400; border-radius: 10px; transition: width 0.3s ease; }
     .contador-rondas { background: rgba(0,0,0,0.15); color: #FFFFFF; padding: 5px 12px; border-radius: 10px; font-weight: 900; font-size: 14px; white-space: nowrap; flex-shrink: 0; }
