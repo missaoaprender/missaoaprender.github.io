@@ -17,6 +17,13 @@ let simuTimer = null;
 let sequenciaNiveis = [];
 
 let audioInstrucao = null;
+let audioFeedback = null;
+
+function tocarSom(tipo) {
+    const caminho = (tipo === 'certo') ? DADOS.sons.certo : DADOS.sons.errado;
+    const som = new Audio(caminho);
+    som.play().catch(() => {});
+}
 
 // ==========================================
 // ESTILOS ESPECÍFICOS DO JOGO
@@ -75,20 +82,19 @@ styleJogo.innerHTML = `
     .barra-progresso-interna { width: 0%; height: 100%; background: #FFB400; border-radius: 10px; transition: width 0.3s ease; }
     .contador-rondas { background: rgba(0,0,0,0.15); color: #FFFFFF; padding: 5px 12px; border-radius: 10px; font-weight: 900; font-size: 14px; white-space: nowrap; flex-shrink: 0; }
 
-    /* Ecrã de Feedback Melhorado */
+    /* Ecrã de Feedback Melhorado com Imagem em Destaque */
     .ecra-feedback-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        height: 100%; color: #062B42; text-align: center; padding: 20px;
+        height: 100%; color: #062B42; text-align: center; padding: 15px;
         background: linear-gradient(135deg, #ffffff 0%, #E1F2FA 100%);
         border-radius: 20px; box-shadow: inset 0 2px 8px rgba(15,139,211,0.1);
     }
-    .ecra-feedback-titulo { font-size: 2.2rem; font-weight: 900; margin-bottom: 4px; color: #0F8BD3; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .ecra-feedback-sub { font-size: 1.1rem; font-weight: 800; margin-bottom: 12px; color: #062B42; }
-    .ecra-feedback-imagem { width: 90px; height: 90px; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15)); }
-    .ecra-feedback-estrelas { font-size: 1.6rem; margin-bottom: 12px; letter-spacing: 3px; }
+    .ecra-feedback-sub { font-size: 1.15rem; font-weight: 800; margin-bottom: 8px; color: #0F8BD3; }
+    .ecra-feedback-imagem { width: 130px; height: 130px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.18)); }
+    .ecra-feedback-estrelas { font-size: 1.5rem; margin-bottom: 10px; letter-spacing: 3px; }
 
     .container-botoes-feedback {
-        display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 5px;
+        display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 5px;
     }
     .btn-feedback {
         padding: 12px 26px; border-radius: 25px; border: none; font-weight: 900; 
@@ -437,7 +443,8 @@ function avaliarJogada() {
         jogoAtivo = false; 
         estrelasGanhas++; 
         
-        // Efeito visual verde suave no fundo ao acertar
+        tocarSom('certo'); // Toca o som certo.mp3
+
         if (areaDesenho) {
             areaDesenho.style.backgroundColor = "#e8f8ec";
             setTimeout(() => { if (areaDesenho) areaDesenho.style.backgroundColor = "#fdfdfd"; }, 600);
@@ -450,7 +457,8 @@ function avaliarJogada() {
         erros++; 
         estrelasGanhas = Math.max(0, estrelasGanhas - 1); 
 
-        // Efeito visual vermelho suave no fundo ao errar
+        tocarSom('errado'); // Toca o som errado.mp3
+
         if (areaDesenho) {
             areaDesenho.style.backgroundColor = "#fde8e8";
             setTimeout(() => { if (areaDesenho) areaDesenho.style.backgroundColor = "#fdfdfd"; }, 600);
@@ -532,7 +540,7 @@ function finalizarJogo() {
     jogoAtivo = false;
     const contentor = document.getElementById('contentor-jogo');
     
-    // Seleciona a imagem de feedback com base nas regras de estrelas indicadas
+    // Seleção da imagem de feedback e respetivo som final
     let imagemFeedback = DADOS.icons.feedbacks.feedback4; // Até 4 estrelas
     if (estrelasGanhas >= 9) {
         imagemFeedback = DADOS.icons.feedbacks.feedback1;
@@ -542,16 +550,23 @@ function finalizarJogo() {
         imagemFeedback = DADOS.icons.feedbacks.feedback3;
     }
 
+    // Toca o som de acordo com o total de estrelas (Até 4 = errado.mp3, 5 ou mais = certo.mp3)
+    if (estrelasGanhas <= 4) {
+        tocarSom('errado');
+    } else {
+        tocarSom('certo');
+    }
+
     let estrelasHtml = "";
     for (let i = 0; i < Math.min(estrelasGanhas, 10); i++) { estrelasHtml += "⭐ "; }
     if (estrelasHtml === "") estrelasHtml = "💪 Continua a treinar!";
 
     contentor.innerHTML = `
       <div class="ecra-feedback-container">
-        <h2 class="ecra-feedback-titulo">Parabéns! 🎉</h2>
+        <p class="ecra-feedback-sub">Completaste todas as rondas!</p>
         <img src="${imagemFeedback}" alt="Feedback" class="ecra-feedback-imagem">
         <div class="ecra-feedback-estrelas">${estrelasHtml}</div>
-        <p style="font-size: 1rem; font-weight: 800; margin-bottom: 12px;">Total de Estrelas: <strong>${estrelasGanhas}</strong></p>
+        <p style="font-size: 0.95rem; font-weight: 800; margin-bottom: 10px;">Total de Estrelas: <strong>${estrelasGanhas}</strong></p>
         <div class="container-botoes-feedback">
             <button onclick="iniciarJogo()" class="btn-feedback btn-feedback-primario">Jogar de novo</button>
             <button onclick="window.location.href='../'" class="btn-feedback btn-feedback-secundario">Escolher outro jogo</button>
