@@ -1,11 +1,11 @@
 const DADOS = {
   pagina: {
-    browserTitulo: "1.º Ano - Jogos Educativos",
-    titulo: "Português",
-    subtitulo: "Atividades • 1º Ano",
+    browserTitulo: "Jogos Matemáticos",
+    titulo: "Jogos Matemáticos",
+    subtitulo: "Atividades • Matemática",
     tituloMenu: "Jogo do Rastro",
-    mensagem: "Escolhe um jogo e diverte-te a aprender!",
-    informacao: "Jogos educativos para o 1.º ano",
+    mensagem: "Diverte-te a aprender!",
+    informacao: "Jogos CRJM",
     tituloMenuAcordeao: "Menu",
     urlVoltar: "../",
     iconeEstrela: "★",
