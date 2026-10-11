@@ -17,7 +17,6 @@ let simuTimer = null;
 let sequenciaNiveis = [];
 
 let audioInstrucao = null;
-let audioFeedback = null;
 
 function tocarSom(tipo) {
     const caminho = (tipo === 'certo') ? DADOS.sons.certo : DADOS.sons.errado;
@@ -61,6 +60,10 @@ styleJogo.innerHTML = `
     .botao-acao-jogo:active { transform: scale(0.92); }
     .botao-acao-jogo img {
         width: 22px; height: 22px; object-fit: contain; pointer-events: none;
+    }
+    /* Estilo para o botão de ajuda quando desativado */
+    .botao-acao-jogo:disabled {
+        opacity: 0.4; cursor: not-allowed; transform: none; filter: grayscale(1);
     }
 
     /* Botão JOGAR original da capa com bordas perfeitamente arredondadas */
@@ -138,6 +141,7 @@ function atualizarBarraEstado(modoCapa = false) {
         `;
     } else {
         const progressoPercent = ((rondaAtual - 1) / totalRondas) * 100;
+        const ajudaDesativada = ajudasUsadas >= 2 ? 'disabled' : '';
         barra.innerHTML = `
           <div class="bloco-estrelas-pontos">
             <span>⭐</span>
@@ -153,7 +157,7 @@ function atualizarBarraEstado(modoCapa = false) {
             <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
               <img src="${iconeSomPath}" alt="Som">
             </button>
-            <button class="botao-acao-jogo" onclick="darAjuda()" aria-label="Ajuda">
+            <button class="botao-acao-jogo" onclick="darAjuda()" aria-label="Ajuda" ${ajudaDesativada}>
               <img src="${iconeLampadaPath}" alt="Ajuda">
             </button>
           </div>
@@ -470,8 +474,13 @@ function avaliarJogada() {
 }
 
 function darAjuda() {
-    if (!jogoAtivo || ajudaEmCurso) return;
-    ajudasUsadas++; ajudaEmCurso = true; isDrawing = false; 
+    if (!jogoAtivo || ajudaEmCurso || ajudasUsadas >= 2) return;
+    
+    ajudasUsadas++; 
+    estrelasGanhas = Math.max(0, estrelasGanhas - 1); // Desconta uma estrela, mínimo 0
+    atualizarBarraEstado(false); // Atualiza a barra para refletir imediatamente a estrela a menos e desativar se atingir o limite
+
+    ajudaEmCurso = true; isDrawing = false; 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     desenharGuiasJogo();
     
