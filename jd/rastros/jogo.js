@@ -72,6 +72,21 @@ style.innerHTML = `
     .btn-modo-pvp { background: linear-gradient(135deg, #6c757d 0%, #495057 100%); }
     .btn-modo-voltar { background: #b0a8a8; max-width: 160px; height: 45px; border-radius: 22px; font-size: 0.95rem; }
 
+    /* Estilo dos novos botões do feedback final em tom castanho (#804040) */
+    .btn-feedback-container { display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+    .btn-feedback-solid {
+        background-color: #804040; color: #FFFFFF; border: none;
+        padding: 14px 28px; border-radius: 30px; font-weight: 900; font-size: 1.05rem;
+        cursor: pointer; box-shadow: 0 4px 12px rgba(128, 64, 64, 0.3); transition: transform 0.1s ease;
+    }
+    .btn-feedback-solid:active { transform: scale(0.95); }
+    .btn-feedback-outline {
+        background-color: #FFFFFF; color: #804040; border: 3px solid #804040;
+        padding: 14px 28px; border-radius: 30px; font-weight: 900; font-size: 1.05rem;
+        cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.1s ease;
+    }
+    .btn-feedback-outline:active { transform: scale(0.95); }
+
     .btn-capa-small { flex: 1; height: 48px; border-radius: 24px; border: none; color: white; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-transform: uppercase; transition: 0.2s; white-space: nowrap; padding: 0 15px; }
 
     #simu-container { height: 220px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-bottom: 5px; }
@@ -348,9 +363,6 @@ function finalizarRonda(vencedorIdx) {
     const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");
     const corVencedor = vencedorIdx === 0 ? "#8cc63f" : "#804040";
 
-    // Seleção de Feedback: 
-    // Em modo PVP, aparece sempre o feedback_1. 
-    // Contra CPU: Se Jogador 1 (idx 0) ganha -> feedback_1; se Computador (idx 1) ganha -> feedback_4.
     let imagemFeedback = DADOS.icons.feedbacks.feedback1;
     if (modoJogo === 'CPU' && vencedorIdx === 1) {
         imagemFeedback = DADOS.icons.feedbacks.feedback4;
@@ -388,22 +400,22 @@ function finalizarMatch() {
     const contentor = document.getElementById('contentor-jogo');
     if (contentor) {
         contentor.innerHTML = `<div style="text-align:center;">
-            <img src="${imagemFeedbackFinal}" style="height:130px; margin-bottom:10px; object-fit:contain;">
-            <h2 style="color:#804040; font-weight:900; text-transform:uppercase; margin-bottom:20px;">GANHOU O ${nomeVencedor}</h2>
-            <div style="display:flex; justify-content:center; gap:20px;">
-                <div class="score-box box-v" style="padding:10px 20px; font-size:1.2rem;">J1: ${matchScore[0]}</div>
-                <div class="score-box box-x" style="padding:10px 20px; font-size:1.2rem;">${modoJogo === 'CPU' ? 'Pc' : 'J2'}: ${matchScore[1]}</div>
+            <img src="${imagemFeedbackFinal}" style="height:120px; margin-bottom:8px; object-fit:contain;">
+            <h2 style="color:#804040; font-weight:900; text-transform:uppercase; margin-bottom:15px; font-size: 1.4rem;">GANHOU O ${nomeVencedor}</h2>
+            <div style="display:flex; justify-content:center; gap:20px; margin-bottom: 20px;">
+                <div class="score-box box-v" style="padding:8px 18px; font-size:1.1rem;">J1: ${matchScore[0]}</div>
+                <div class="score-box box-x" style="padding:8px 18px; font-size:1.1rem;">${modoJogo === 'CPU' ? 'Pc' : 'J2'}: ${matchScore[1]}</div>
+            </div>
+            <div class="btn-feedback-container">
+                <button class="btn-feedback-solid" onclick="location.reload()">Jogar de novo</button>
+                <button class="btn-feedback-outline" onclick="window.location.href='../../'">Outro jogo</button>
             </div>
         </div>`;
     }
         
     const barra = document.getElementById('barra-inferior');
     if (barra) {
-        barra.style.display = "flex";
-        barra.innerHTML = `
-            <button class="btn-capa-small" style="background:#6c757d;" onclick="location.reload()"><i class="fas fa-redo"></i> REPETIR</button>
-            <button class="btn-capa-small" style="background:#804040;" onclick="window.location.href='../../'"><i class="fas fa-sign-out-alt"></i> SAIR</button>
-        `;
+        barra.style.display = "none";
     }
 }
 
