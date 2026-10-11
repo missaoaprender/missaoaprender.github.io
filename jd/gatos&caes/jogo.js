@@ -12,7 +12,7 @@ let tabuleiro = [];
 let posBranca = { x: 4, y: 2 }; 
 let simuInterval;         
 
-// Sons vazios por enquanto (conforme pedido anteriormente)
+// Sons vazios por enquanto
 const somAcerto = { play: () => {} };
 const somErro = { play: () => {} };
 const somClique = { play: () => {} };
@@ -120,8 +120,8 @@ function mostrarCapa() {
                 <p class="inst-text">Vence o jogador que conseguir realizar a <b>última jogada possível</b> no tabuleiro, deixando o adversário sem espaço para colocar as suas peças.</p>
                 <div class="inst-section-title">Regras de Início</div>
                 <ul class="inst-list">
-                    <li><b>Gatos (Pretos):</b> Começam o jogo e a sua primeira peça deve ser colocada obrigatoriamente na <b>zona central</b> (marcada com <b>X</b>).</li>
-                    <li><b>Cães (Brancos):</b> Jogam a seguir e a sua primeira peça deve ser colocada <b>fora</b> da zona central.</li>
+                    <li><b>Gatos (Peças Pretas):</b> Começam o jogo e a sua primeira peça deve ser colocada obrigatoriamente na <b>zona central</b> (marcada com <b>X</b>).</li>
+                    <li><b>Cães (Peças Brancas):</b> Jogam a seguir e a sua primeira peça deve ser colocada <b>fora</b> da zona central.</li>
                 </ul>
                 <div class="inst-section-title">Como Jogar</div>
                 <ul class="inst-list">
@@ -246,7 +246,6 @@ function renderTabuleiro() {
                 html += `<div class="${cl}" onclick="jogar(${r},${c})">`;
             } else { html += `<div class="${cl}">`; }
             
-            // Ajustado para ir buscar as imagens a partir da pasta correta do projeto
             if (tabuleiro[r][c] === 1) html += `<img src="../../icons/gato.png">`;
             else if (tabuleiro[r][c] === 2) html += `<img src="../../icons/cao.png">`;
             else if (isCentral(r, c)) html += `X`; 
