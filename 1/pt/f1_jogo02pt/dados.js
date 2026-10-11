@@ -3,7 +3,7 @@ const DADOS = {
     browserTitulo: "1.º Ano - Jogos Educativos",
     titulo: "Português",
     subtitulo: "Atividades • 1º Ano",
-    tituloMenu: "Escolhe o Jogo",
+    tituloMenu: "Grafismos - Curvas",
     mensagem: "Escolhe um jogo e diverte-te a aprender!",
     informacao: "Jogos educativos para o 1.º ano",
     tituloMenuAcordeao: "Menu",
@@ -16,6 +16,14 @@ const DADOS = {
     cabecalho: "../../../icons/icon1.png",
     menu: "../../../icons/menu.png",
     seta: "../../../icons/seta.png",
+    som: "../../../icons/som.png",
+    lampada: "../../../icons/lampada.png",
+    feedbacks: {
+      feedback1: "../../../icons/feedback_1.png", // 9 a 10 estrelas
+      feedback2: "../../../icons/feedback_2.png", // 7 a 8 estrelas
+      feedback3: "../../../icons/feedback_3.png", // 5 a 6 estrelas
+      feedback4: "../../../icons/feedback_4.png"  // Até 4 estrelas
+    },
     menuAnos: {
       inicio: "../../../icons/inicio.png",
       pre: "../../../icons/iconpre.png",
@@ -24,6 +32,11 @@ const DADOS = {
       ano3: "../../../icons/icon3.png",
       ano4: "../../../icons/icon4.png"
     }
+  },
+
+  sons: {
+    certo: "../../../sons/certo.mp3",
+    errado: "../../../sons/errado.mp3"
   },
 
   cores: {
@@ -51,6 +64,10 @@ const DADOS = {
     tabletVertical: { alturaCartao: 400, tamanhoIcone: 190 },
     tabletHorizontal: { alturaCartao: 380, tamanhoIcone: 180 }
   },
+
+  jogos: [
+    { nome: "Grafismos", idade: "Linhas Retas", imagem: "../../../icons/gatos&caes.png", cor: "#11CBFC", cor2: "#079BC8", pagina: "jogo.js" }
+  ],
 
   menuAnos: [
     { id: "inicio", nome: "Início", icon: "inicio", pagina: "../../../" },
