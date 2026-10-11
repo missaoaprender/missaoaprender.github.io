@@ -37,20 +37,20 @@ style.innerHTML = `
     .vitoria-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); text-align: center; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    .capa-btn-row { display: flex; flex-direction: row; gap: 12px; width: 95%; max-width: 480px; justify-content: center; align-items: center; margin-top: 5px; }
-    
+    /* Layout da barra inferior na capa: botão Info à esquerda e Jogar à direita */
     .barra-capa-layout {
-        width: 100%; display: flex; align-items: center; justify-content: flex-end; position: relative;
+        width: 100%; display: flex; align-items: center; justify-content: space-between; position: relative;
     }
     .btn-play-rect-capa { 
         height: 48px; padding: 0 38px; border-radius: 24px; background: #FFFFFF; color: #804040; 
         border: none; font-size: 1.25rem; font-weight: 900; text-transform: uppercase; 
         cursor: pointer; display: flex; align-items: center; justify-content: center; 
         box-shadow: 0 4px 10px rgba(0,0,0,0.12); transition: transform 0.1s ease, background-color 0.2s ease; 
+        margin-left: auto;
     }
     .btn-play-rect-capa:active { transform: scale(0.95); }
 
-    /* Botão Info circular com a imagem info.png */
+    /* Botão Info circular com a imagem info.png no mesmo sítio do antigo som.png */
     .btn-info-circle {
         width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 50%; border: none;
         background: rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -58,6 +58,22 @@ style.innerHTML = `
     }
     .btn-info-circle:active { transform: scale(0.92); }
     .btn-info-circle img { width: 24px; height: 24px; object-fit: contain; pointer-events: none; }
+
+    /* Botões aprimorados do menu de modos (Computador / 2 Jogadores) */
+    .btn-modo-aprimorado {
+        width: 100%; max-width: 360px; height: 60px; border-radius: 30px; border: none;
+        color: white; font-weight: 900; font-size: 1.1rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 12px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15); text-transform: uppercase;
+        transition: transform 0.15s ease, box-shadow 0.15s ease; padding: 0 20px;
+    }
+    .btn-modo-aprimorado:active {
+        transform: scale(0.96);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+    .btn-modo-cpu { background: linear-gradient(135deg, #804040 0%, #592B2B 100%); }
+    .btn-modo-pvp { background: linear-gradient(135deg, #6c757d 0%, #495057 100%); }
+    .btn-modo-voltar { background: #b0a8a8; max-width: 160px; height: 45px; border-radius: 22px; font-size: 0.95rem; }
 
     .btn-capa-small { flex: 1; height: 48px; border-radius: 24px; border: none; color: white; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-transform: uppercase; transition: 0.2s; white-space: nowrap; padding: 0 15px; }
 
@@ -104,14 +120,19 @@ style.innerHTML = `
 document.head.appendChild(style);
 
 // ============================================================
-// 3. CAPA COM ANIMAÇÃO REAL (SEM BOTÕES DE MODO NESTE ECRÃ)
+// 3. CAPA COM ANIMAÇÃO REAL E BOTÃO INFO NA BARRA INFERIOR
 // ============================================================
 function atualizarBarraCapa() {
     const barra = document.getElementById('barra-inferior');
     if (!barra) return;
 
+    const iconeInfoPath = DADOS.icons.info;
+
     barra.innerHTML = `
         <div class="barra-capa-layout">
+            <button class="btn-info-circle" onclick="toggleInstructions()" aria-label="Instruções">
+              <img src="${iconeInfoPath}" alt="Info">
+            </button>
             <button class="btn-play-rect-capa" onclick="ecraModosJogo()">JOGAR</button>
         </div>
     `;
@@ -153,32 +174,23 @@ function mostrarCapa() {
     const area = document.getElementById('contentor-jogo');
     area.innerHTML = `
         <div id="simu-container"><div id="simu-board" style="transform: scale(0.65);"></div></div>
-        <div id="capa-menu-principal" style="width:100%; display:flex; justify-content:center; align-items:center;">
-            <div class="capa-btn-row">
-                <button class="btn-info-circle" onclick="toggleInstructions()" title="Instruções">
-                    <img src="${DADOS.icons.info}" alt="Info">
-                </button>
-            </div>
-        </div>
     `;
     
     atualizarBarraCapa();
     iniciarSimulacao();
 }
 
-// Ecrã intermédio com os botões de Computador e 2 Jogadores ao clicar em JOGAR
+// Ecrã intermédio com os botões aprimorados de Computador e 2 Jogadores ao clicar em JOGAR
 function ecraModosJogo() {
     clearInterval(simuInterval);
     const area = document.getElementById('contentor-jogo');
     area.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 20px; width: 100%;">
-            <h2 style="color:#401F1F; font-weight:900; text-transform:uppercase; margin-bottom: 10px;">Escolhe o Modo de Jogo</h2>
-            <div style="display:flex; flex-direction:column; gap: 15px; width: 100%; max-width: 320px;">
-                <button class="btn-capa-small" style="background:#804040; height: 55px; font-size: 1rem;" onclick="mostrarNiveis('CPU')"><i class="fas fa-robot"></i> COMPUTADOR</button>
-                <button class="btn-capa-small" style="background:#6c757d; height: 55px; font-size: 1rem;" onclick="mostrarNiveis('PVP')"><i class="fas fa-users"></i> 2 JOGADORES</button>
-            </div>
-            <div id="nivel-select-container" class="nivel-select-container" style="display:none; margin-top: 15px;"></div>
-            <button class="btn-capa-small" style="background:#aaa; height:40px; width:140px; margin-top:15px;" onclick="mostrarCapa()">VOLTAR</button>
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 16px; width: 100%;">
+            <h2 style="color:#401F1F; font-weight:900; text-transform:uppercase; font-size: clamp(1.2rem, 2vw, 1.6rem); margin-bottom: 5px; text-align: center;">Escolhe o Modo de Jogo</h2>
+            <button class="btn-modo-aprimorado btn-modo-cpu" onclick="mostrarNiveis('CPU')"><i class="fas fa-robot"></i> COMPUTADOR</button>
+            <button class="btn-modo-aprimorado btn-modo-pvp" onclick="mostrarNiveis('PVP')"><i class="fas fa-users"></i> 2 JOGADORES</button>
+            <div id="nivel-select-container" class="nivel-select-container" style="display:none; margin-top: 10px;"></div>
+            <button class="btn-modo-aprimorado btn-modo-voltar" onclick="mostrarCapa()">VOLTAR</button>
         </div>
     `;
     const barra = document.getElementById('barra-inferior');
