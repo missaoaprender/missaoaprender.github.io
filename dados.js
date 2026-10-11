@@ -128,7 +128,7 @@ const DADOS = {
 
   destaques: [
     { id: "rastros", nome: "Rastros", icon: "rastros", pagina: "jd/rastros/" },
-    { id: "gatosCaes", nome: "Gatos&Cães", icon: "gatosCaes", pagina: "jd/gatos-caes/" },
+    { id: "gatosCaes", nome: "Gatos&Cães", icon: "gatosCaes", pagina: "jd/gatos&caes/" },
     { id: "dominio", nome: "Dominório", icon: "dominorio", pagina: "jd/dominorio/" },
     { id: "semaforo", nome: "Semáforo", icon: "semaforo", pagina: "jd/semaforo/" },
     { id: "quelhas", nome: "Quellhas", icon: "quelhas", pagina: "jd/quelhas/" },
