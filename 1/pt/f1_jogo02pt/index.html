@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>1.º Ano - Recursos Educativos</title>
+  <title data-browser-titulo>1.º Ano - Recursos Educativos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Quicksand:wght@700&display=swap" rel="stylesheet">
-  <!-- DADOS CARREGADOS PRIMEIRO PARA EVITAR ERROS -->
-  <script src="dados.js"></script>
 </head>
 <body>
 
@@ -24,8 +22,7 @@
       </div>
     </div>
 
-    <!-- Botão de voltar para sair do fullscreen e regressar -->
-    <button class="botao-seta" aria-label="Voltar" onclick="sairFullscreenEVoltar()"></button>
+    <button class="botao-seta" aria-label="Voltar"></button>
 
     <!-- MENU ACORDEÃO -->
     <nav id="menu-acordeao" class="menu-acordeao" aria-hidden="true">
@@ -52,7 +49,9 @@
             <div id="contentor-jogo" style="flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;"></div>
 
             <!-- BARRA INFERIOR DINÂMICA -->
-            <div class="barra-jogo-topo" id="barra-inferior"></div>
+            <div class="barra-jogo-topo" id="barra-inferior">
+              <!-- O conteúdo da barra (Capa vs Jogo) será inserido via JavaScript -->
+            </div>
 
           </div>
         </div>
@@ -79,15 +78,9 @@
     </button>
   </template>
 
-  <!-- LÓGICA DA PÁGINA -->
+  <!-- DADOS E LÓGICA -->
+  <script src="dados.js"></script>
   <script>
-    function sairFullscreenEVoltar() {
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(err => console.log(err));
-      }
-      window.location.href = DADOS.pagina.urlVoltar;
-    }
-
     function inserirCSS() {
       const estilo = document.createElement("style");
       estilo.textContent = `
@@ -110,7 +103,7 @@
         }
 
         .cabecalho {
-          position: relative; width: 100%; height: 82px; min-height: 82px;
+          position: relative; width: 100%; height: 82px;
           background: linear-gradient(180deg, ${DADOS.cores.headerTopo} 0%, ${DADOS.cores.header} 100%);
           display: flex; align-items: center; justify-content: center;
           border-bottom: 2px solid rgba(255,255,255,.65);
@@ -121,10 +114,17 @@
           position: absolute; top: 50%; transform: translateY(-50%);
           width: 58px; height: 58px; padding: 0; border: 0; border-radius: 50%;
           background: ${DADOS.cores.azulHeader}; cursor: pointer;
-          box-shadow: 0 3px 7px rgba(0,0,0,.18); z-index: 25;
+          box-shadow: 0 3px 7px rgba(0,0,0,.18);
+          transition: transform .12s ease, box-shadow .12s ease; z-index: 25;
         }
         .botao-menu { left: 18px; }
         .botao-seta { right: 18px; }
+
+        .botao-menu:active, .botao-seta:active {
+          transform: translateY(calc(-50% + 3px)) scale(0.95);
+          box-shadow: 0 1px 3px rgba(0,0,0,.25);
+        }
+
         .botao-menu::before {
           content: ""; position: absolute; width: 56%; height: 56%; left: 22%; top: 22%;
           background-image: url("${DADOS.icons.menu}"); background-size: contain; background-repeat: no-repeat;
@@ -146,7 +146,8 @@
           border-top: 4px solid ${DADOS.cores.azulHeader}; border-radius: 0 0 20px 20px;
           box-shadow: 0 10px 25px rgba(15,139,211,.24);
           opacity: 0; visibility: hidden; transform: translateY(-12px) scale(.98);
-          transition: opacity .22s ease, transform .22s ease, visibility .22s ease; z-index: 30;
+          transform-origin: top left; transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
+          z-index: 30;
         }
         .menu-acordeao.aberto { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
         .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #E6F4FA, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
@@ -189,6 +190,7 @@
           box-shadow: 0 12px 25px ${DADOS.cores.sombraForte};
         }
 
+        /* BARRA INFERIOR */
         .barra-jogo-topo {
           width: 100%; display: flex; align-items: center; justify-content: space-between;
           background: ${DADOS.cores.azulHeader}; padding: 8px 14px;
@@ -199,30 +201,6 @@
           display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.15);
           padding: 5px 12px; border-radius: 20px; color: #FFFFFF; font-weight: 900; font-size: 16px;
         }
-        .estrelas-nivel { display: flex; gap: 3px; font-size: 16px; opacity: 0.4; }
-        .estrelas-nivel .ativa { opacity: 1; }
-
-        .container-progresso-jogo {
-          flex: 1; max-width: 180px; height: 14px; background: rgba(0,0,0,0.15);
-          border-radius: 10px; overflow: hidden; position: relative;
-        }
-        .barra-progresso-interna { width: 0%; height: 100%; background: #FFB400; border-radius: 10px; transition: width 0.3s ease; }
-        .contador-rondas { background: rgba(0,0,0,0.15); color: #FFFFFF; padding: 5px 12px; border-radius: 15px; font-weight: 900; font-size: 14px; }
-
-        .botoes-acao-jogo { display: flex; gap: 6px; }
-        .botao-acao-jogo {
-          width: 38px; height: 38px; border-radius: 50%; border: none;
-          background: rgba(0,0,0,0.2); color: #FFFFFF; font-size: 16px;
-          display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s ease;
-        }
-        .botao-acao-jogo:active { transform: scale(0.92); }
-
-        .btn-jogar-capa {
-          padding: 8px 25px; border-radius: 20px; background: #FFFFFF; color: ${DADOS.cores.azulHeader};
-          border: none; font-size: 1.1rem; font-weight: 900; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-          transition: transform 0.1s ease;
-        }
-        .btn-jogar-capa:active { transform: scale(0.95); }
 
         .rodape {
           width: calc(100% - 40px); min-height: 53px; margin: 10px 20px 0; padding: 8px 17px;
@@ -238,6 +216,26 @@
           display: inline-flex; align-items: center; justify-content: center; 
           border-radius: 50% !important; color: #fff; background: ${DADOS.cores.azulHeader}; 
           font-size: 12px; font-weight: 900; overflow: hidden; flex-shrink: 0;
+        }
+
+        /* Media Queries do Header idênticas ao modelo partilhado */
+        @media (max-width: 900px) {
+          .cabecalho { height: 62px; }
+          .botao-menu, .botao-seta { width: 42px; height: 42px; }
+          .botao-menu { left: 10px; }
+          .botao-seta { right: 10px; }
+          .marca { padding: 0 38px; gap: 6px; max-width: 70%; }
+          .marca-sol { width: 36px; height: 36px; flex: 0 0 36px; }
+          .marca-texto h1 { font-size: 16px; }
+          .marca-texto p { font-size: 9px; margin-top: 1px; }
+          .menu-acordeao { top: 54px; left: 10px; width: 280px; }
+          
+          .area-menu { padding: 0 16px; }
+          .rodape { width: calc(100% - 32px); margin: 10px 16px 0; padding: 8px 12px; font-size: 11px; }
+          .info {
+            width: 22px !important; height: 22px !important;
+            min-width: 22px !important; min-height: 22px !important;
+          }
         }
       `;
       document.head.appendChild(estilo);
@@ -290,6 +288,7 @@
     function configurarMenu() {
       const botaoMenu = document.querySelector(".botao-menu");
       const menu = document.querySelector(".menu-acordeao");
+      const botaoSeta = document.querySelector(".botao-seta");
 
       if (botaoMenu && menu) {
         botaoMenu.addEventListener("click", event => {
@@ -301,6 +300,9 @@
             menu.classList.remove("aberto");
           }
         });
+      }
+      if (botaoSeta) {
+        botaoSeta.addEventListener("click", () => { window.location.href = DADOS.pagina.urlVoltar; });
       }
     }
 
