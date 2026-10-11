@@ -8,6 +8,7 @@ let mostrarDicas = true;
 let matchScore = [0, 0];  
 let turnoAtual = 0;       
 let currentGameNum = 1;   
+let totalRondas = 3;      
 let tabuleiro = [];       
 let posBranca = { x: 4, y: 2 }; 
 let simuInterval;         
@@ -36,16 +37,47 @@ style.innerHTML = `
 
     #round-feedback {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(6px); 
-        z-index: 1000; display: none; align-items: center; justify-content: center; border-radius: 23px;
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(6px); 
+        z-index: 1000; display: none; align-items: center; justify-content: center; border-radius: 20px;
     }
     .vitoria-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); text-align: center; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    .capa-btn-row { display: flex; flex-direction: row; gap: 10px; width: 95%; max-width: 480px; justify-content: center; align-items: center; margin-top: 10px; }
-    .btn-capa-small { flex: 1; height: 55px; border-radius: 12px; border: none; color: white; font-weight: 900; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-transform: uppercase; transition: 0.2s; white-space: nowrap; padding: 0 10px; }
-    .btn-inform { width: 55px; height: 55px; flex: none; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .btn-inform img { width: 45px; height: 45px; object-fit: contain; }
+    .barra-capa-layout {
+        width: 100%; display: flex; align-items: center; justify-content: space-between; position: relative;
+    }
+    /* Botão JOGAR em formato pílula (radio) */
+    .btn-play-rect-capa { 
+        height: 48px; padding: 0 42px; border-radius: 30px; background: #FFFFFF; color: #666699; 
+        border: none; font-size: 1.25rem; font-weight: 900; text-transform: uppercase; 
+        cursor: pointer; display: flex; align-items: center; justify-content: center; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12); transition: transform 0.1s ease, background-color 0.2s ease; 
+        margin-left: auto;
+    }
+    .btn-play-rect-capa:active { transform: scale(0.95); }
+
+    .btn-info-circle {
+        width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 50%; border: none;
+        background: rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer;
+        transition: transform 0.1s ease; padding: 0; flex-shrink: 0;
+    }
+    .btn-info-circle:active { transform: scale(0.92); }
+    .btn-info-circle img { width: 24px; height: 24px; object-fit: contain; pointer-events: none; }
+
+    .btn-modo-aprimorado {
+        width: 100%; max-width: 360px; height: 60px; border-radius: 30px; border: none;
+        color: white; font-weight: 900; font-size: 1.1rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 12px;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15); text-transform: uppercase;
+        transition: transform 0.15s ease, box-shadow 0.15s ease; padding: 0 20px;
+    }
+    .btn-modo-aprimorado:active {
+        transform: scale(0.96);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    }
+    .btn-modo-cpu { background: linear-gradient(135deg, #666699 0%, #4B4B75 100%); }
+    .btn-modo-pvp { background: linear-gradient(135deg, #7A7A99 0%, #525266 100%); }
+    .btn-modo-voltar { background: #9E9EA8; max-width: 160px; height: 45px; border-radius: 22px; font-size: 0.95rem; }
 
     /* Botões de feedback em pílula */
     .btn-feedback-container { display: flex; gap: 15px; justify-content: center; margin-top: 25px; margin-bottom: 10px; flex-wrap: wrap; }
@@ -62,7 +94,7 @@ style.innerHTML = `
     }
     .btn-feedback-outline:active { transform: scale(0.95); }
 
-    #simu-container { height: 260px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-top: -30px; margin-bottom: 10px; }
+    #simu-container { height: 220px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-bottom: 5px; }
 
     #instrucoes-panel { 
         position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10000; 
@@ -106,6 +138,21 @@ document.head.appendChild(style);
 // ============================================================
 // 3. CAPA, SIMULAÇÃO E INSTRUÇÕES
 // ============================================================
+function atualizarBarraCapa() {
+    const barra = document.getElementById('barra-inferior');
+    if (!barra) return;
+
+    barra.style.display = "flex";
+    barra.innerHTML = `
+        <div class="barra-capa-layout">
+            <button class="btn-info-circle" onclick="toggleInstructions()" aria-label="Instruções">
+              <img src="${DADOS.icons.info}" alt="Info">
+            </button>
+            <button class="btn-play-rect-capa" onclick="ecraModosJogo()">JOGAR</button>
+        </div>
+    `;
+}
+
 function mostrarCapa() {
     if (jogoAtivo) return;
     
@@ -143,40 +190,44 @@ function mostrarCapa() {
     const area = document.getElementById('contentor-jogo');
     area.innerHTML = `
         <div id="simu-container"><div id="simu-board" style="transform: scale(0.65);"></div></div>
-        <div id="capa-menu-principal" style="width:100%; display:flex; justify-content:center;">
-            <div class="capa-btn-row">
-                <div class="btn-inform" onclick="toggleInstructions()"><img src="${DADOS.icons.info}"></div>
-                <button class="btn-capa-small" style="background:#666699;" onclick="mostrarNiveis('CPU')"><i class="fas fa-robot"></i> COMPUTADOR</button>
-                <button class="btn-capa-small" style="background:#6c757d;" onclick="mostrarNiveis('PVP')"><i class="fas fa-users"></i> 2 JOGADORES</button>
-            </div>
-        </div>
-        <div id="nivel-select-container" class="nivel-select-container" style="display:none; flex-direction:column; gap:12px; width:95%; max-width:500px; align-items:center;"></div>
     `;
     
-    atualizarBarraCapaInicial();
+    atualizarBarraCapa();
     iniciarSimulacao();
 }
 
-function atualizarBarraCapaInicial() {
+function ecraModosJogo() {
+    clearInterval(simuInterval);
+    somClique.play();
+    const area = document.getElementById('contentor-jogo');
+    area.innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 16px; width: 100%;">
+            <h2 style="color:#262638; font-weight:900; text-transform:uppercase; font-size: clamp(1.2rem, 2vw, 1.6rem); margin-bottom: 5px; text-align: center;">Escolhe o Modo de Jogo</h2>
+            <button class="btn-modo-aprimorado btn-modo-cpu" onclick="mostrarNiveis('CPU')"><i class="fas fa-robot"></i> COMPUTADOR</button>
+            <button class="btn-modo-aprimorado btn-modo-pvp" onclick="mostrarNiveis('PVP')"><i class="fas fa-users"></i> 2 JOGADORES</button>
+            <div id="nivel-select-container" class="nivel-select-container" style="display:none; margin-top: 10px;"></div>
+            <button class="btn-modo-aprimorado btn-modo-voltar" onclick="mostrarCapa()">VOLTAR</button>
+        </div>
+    `;
     const barra = document.getElementById('barra-inferior');
-    if (barra) barra.style.display = 'none';
+    if (barra) barra.innerHTML = '';
 }
 
 function mostrarNiveis(modo) {
     somClique.play();
-    document.getElementById('capa-menu-principal').style.display = 'none';
     const container = document.getElementById('nivel-select-container');
+    if(!container) return;
     container.style.display = 'flex';
     if (modo === 'CPU') {
         container.innerHTML = `<p style="font-weight:800; color:#888; margin-bottom:5px; font-size:0.8rem;">DESAFIO CONTRA PC:</p>
-            <div style="display: flex; flex-direction: row; gap: 6px; width: 100%; justify-content: center;">
+            <div class="nivel-row">
                 <div class="btn-nivel l1" onclick="setModo('CPU', 1)"><b>Nível 1</b><span>Com Dicas</span></div>
                 <div class="btn-nivel l2" onclick="setModo('CPU', 2)"><b>Nível 2</b><span>Normal</span></div>
                 <div class="btn-nivel l3" onclick="setModo('CPU', 3)"><b>Nível 3</b><span>Difícil</span></div>
             </div>`;
     } else {
         container.innerHTML = `<p style="font-weight:800; color:#888; margin-bottom:5px; font-size:0.8rem;">2 JOGADORES (PVP):</p>
-            <div style="display: flex; flex-direction: row; gap: 6px; width: 100%; justify-content: center;">
+            <div class="nivel-row">
                 <div class="btn-nivel l1" onclick="setModo('PVP', 1)"><b>Nível 1</b><span>Com Dicas</span></div>
                 <div class="btn-nivel l2" onclick="setModo('PVP', 2)"><b>Nível 2</b><span>Sem Dicas</span></div>
             </div>`;
@@ -204,8 +255,6 @@ function iniciarJogo() {
 }
 
 function atualizarUI() {
-    const pcLabel = "PC";
-    const j2Label = "CÃES";
     let turnInfoHTML = "";
     
     if (modoJogo === 'CPU') {
@@ -316,7 +365,7 @@ function temJogadas(pType, tab) {
 }
 
 // ============================================================
-// 5. FINALIZAÇÃO
+// 5. FINALIZAÇÃO E FEEDBACKS (1 e 4)
 // ============================================================
 function finalizarRonda(vencedorIdx) {
     jogoAtivo = false;
@@ -325,18 +374,23 @@ function finalizarRonda(vencedorIdx) {
     const overlay = document.getElementById('round-feedback');
     const nomeVencedor = vencedorIdx === 0 ? "GATOS" : (modoJogo === 'CPU' ? "PC" : "CÃES");
     const corVencedor = vencedorIdx === 0 ? "#8cc63f" : "#666699";
-    const icone = vencedorIdx === 0 ? "fa-star" : "fa-trophy";
+    
+    let imagemFeedback = DADOS.icons.feedbacks.feedback1;
+    if (modoJogo === 'CPU' && vencedorIdx === 1) {
+        imagemFeedback = DADOS.icons.feedbacks.feedback4;
+    }
+
     if (overlay) {
         overlay.style.display = 'flex';
         overlay.innerHTML = `<div class="vitoria-card">
-            <div style="font-size: 3rem; color: ${corVencedor}; margin-bottom: 10px;"><i class="fas ${icone}"></i></div>
-            <h1 style="color:${corVencedor}; font-size:2.2rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeVencedor}</h1>
-            <p style="color:#666; font-size:1.1rem; font-weight:700; margin:5px 0 0 0;">Venceu esta ronda!</p>
+            <img src="${imagemFeedback}" style="height:110px; margin-bottom:12px; object-fit:contain;">
+            <h1 style="color:${corVencedor}; font-size:2rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeVencedor}</h1>
+            <p style="color:#666; font-size:1.05rem; font-weight:700; margin:5px 0 0 0;">Venceu esta ronda!</p>
             <div style="margin-top:15px; padding-top:15px; border-top:2px dashed #eee; color:#aaa; font-weight:800;">PLACAR: J1 ${matchScore[0]} - ${matchScore[1]}</div>
         </div>`;
     }
-    if (matchScore[0] >= 3 || matchScore[1] >= 3) setTimeout(finalizarMatch, 2000);
-    else setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2000);
+    if (matchScore[0] >= 3 || matchScore[1] >= 3) setTimeout(finalizarMatch, 2500);
+    else setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2500);
 }
 
 function finalizarMatch() {
@@ -345,10 +399,15 @@ function finalizarMatch() {
     const vencedorIdx = (matchScore[0] >= 3) ? 0 : 1;
     const nomeVencedor = vencedorIdx === 0 ? "GATOS" : (modoJogo === 'CPU' ? "PC" : "CÃES");
     
+    let imagemFeedbackFinal = DADOS.icons.feedbacks.feedback1;
+    if (modoJogo === 'CPU' && vencedorIdx === 1) {
+        imagemFeedbackFinal = DADOS.icons.feedbacks.feedback4;
+    }
+
     const contentor = document.getElementById('contentor-jogo');
     if (contentor) {
         contentor.innerHTML = `<div style="text-align:center;">
-            <img src="../../icons/feedback_1.png" style="height:120px; margin-bottom:10px; object-fit:contain;">
+            <img src="${imagemFeedbackFinal}" style="height:120px; margin-bottom:8px; object-fit:contain;">
             <h2 style="color:#666699; font-weight:900; text-transform:uppercase; margin-bottom:15px; font-size: 1.4rem;">GANHOU O ${nomeVencedor}</h2>
             <div style="display:flex; justify-content:center; gap:20px; margin-bottom: 20px;">
                 <div class="score-box box-v" style="padding:8px 18px; font-size:1.1rem;">J1: ${matchScore[0]}</div>
