@@ -55,6 +55,14 @@ styleJogo.innerHTML = `
         width: 22px; height: 22px; object-fit: contain; pointer-events: none;
     }
 
+    /* Botão JOGAR original da capa */
+    .btn-jogar-capa {
+      padding: 8px 25px; border-radius: 20px; background: #FFFFFF; color: #0F8BD3;
+      border: none; font-size: 1.1rem; font-weight: 900; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      transition: transform 0.1s ease;
+    }
+    .btn-jogar-capa:active { transform: scale(0.95); }
+
     /* Barra de progresso totalmente extensível a ocupar todo o espaço central em falta */
     .wrapper-progresso-completo {
         flex: 1; display: flex; align-items: center; gap: 12px; margin: 0 15px; width: 100%; min-width: 0;
