@@ -43,7 +43,7 @@ styleJogo.innerHTML = `
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.3); } }
     canvas { position: absolute; top: 0; left: 0; z-index: 5; cursor: pointer; touch-action: none; }
 
-    /* Botão de som e botão de ajuda com exatamente as mesmas dimensões e estilo base */
+    /* Botão de som e botão de ajuda com exatamente as mesmas dimensões e estilo */
     .botao-acao-jogo {
         width: 38px; height: 38px; border-radius: 50%; border: none;
         background: rgba(0,0,0,0.2); color: #FFFFFF; font-size: 16px;
@@ -55,36 +55,16 @@ styleJogo.innerHTML = `
         width: 22px; height: 22px; object-fit: contain; pointer-events: none;
     }
 
-    /* Botão da lâmpada sem formato de caixa, mas com a mesma altura e alinhado */
-    .botao-ajuda-limpo {
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
-        width: 38px !important;
-        height: 38px !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: transform 0.1s ease;
-        flex-shrink: 0;
-    }
-    .botao-ajuda-limpo:active { transform: scale(0.9); }
-    .botao-ajuda-limpo img {
-        width: 24px; height: 24px; object-fit: contain; pointer-events: none;
-    }
-
-    /* Grupo da barra extensível ocupando todo o espaço em falta */
+    /* Barra de progresso totalmente extensível a ocupar todo o espaço central */
     .wrapper-progresso-completo {
-        flex: 1; display: flex; align-items: center; gap: 12px; margin: 0 15px; min-width: 100px;
+        flex: 1; display: flex; align-items: center; gap: 12px; margin: 0 15px; width: 100%;
     }
     .container-progresso-jogo {
-        flex: 1; height: 16px; background: rgba(0,0,0,0.15);
+        flex: 1; width: 100%; height: 16px; background: rgba(0,0,0,0.15);
         border-radius: 10px; overflow: hidden; position: relative;
     }
     .barra-progresso-interna { width: 0%; height: 100%; background: #FFB400; border-radius: 10px; transition: width 0.3s ease; }
-    .contador-rondas { background: rgba(0,0,0,0.15); color: #FFFFFF; padding: 5px 12px; border-radius: 10px; font-weight: 900; font-size: 14px; white-space: nowrap; }
+    .contador-rondas { background: rgba(0,0,0,0.15); color: #FFFFFF; padding: 5px 12px; border-radius: 10px; font-weight: 900; font-size: 14px; white-space: nowrap; flex-shrink: 0; }
 
     /* Ecrã de Feedback Melhorado */
     .ecra-feedback-container {
@@ -158,7 +138,7 @@ function atualizarBarraEstado(modoCapa = false) {
             <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
               <img src="${iconeSomPath}" alt="Som">
             </button>
-            <button class="botao-ajuda-limpo" onclick="darAjuda()" aria-label="Ajuda">
+            <button class="botao-acao-jogo" onclick="darAjuda()" aria-label="Ajuda">
               <img src="${iconeLampadaPath}" alt="Ajuda">
             </button>
           </div>
