@@ -12,11 +12,10 @@ let tabuleiro = [];
 let posBranca = { x: 4, y: 2 }; 
 let simuInterval;         
 
-const somAcerto = new Audio(JOGO_CONFIG.caminhoSons + "acerto.mp3");
-const somErro = new Audio(JOGO_CONFIG.caminhoSons + "erro.mp3");
-const somClique = new Audio(JOGO_CONFIG.caminhoSons + "clique.mp3");
-// [FIM DA SECÇÃO 1]
-
+// Sons vazios por enquanto (conforme pedido anteriormente)
+const somAcerto = { play: () => {} };
+const somErro = { play: () => {} };
+const somClique = { play: () => {} };
 
 // ============================================================
 // 2. CONFIGURAÇÃO VISUAL (CSS INJETADO)
@@ -38,7 +37,7 @@ style.innerHTML = `
     #round-feedback {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(6px); 
-        z-index: 1000; display: none; align-items: center; justify-content: center; border-radius: 35px;
+        z-index: 1000; display: none; align-items: center; justify-content: center; border-radius: 23px;
     }
     .vitoria-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); text-align: center; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -48,7 +47,7 @@ style.innerHTML = `
     .btn-inform { width: 55px; height: 55px; flex: none; background: none; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .btn-inform img { width: 45px; height: 45px; object-fit: contain; }
 
-    /* Novos botões de feedback em pílula descidos mais um pouco */
+    /* Botões de feedback em pílula */
     .btn-feedback-container { display: flex; gap: 15px; justify-content: center; margin-top: 25px; margin-bottom: 10px; flex-wrap: wrap; }
     .btn-feedback-solid {
         background-color: #666699; color: #FFFFFF; border: none;
@@ -63,27 +62,14 @@ style.innerHTML = `
     }
     .btn-feedback-outline:active { transform: scale(0.95); }
 
-    #simu-container { height: 260px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-top: -60px; margin-bottom: 55px; }
+    #simu-container { height: 260px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-top: -30px; margin-bottom: 10px; }
 
     #instrucoes-panel { 
-        position: fixed; 
-        top: 0; 
-        left: 0; 
-        width: 100vw; 
-        height: 100vh; 
-        background: white; 
-        z-index: 10000; 
-        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
-        transform: translateY(100%); 
-        visibility: hidden; 
-        padding: 40px 25px; 
-        overflow-y: auto; 
-        border-radius: 0; 
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10000; 
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(100%); 
+        visibility: hidden; padding: 40px 25px; overflow-y: auto; border-radius: 0; 
     }
-    #instrucoes-panel.open { 
-        transform: translateY(0); 
-        visibility: visible; 
-    }
+    #instrucoes-panel.open { transform: translateY(0); visibility: visible; }
 
     .close-x { position: absolute; top: 15px; right: 20px; font-size: 2.2rem; color: #666699; cursor: pointer; font-weight: 900; line-height: 1; transition: 0.2s; }
     .close-x:hover { transform: scale(1.2); }
@@ -104,12 +90,12 @@ style.innerHTML = `
     .cell img { width: 90%; height: 90%; object-fit: contain; z-index: 2; }
 
     .inst-content { max-width: 600px; margin: 0 auto; text-align: left; }
-    .inst-header { color: var(--primary-color); text-align: center; font-size: 1.8rem; font-weight: 900; margin-bottom: 25px; text-transform: uppercase; border-bottom: 3px solid var(--bg-color); padding-bottom: 10px; }
+    .inst-header { color: #666699; text-align: center; font-size: 1.8rem; font-weight: 900; margin-bottom: 25px; text-transform: uppercase; border-bottom: 3px solid #ECECEF; padding-bottom: 10px; }
     .inst-section-title { color: #444; font-size: 1.2rem; font-weight: 800; margin: 20px 0 10px; display: flex; align-items: center; gap: 10px; }
-    .inst-section-title::before { content: ''; width: 6px; height: 22px; background: var(--primary-color); border-radius: 3px; display: inline-block; }
+    .inst-section-title::before { content: ''; width: 6px; height: 22px; background: #666699; border-radius: 3px; display: inline-block; }
     .inst-text { color: #666; font-size: 1.05rem; line-height: 1.6; margin-bottom: 15px; }
     .inst-list { list-style: none; padding: 0; }
-    .inst-list li { background: #f9f9f9; margin-bottom: 8px; padding: 12px 15px; border-radius: 12px; border-left: 4px solid var(--bg-color); color: #555; font-size: 1rem; line-height: 1.4; }
+    .inst-list li { background: #f9f9f9; margin-bottom: 8px; padding: 12px 15px; border-radius: 12px; border-left: 4px solid #666699; color: #555; font-size: 1rem; line-height: 1.4; }
 
     @media screen and (min-width: 1025px) { :root { --cell-size: 55px; } }
     @media screen and (max-width: 500px) and (orientation: portrait) { :root { --cell-size: 10.5vw; } }
@@ -122,7 +108,6 @@ document.head.appendChild(style);
 // ============================================================
 function mostrarCapa() {
     if (jogoAtivo) return;
-    document.getElementById('shell-header-content').innerHTML = `<h2 style="color:var(--primary-color); font-weight:900;">${JOGO_CONFIG.nomeDoJogo.toUpperCase()}</h2>`;
     
     if(!document.getElementById('instrucoes-panel')) {
         const panel = document.createElement('div');
@@ -148,25 +133,33 @@ function mostrarCapa() {
             </div>
         `;
         document.body.appendChild(panel);
+        
         const feedback = document.createElement('div');
         feedback.id = 'round-feedback';
-        document.querySelector('.game-shell').appendChild(feedback);
+        const contentorAno = document.querySelector('.botao-ano');
+        if (contentorAno) contentorAno.appendChild(feedback);
     }
 
-    const area = document.getElementById('game-content');
+    const area = document.getElementById('contentor-jogo');
     area.innerHTML = `
         <div id="simu-container"><div id="simu-board" style="transform: scale(0.65);"></div></div>
         <div id="capa-menu-principal" style="width:100%; display:flex; justify-content:center;">
             <div class="capa-btn-row">
-                <div class="btn-inform" onclick="toggleInstructions()"><img src="${JOGO_CONFIG.caminhoIconsMenu}inform.png"></div>
-                <button class="btn-capa-small" style="background:var(--primary-color);" onclick="mostrarNiveis('CPU')"><i class="fas fa-robot"></i> COMPUTADOR</button>
+                <div class="btn-inform" onclick="toggleInstructions()"><img src="${DADOS.icons.info}"></div>
+                <button class="btn-capa-small" style="background:#666699;" onclick="mostrarNiveis('CPU')"><i class="fas fa-robot"></i> COMPUTADOR</button>
                 <button class="btn-capa-small" style="background:#6c757d;" onclick="mostrarNiveis('PVP')"><i class="fas fa-users"></i> 2 JOGADORES</button>
             </div>
         </div>
         <div id="nivel-select-container" class="nivel-select-container" style="display:none; flex-direction:column; gap:12px; width:95%; max-width:500px; align-items:center;"></div>
     `;
-    document.getElementById('shell-footer-content').style.display = 'none';
+    
+    atualizarBarraCapaInicial();
     iniciarSimulacao();
+}
+
+function atualizarBarraCapaInicial() {
+    const barra = document.getElementById('barra-inferior');
+    if (barra) barra.style.display = 'none';
 }
 
 function mostrarNiveis(modo) {
@@ -205,17 +198,16 @@ function setModo(modo, nivel) {
 function iniciarJogo() {
     jogoAtivo = true;
     tabuleiro = Array(8).fill().map(() => Array(8).fill(0));
-    document.getElementById('round-feedback').style.display = 'none';
+    const feedback = document.getElementById('round-feedback');
+    if (feedback) feedback.style.display = 'none';
     atualizarUI();
 }
 
 function atualizarUI() {
     const pcLabel = "PC";
     const j2Label = "CÃES";
-    const labelSegundaBox = modoJogo === 'CPU' ? pcLabel : j2Label;
     let turnInfoHTML = "";
     
-    // Indicador de turno limpo e simplificado (mostra apenas o nome do jogador)
     if (modoJogo === 'CPU') {
         if (turnoAtual === 0) turnInfoHTML = `<div class="status-pill pill-j1 blinking">GATOS</div>`;
         else turnInfoHTML = `<div class="status-pill pill-j2 blinking">PC</div>`; 
@@ -225,19 +217,23 @@ function atualizarUI() {
         turnInfoHTML = `<div class="status-pill ${classPill} blinking">${nomeVez}</div>`;
     }
 
-    document.getElementById('shell-header-content').innerHTML = `
-        <div class="status-container">
+    const barra = document.getElementById('barra-inferior');
+    if (barra) {
+        barra.style.display = "flex";
+        barra.innerHTML = `
             ${turnInfoHTML}
             <div class="score-group">
                 <div class="score-box box-v">J1: ${matchScore[0]}</div>
                 <div class="score-box box-x">${modoJogo === 'CPU' ? 'PC' : 'J2'}: ${matchScore[1]}</div>
             </div>
-        </div>`;
+        `;
+    }
     renderTabuleiro();
 }
 
 function renderTabuleiro() {
-    const area = document.getElementById('game-content');
+    const area = document.getElementById('contentor-jogo');
+    if (!area) return;
     let html = `<div class="grid-board">`;
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
@@ -249,8 +245,10 @@ function renderTabuleiro() {
                 if (mostrarDicas) cl += " legal-hint";
                 html += `<div class="${cl}" onclick="jogar(${r},${c})">`;
             } else { html += `<div class="${cl}">`; }
-            if (tabuleiro[r][c] === 1) html += `<img src="${DADOS_JOGO.caminhoImagens}gato.png">`;
-            else if (tabuleiro[r][c] === 2) html += `<img src="${DADOS_JOGO.caminhoImagens}cao.png">`;
+            
+            // Ajustado para ir buscar as imagens a partir da pasta correta do projeto
+            if (tabuleiro[r][c] === 1) html += `<img src="../../icons/gato.png">`;
+            else if (tabuleiro[r][c] === 2) html += `<img src="../../icons/cao.png">`;
             else if (isCentral(r, c)) html += `X`; 
             html += `</div>`;
         }
@@ -329,25 +327,29 @@ function finalizarRonda(vencedorIdx) {
     const nomeVencedor = vencedorIdx === 0 ? "GATOS" : (modoJogo === 'CPU' ? "PC" : "CÃES");
     const corVencedor = vencedorIdx === 0 ? "#8cc63f" : "#666699";
     const icone = vencedorIdx === 0 ? "fa-star" : "fa-trophy";
-    overlay.style.display = 'flex';
-    overlay.innerHTML = `<div class="vitoria-card">
-        <div style="font-size: 3rem; color: ${corVencedor}; margin-bottom: 10px;"><i class="fas ${icone}"></i></div>
-        <h1 style="color:${corVencedor}; font-size:2.2rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeVencedor}</h1>
-        <p style="color:#666; font-size:1.1rem; font-weight:700; margin:5px 0 0 0;">Venceu esta ronda!</p>
-        <div style="margin-top:15px; padding-top:15px; border-top:2px dashed #eee; color:#aaa; font-weight:800;">PLACAR: J1 ${matchScore[0]} - ${matchScore[1]}</div>
-    </div>`;
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.innerHTML = `<div class="vitoria-card">
+            <div style="font-size: 3rem; color: ${corVencedor}; margin-bottom: 10px;"><i class="fas ${icone}"></i></div>
+            <h1 style="color:${corVencedor}; font-size:2.2rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeVencedor}</h1>
+            <p style="color:#666; font-size:1.1rem; font-weight:700; margin:5px 0 0 0;">Venceu esta ronda!</p>
+            <div style="margin-top:15px; padding-top:15px; border-top:2px dashed #eee; color:#aaa; font-weight:800;">PLACAR: J1 ${matchScore[0]} - ${matchScore[1]}</div>
+        </div>`;
+    }
     if (matchScore[0] >= 3 || matchScore[1] >= 3) setTimeout(finalizarMatch, 2000);
     else setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2000);
 }
 
 function finalizarMatch() {
-    document.getElementById('round-feedback').style.display = 'none';
+    const overlay = document.getElementById('round-feedback');
+    if (overlay) overlay.style.display = 'none';
     const vencedorIdx = (matchScore[0] >= 3) ? 0 : 1;
     const nomeVencedor = vencedorIdx === 0 ? "GATOS" : (modoJogo === 'CPU' ? "PC" : "CÃES");
-    document.getElementById('shell-header-content').innerHTML = `<h2>VITÓRIA FINAL</h2>`;
-    document.getElementById('game-content').innerHTML = `
-        <div style="text-align:center;">
-            <img src="${JOGO_CONFIG.caminhoIconsMenu}taca_1.png" style="height:120px; margin-bottom:10px;">
+    
+    const contentor = document.getElementById('contentor-jogo');
+    if (contentor) {
+        contentor.innerHTML = `<div style="text-align:center;">
+            <img src="../../icons/feedback_1.png" style="height:120px; margin-bottom:10px; object-fit:contain;">
             <h2 style="color:#666699; font-weight:900; text-transform:uppercase; margin-bottom:15px; font-size: 1.4rem;">GANHOU O ${nomeVencedor}</h2>
             <div style="display:flex; justify-content:center; gap:20px; margin-bottom: 20px;">
                 <div class="score-box box-v" style="padding:8px 18px; font-size:1.1rem;">J1: ${matchScore[0]}</div>
@@ -355,11 +357,13 @@ function finalizarMatch() {
             </div>
             <div class="btn-feedback-container">
                 <button class="btn-feedback-solid" onclick="location.reload()">Jogar de novo</button>
-                <button class="btn-feedback-outline" onclick="window.history.back()">Outro jogo</button>
+                <button class="btn-feedback-outline" onclick="window.location.href='../../'">Outro jogo</button>
             </div>
         </div>`;
-    const footer = document.getElementById('shell-footer-content');
-    footer.style.display = "none";
+    }
+    
+    const barra = document.getElementById('barra-inferior');
+    if (barra) barra.style.display = "none";
 }
 
 function iniciarSimulacao() {
@@ -373,8 +377,8 @@ function iniciarSimulacao() {
         for (let r = 0; r < 8; r++) {
             for (let c = 0; c < 8; c++) {
                 h += `<div class="cell ${isCentral(r,c)?'central':''}">`;
-                if(sTab[r][c]===1) h+=`<img src="${DADOS_JOGO.caminhoImagens}gato.png">`;
-                else if(sTab[r][c]===2) h+=`<img src="${DADOS_JOGO.caminhoImagens}cao.png">`;
+                if(sTab[r][c]===1) h+=`<img src="../../icons/gato.png">`;
+                else if(sTab[r][c]===2) h+=`<img src="../../icons/cao.png">`;
                 else if(isCentral(r,c)) h+= `X`;
                 h += `</div>`;
             }
@@ -408,3 +412,6 @@ function isLegalSimulation(r, c, pType, tab) {
     }
     return true;
 }
+
+// Iniciar carregando a capa
+mostrarCapa();
