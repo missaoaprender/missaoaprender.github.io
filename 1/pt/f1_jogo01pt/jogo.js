@@ -28,6 +28,7 @@ styleJogo.innerHTML = `
         background: #fdfdfd; border: 4px dashed #B4E4F8; border-radius: 20px;
         margin: 0 auto; display: flex; justify-content: space-between; align-items: center;
         padding: 0 40px; overflow: hidden;
+        transition: background-color 0.3s ease;
     }
     .ponto-inicio {
         width: 35px; height: 35px; border-radius: 50%; 
@@ -429,15 +430,31 @@ function avaliarJogada() {
     let accuracia = pontosAtingidos / pontosCaminho.length;
     let accuraciaNecessaria = (itemDestaque.tipo === "reta") ? 0.40 : 0.70;
     
+    const areaDesenho = document.getElementById('area-desenho');
+
     if (distanciaFim < 80 && accuracia >= accuraciaNecessaria && !saiuDoCaminho) {
         jogoAtivo = false; 
         estrelasGanhas++; 
+        
+        // Efeito visual verde suave no fundo ao acertar
+        if (areaDesenho) {
+            areaDesenho.style.backgroundColor = "#e8f8ec";
+            setTimeout(() => { if (areaDesenho) areaDesenho.style.backgroundColor = "#fdfdfd"; }, 600);
+        }
+
         const endEl = document.getElementById('ponto-fim');
         if (endEl) { endEl.style.color = "#8cc63f"; endEl.classList.add('animating'); }
         setTimeout(() => { rondaAtual++; jogoAtivo = true; proximaRonda(); }, 1500);
     } else {
         erros++; 
         estrelasGanhas = Math.max(0, estrelasGanhas - 1); 
+
+        // Efeito visual vermelho suave no fundo ao errar
+        if (areaDesenho) {
+            areaDesenho.style.backgroundColor = "#fde8e8";
+            setTimeout(() => { if (areaDesenho) areaDesenho.style.backgroundColor = "#fdfdfd"; }, 600);
+        }
+
         ctx.clearRect(0, 0, canvas.width, canvas.height); 
         desenharGuiasJogo(); 
         atualizarBarraEstado(false);
