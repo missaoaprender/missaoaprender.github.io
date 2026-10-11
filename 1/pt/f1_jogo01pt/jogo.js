@@ -16,6 +16,8 @@ let saiuDoCaminho = false;
 let simuTimer = null; 
 let sequenciaNiveis = [];
 
+let audioInstrucao = null;
+
 // ==========================================
 // ESTILOS ESPECÍFICOS DO JOGO
 // ==========================================
@@ -40,20 +42,40 @@ styleJogo.innerHTML = `
     .animating { animation: pulse 1s infinite alternate; }
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.3); } }
     canvas { position: absolute; top: 0; left: 0; z-index: 5; cursor: pointer; touch-action: none; }
+
+    .botao-acao-jogo img {
+        width: 22px; height: 22px; object-fit: contain; pointer-events: none;
+    }
+
+    .container-botoes-feedback {
+        display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 15px;
+    }
+    .btn-feedback {
+        padding: 12px 24px; border-radius: 25px; border: none; font-weight: 900; 
+        font-size: 1rem; cursor: pointer; transition: transform 0.1s ease, background 0.2s ease;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .btn-feedback-primario { background: #0F8BD3; color: #ffffff; }
+    .btn-feedback-secundario { background: #E1F2FA; color: #0B4B71; border: 2px solid #B4E4F8; }
+    .btn-feedback:active { transform: scale(0.95); }
 `;
 document.head.appendChild(styleJogo);
 
 // ==========================================
-// ATUALIZAÇÃO DA BARRA DE ESTADO (MODO JOGO VS CAPA)
+// ATUALIZAÇÃO DA BARRA DE ESTADO
 // ==========================================
 function atualizarBarraEstado(modoCapa = false) {
     const barra = document.getElementById('barra-inferior');
     if (!barra) return;
 
+    const iconeSomPath = (DADOS && DADOS.icons && DADOS.icons.som) ? DADOS.icons.som : '../../../icons/som.png';
+
     if (modoCapa) {
         barra.innerHTML = `
             <div class="botoes-acao-jogo">
-              <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">🔊</button>
+              <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
+                <img src="${iconeSomPath}" alt="Som">
+              </button>
             </div>
             <button class="btn-jogar-capa" onclick="iniciarJogo()">JOGAR</button>
         `;
@@ -64,15 +86,14 @@ function atualizarBarraEstado(modoCapa = false) {
             <span>⭐</span>
             <span id="pontos-jogo">${certos * 10}</span>
           </div>
-          <div class="estrelas-nivel" id="estrelas-container">
-            <span class="ativa">⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
-          </div>
           <div class="container-progresso-jogo">
             <div class="barra-progresso-interna" id="barra-progresso-interna" style="width: ${progressoPercent}%"></div>
           </div>
           <div class="contador-rondas" id="contador-rondas">${rondaAtual}/${totalRondas}</div>
           <div class="botoes-acao-jogo">
-            <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">🔊</button>
+            <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
+              <img src="${iconeSomPath}" alt="Som">
+            </button>
             <button class="botao-acao-jogo" onclick="darAjuda()" aria-label="Ajuda">❓</button>
           </div>
         `;
@@ -410,9 +431,19 @@ function darAjuda() {
 }
 
 function tocarAudioInstrucoes() {
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance("Começa na bola e arrasta o dedo pela linha até à seta, sem saíres do traço!");
-    utter.lang = 'pt-PT'; window.speechSynthesis.speak(utter);
+    if (audioInstrucao) {
+        audioInstrucao.pause();
+        audioInstrucao.currentTime = 0;
+    }
+    audioInstrucao = new Audio("f1_jogo01pt.wav");
+    audioInstrucao.play().catch(() => {
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance("Começa na bola e arrasta o dedo pela linha até à seta, sem saíres do traço!");
+            utter.lang = 'pt-PT'; 
+            window.speechSynthesis.speak(utter);
+        }
+    });
 }
 
 function finalizarJogo() {
@@ -420,9 +451,12 @@ function finalizarJogo() {
     const contentor = document.getElementById('contentor-jogo');
     contentor.innerHTML = `
       <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#062B42; text-align:center; padding:20px;">
-        <h2 style="font-size: 2.2rem; font-weight:900; margin-bottom:10px;">Fim do Jogo! 🎉</h2>
-        <p style="font-size: 1.2rem; font-weight:800; margin-bottom:20px;">Acertaste em ${certos} de ${totalRondas} rondas!</p>
-        <button onclick="carregarCapaJogo()" style="padding: 12px 30px; border-radius: 25px; background: #0F8BD3; color: #fff; border: none; font-weight: 900; font-size: 1.1rem; cursor: pointer;">Recomeçar</button>
+        <h2 style="font-size: 2.2rem; font-weight:900; margin-bottom:10px;">Parabéns! Terminaste o jogo! 🎉</h2>
+        <p style="font-size: 1.3rem; font-weight:800; margin-bottom:20px;">Pontuação: <strong>${certos * 10} pontos</strong> (${certos} de ${totalRondas} rondas)</p>
+        <div class="container-botoes-feedback">
+            <button onclick="iniciarJogo()" class="btn-feedback btn-feedback-primario">Jogar de novo</button>
+            <button onclick="carregarCapaJogo()" class="btn-feedback btn-feedback-secundario">Escolher outro jogo</button>
+        </div>
       </div>
     `;
     const barra = document.getElementById('barra-inferior');
