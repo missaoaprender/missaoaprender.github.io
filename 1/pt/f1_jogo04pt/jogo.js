@@ -191,11 +191,11 @@ function carregarCapaJogo() {
                 <span style="font-weight:900; color:#062B42; font-size:1rem;">Procura a letra:</span>
                 <div class="alvo-letra">A</div>
             </div>
-            <div class="grelha-toupeiras" style="position:relative;">
+            <div class="grelha-toupeiras" id="simu-grelha" style="position:relative;">
                 <div class="buraco"><div class="toupeira" id="simu-t0">B</div></div>
                 <div class="buraco"><div class="toupeira" id="simu-t1">A</div></div>
                 <div class="buraco"><div class="toupeira" id="simu-t2">C</div></div>
-                <div id="simu-hand" style="position:absolute; font-size:3rem; z-index:100; opacity:0; transition: all 0.4s ease; filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.3));">👆</div>
+                <div id="simu-hand" style="position:absolute; font-size:2.8rem; z-index:100; opacity:0; transition: all 0.4s ease; filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.3)); pointer-events: none;">👆</div>
             </div>
             <p style="color:#062B42; font-weight:800; text-align:center; font-size:1.05rem; max-width: 500px; margin-top: 15px;">
                 Clica na toupeira que tem a letra pedida para ganhares pontos!
@@ -208,37 +208,41 @@ function carregarCapaJogo() {
 }
 
 function iniciarSimulacaoAnimada() {
-    const t0 = document.getElementById('simu-t0');
     const t1 = document.getElementById('simu-t1');
     const hand = document.getElementById('simu-hand');
-    if (!t1 || !hand) return;
+    const grelha = document.getElementById('simu-grelha');
+    if (!t1 || !hand || !grelha) return;
 
     function cicloAnimacaoCapa() {
         if (jogoAtivo || !document.getElementById('simu-hand')) return;
 
         // Reset
         hand.style.opacity = '0';
-        if (t0) { t0.classList.remove('ativa'); t0.classList.remove('errada'); }
-        t1.classList.remove('ativa'); t1.classList.remove('certa');
+        t1.classList.remove('ativa'); 
+        t1.classList.remove('certa');
 
         // Subir toupeira com a letra A
         setTimeout(() => {
             if (jogoAtivo) return;
             t1.classList.add('ativa');
 
-            // Mão posiciona-se em cima da toupeira A
+            // Mão posiciona-se exatamente centrada em cima da letra A da toupeira
             setTimeout(() => {
-                if (jogoAtivo) return;
-                hand.style.left = (t1.offsetLeft + 15) + "px";
-                hand.style.top = (t1.offsetTop - 10) + "px";
+                if (jogoAtivo || !document.getElementById('simu-hand')) return;
+                
+                const posX = t1.offsetLeft + (t1.offsetWidth / 2) - 15;
+                const posY = t1.offsetTop + (t1.offsetHeight / 2) - 25;
+
+                hand.style.left = posX + "px";
+                hand.style.top = posY + "px";
                 hand.style.opacity = '1';
                 hand.innerText = "👆";
 
-                // Ação de bater
+                // Ação de bater (mão fecha o punho e toupeira fica verde)
                 setTimeout(() => {
-                    if (jogoAtivo) return;
+                    if (jogoAtivo || !document.getElementById('simu-hand')) return;
                     hand.innerText = "✊";
-                    t1.classList.add('certa'); // Fica verde
+                    t1.classList.add('certa');
 
                     setTimeout(() => {
                         if (jogoAtivo) return;
