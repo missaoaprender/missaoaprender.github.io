@@ -7,7 +7,7 @@ const DADOS = {
     mensagem: "Diverte-te a aprender!",
     informacao: "Jogos CRJM",
     tituloMenuAcordeao: "Menu",
-    urlVoltar: "../",
+    urlVoltar: "../../", // Raiz do site
     iconeEstrela: "★",
     iconeInfo: "i"
   },
@@ -18,6 +18,7 @@ const DADOS = {
     seta: "../../icons/seta.png",
     som: "../../icons/som.png",
     lampada: "../../icons/lampada.png",
+    info: "../../icons/info.png", // Ícone info.png adicionado
     feedbacks: {
       feedback1: "../../icons/feedback_1.png",
       feedback2: "../../icons/feedback_2.png",
@@ -35,8 +36,8 @@ const DADOS = {
   },
 
   sons: {
-    certo: "../../sons/certo.mp3",
-    errado: "../../sons/errado.mp3"
+    certo: "",
+    errado: ""
   },
 
   cores: {
