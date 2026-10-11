@@ -43,11 +43,19 @@ styleJogo.innerHTML = `
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.3); } }
     canvas { position: absolute; top: 0; left: 0; z-index: 5; cursor: pointer; touch-action: none; }
 
+    /* Botão de som e botão de ajuda com exatamente as mesmas dimensões e estilo base */
+    .botao-acao-jogo {
+        width: 38px; height: 38px; border-radius: 50%; border: none;
+        background: rgba(0,0,0,0.2); color: #FFFFFF; font-size: 16px;
+        display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s ease;
+        padding: 0; flex-shrink: 0;
+    }
+    .botao-acao-jogo:active { transform: scale(0.92); }
     .botao-acao-jogo img {
         width: 22px; height: 22px; object-fit: contain; pointer-events: none;
     }
 
-    /* Botão de ajuda sem texto e sem forma (apenas a lâmpada pura) */
+    /* Botão da lâmpada sem formato de caixa, mas com a mesma altura e alinhado */
     .botao-ajuda-limpo {
         background: transparent !important;
         border: none !important;
@@ -60,15 +68,16 @@ styleJogo.innerHTML = `
         justify-content: center;
         cursor: pointer;
         transition: transform 0.1s ease;
+        flex-shrink: 0;
     }
     .botao-ajuda-limpo:active { transform: scale(0.9); }
     .botao-ajuda-limpo img {
-        width: 26px; height: 26px; object-fit: contain; pointer-events: none;
+        width: 24px; height: 24px; object-fit: contain; pointer-events: none;
     }
 
-    /* Grupo da barra extensível + contador juntos (ocupando o máximo de largura) */
+    /* Grupo da barra extensível ocupando todo o espaço em falta */
     .wrapper-progresso-completo {
-        flex: 1; display: flex; align-items: center; gap: 12px; margin: 0 15px;
+        flex: 1; display: flex; align-items: center; gap: 12px; margin: 0 15px; min-width: 100px;
     }
     .container-progresso-jogo {
         flex: 1; height: 16px; background: rgba(0,0,0,0.15);
@@ -125,7 +134,7 @@ function atualizarBarraEstado(modoCapa = false) {
 
     if (modoCapa) {
         barra.innerHTML = `
-            <div class="botoes-acao-jogo">
+            <div style="display: flex; gap: 6px;">
               <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
                 <img src="${iconeSomPath}" alt="Som">
               </button>
@@ -145,7 +154,7 @@ function atualizarBarraEstado(modoCapa = false) {
             </div>
             <div class="contador-rondas" id="contador-rondas">${rondaAtual}/${totalRondas}</div>
           </div>
-          <div class="botoes-acao-jogo">
+          <div style="display: flex; align-items: center; gap: 8px;">
             <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
               <img src="${iconeSomPath}" alt="Som">
             </button>
