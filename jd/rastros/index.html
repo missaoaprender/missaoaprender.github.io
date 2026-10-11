@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-browser-titulo>1.º Ano - Recursos Educativos</title>
+  <title data-browser-titulo>Jogos Matemáticos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Quicksand:wght@700&display=swap" rel="stylesheet">
@@ -50,10 +50,7 @@
             <div id="contentor-jogo" style="flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;"></div>
 
             <!-- BARRA INFERIOR DINÂMICA -->
-            <div class="barra-jogo-topo" id="barra-inferior">
-              <!-- O conteúdo da barra (Capa vs Jogo) será inserido via JavaScript -->
-            </div>
-
+            <div class="barra-jogo-topo" id="barra-inferior"></div>
           </div>
         </div>
       </div>
@@ -191,16 +188,11 @@
           box-shadow: 0 12px 25px ${DADOS.cores.sombraForte};
         }
 
-        /* BARRA INFERIOR */
         .barra-jogo-topo {
           width: 100%; display: flex; align-items: center; justify-content: space-between;
           background: ${DADOS.cores.azulHeader}; padding: 8px 14px;
           border-radius: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
           gap: 10px; flex-wrap: wrap; margin-top: 10px;
-        }
-        .bloco-estrelas-pontos {
-          display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.15);
-          padding: 5px 12px; border-radius: 20px; color: #FFFFFF; font-weight: 900; font-size: 16px;
         }
 
         .rodape {
@@ -229,13 +221,9 @@
           .marca-texto h1 { font-size: 16px; }
           .marca-texto p { font-size: 9px; margin-top: 1px; }
           .menu-acordeao { top: 54px; left: 10px; width: 280px; }
-          
           .area-menu { padding: 0 16px; }
           .rodape { width: calc(100% - 32px); margin: 10px 16px 0; padding: 8px 12px; font-size: 11px; }
-          .info {
-            width: 22px !important; height: 22px !important;
-            min-width: 22px !important; min-height: 22px !important;
-          }
+          .info { width: 22px !important; height: 22px !important; min-width: 22px !important; min-height: 22px !important; }
         }
       `;
       document.head.appendChild(estilo);
