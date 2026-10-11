@@ -47,25 +47,35 @@ styleJogo.innerHTML = `
         width: 22px; height: 22px; object-fit: contain; pointer-events: none;
     }
 
-    /* Botão de ajuda sem formato redondo */
-    .botao-ajuda-retangular {
-        width: auto !important; height: 38px !important; border-radius: 12px !important;
-        padding: 0 12px !important; display: flex; align-items: center; gap: 6px;
-        background: rgba(0,0,0,0.2); border: none; cursor: pointer; transition: transform 0.1s ease;
+    /* Botão de ajuda sem texto e sem forma (apenas a lâmpada pura) */
+    .botao-ajuda-limpo {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        width: 38px !important;
+        height: 38px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.1s ease;
     }
-    .botao-ajuda-retangular:active { transform: scale(0.92); }
-    .botao-ajuda-retangular img { width: 22px; height: 22px; object-fit: contain; pointer-events: none; }
+    .botao-ajuda-limpo:active { transform: scale(0.9); }
+    .botao-ajuda-limpo img {
+        width: 26px; height: 26px; object-fit: contain; pointer-events: none;
+    }
 
-    /* Grupo da barra extensível + contador juntos */
+    /* Grupo da barra extensível + contador juntos (ocupando o máximo de largura) */
     .wrapper-progresso-completo {
-        flex: 1; display: flex; align-items: center; gap: 10px; min-width: 150px; max-width: 380px;
+        flex: 1; display: flex; align-items: center; gap: 12px; margin: 0 15px;
     }
     .container-progresso-jogo {
         flex: 1; height: 16px; background: rgba(0,0,0,0.15);
         border-radius: 10px; overflow: hidden; position: relative;
     }
     .barra-progresso-interna { width: 0%; height: 100%; background: #FFB400; border-radius: 10px; transition: width 0.3s ease; }
-    .contador-rondas { background: rgba(0,0,0,0.15); color: #FFFFFF; padding: 5px 10px; border-radius: 10px; font-weight: 900; font-size: 13px; white-space: nowrap; }
+    .contador-rondas { background: rgba(0,0,0,0.15); color: #FFFFFF; padding: 5px 12px; border-radius: 10px; font-weight: 900; font-size: 14px; white-space: nowrap; }
 
     /* Ecrã de Feedback Melhorado */
     .ecra-feedback-container {
@@ -139,9 +149,8 @@ function atualizarBarraEstado(modoCapa = false) {
             <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
               <img src="${iconeSomPath}" alt="Som">
             </button>
-            <button class="botao-ajuda-retangular" onclick="darAjuda()" aria-label="Ajuda">
+            <button class="botao-ajuda-limpo" onclick="darAjuda()" aria-label="Ajuda">
               <img src="${iconeLampadaPath}" alt="Ajuda">
-              <span style="color: #fff; font-size: 13px; font-weight: 800;">Ajuda</span>
             </button>
           </div>
         `;
@@ -425,13 +434,13 @@ function avaliarJogada() {
     
     if (distanciaFim < 80 && accuracia >= accuraciaNecessaria && !saiuDoCaminho) {
         jogoAtivo = false; 
-        estrelasGanhas++; // Ganha uma estrela ao acertar
+        estrelasGanhas++; 
         const endEl = document.getElementById('ponto-fim');
         if (endEl) { endEl.style.color = "#8cc63f"; endEl.classList.add('animating'); }
         setTimeout(() => { rondaAtual++; jogoAtivo = true; proximaRonda(); }, 1500);
     } else {
         erros++; 
-        estrelasGanhas = Math.max(0, estrelasGanhas - 1); // Perde uma estrela ao errar (mínimo 0)
+        estrelasGanhas = Math.max(0, estrelasGanhas - 1); 
         ctx.clearRect(0, 0, canvas.width, canvas.height); 
         desenharGuiasJogo(); 
         atualizarBarraEstado(false);
@@ -508,7 +517,6 @@ function finalizarJogo() {
     jogoAtivo = false;
     const contentor = document.getElementById('contentor-jogo');
     
-    // Geração dinâmica das estrelas ganhas para o ecrã de feedback
     let estrelasHtml = "";
     for (let i = 0; i < Math.min(estrelasGanhas, 10); i++) { estrelasHtml += "⭐ "; }
     if (estrelasHtml === "") estrelasHtml = "💪 Continua a treinar!";
