@@ -24,7 +24,7 @@ style.innerHTML = `
     .score-box { padding: 5px 10px; border-radius: 12px; color: white; font-weight: 900; display: flex; align-items: center; gap: 6px; font-size: 1rem; min-width: 55px; justify-content: center; }
     
     .box-v, .pill-j1 { background: #8cc63f !important; box-shadow: 0 3px 0 #6da32f; }
-    .box-x, .pill-j2 { background: #804040 !important; box-shadow: 0 3px 0 #592B2B; }
+    .box-x, .pill-j2 { background: #666699 !important; box-shadow: 0 3px 0 #4B4B75; }
     
     .blinking { animation: blinker 1s linear infinite; }
     @keyframes blinker { 50% { opacity: 0.4; } }
@@ -41,7 +41,7 @@ style.innerHTML = `
         width: 100%; display: flex; align-items: center; justify-content: space-between; position: relative;
     }
     .btn-play-rect-capa { 
-        height: 48px; padding: 0 38px; border-radius: 24px; background: #FFFFFF; color: #804040; 
+        height: 48px; padding: 0 38px; border-radius: 24px; background: #FFFFFF; color: #666699; 
         border: none; font-size: 1.25rem; font-weight: 900; text-transform: uppercase; 
         cursor: pointer; display: flex; align-items: center; justify-content: center; 
         box-shadow: 0 4px 10px rgba(0,0,0,0.12); transition: transform 0.1s ease, background-color 0.2s ease; 
@@ -68,20 +68,20 @@ style.innerHTML = `
         transform: scale(0.96);
         box-shadow: 0 3px 8px rgba(0,0,0,0.2);
     }
-    .btn-modo-cpu { background: linear-gradient(135deg, #804040 0%, #592B2B 100%); }
-    .btn-modo-pvp { background: linear-gradient(135deg, #6c757d 0%, #495057 100%); }
-    .btn-modo-voltar { background: #b0a8a8; max-width: 160px; height: 45px; border-radius: 22px; font-size: 0.95rem; }
+    .btn-modo-cpu { background: linear-gradient(135deg, #666699 0%, #4B4B75 100%); }
+    .btn-modo-pvp { background: linear-gradient(135deg, #7A7A99 0%, #525266 100%); }
+    .btn-modo-voltar { background: #9E9EA8; max-width: 160px; height: 45px; border-radius: 22px; font-size: 0.95rem; }
 
-    /* Estilo dos novos botões do feedback final em tom castanho (#804040) */
-    .btn-feedback-container { display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+    /* Botões de feedback com mais espaço abaixo */
+    .btn-feedback-container { display: flex; gap: 15px; justify-content: center; margin-top: 25px; margin-bottom: 10px; flex-wrap: wrap; }
     .btn-feedback-solid {
-        background-color: #804040; color: #FFFFFF; border: none;
+        background-color: #666699; color: #FFFFFF; border: none;
         padding: 14px 28px; border-radius: 30px; font-weight: 900; font-size: 1.05rem;
-        cursor: pointer; box-shadow: 0 4px 12px rgba(128, 64, 64, 0.3); transition: transform 0.1s ease;
+        cursor: pointer; box-shadow: 0 4px 12px rgba(102,102,153,0.3); transition: transform 0.1s ease;
     }
     .btn-feedback-solid:active { transform: scale(0.95); }
     .btn-feedback-outline {
-        background-color: #FFFFFF; color: #804040; border: 3px solid #804040;
+        background-color: #FFFFFF; color: #666699; border: 3px solid #666699;
         padding: 14px 28px; border-radius: 30px; font-weight: 900; font-size: 1.05rem;
         cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.1s ease;
     }
@@ -97,7 +97,7 @@ style.innerHTML = `
     }
     #instrucoes-panel.open { transform: translateY(0); }
 
-    .close-x { position: absolute; top: 15px; right: 20px; font-size: 2.2rem; color: #804040; cursor: pointer; font-weight: 900; line-height: 1; transition: 0.2s; }
+    .close-x { position: absolute; top: 15px; right: 20px; font-size: 2.2rem; color: #666699; cursor: pointer; font-weight: 900; line-height: 1; transition: 0.2s; }
     .close-x:hover { transform: scale(1.2); }
 
     .nivel-select-container { display: none; flex-direction: column; gap: 12px; width: 95%; max-width: 500px; animation: cardPop 0.3s ease; align-items: center; }
@@ -107,23 +107,23 @@ style.innerHTML = `
     .btn-nivel span { font-size: 0.6rem; font-weight: 700; opacity: 0.7; text-align: center; }
     .btn-nivel.l1 { border-color: #8cc63f; color: #8cc63f; }
     .btn-nivel.l2 { border-color: #f9a825; color: #f9a825; }
-    .btn-nivel.l3 { border-color: #804040; color: #804040; }
+    .btn-nivel.l3 { border-color: #666699; color: #666699; }
 
-    .rastros-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; background: #D9B3B3; padding: 6px; border-radius: 12px; width: fit-content; margin: 0 auto; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
+    .rastros-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; background: #C2C2D6; padding: 6px; border-radius: 12px; width: fit-content; margin: 0 auto; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
     .cell { width: var(--cell-size); height: var(--cell-size); background: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; position: relative; border-radius: 6px; color: #bbb; }
     .cell.blocked { background: #444; color: #444; }
     .cell.white-piece { background: white; z-index: 10; }
-    .cell.white-piece::after { content: ''; width: 80%; height: 80%; background: white; border: 4px solid #804040; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
-    .cell.goal { background: #f0f0f0; color: #804040; border: 2px dashed #bbb; }
-    .cell.valid-move { background: #F9EBEB; cursor: pointer; border: 2px solid #804040; color: transparent; }
+    .cell.white-piece::after { content: ''; width: 80%; height: 80%; background: white; border: 4px solid #666699; border-radius: 50%; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
+    .cell.goal { background: #f0f0f0; color: #666699; border: 2px dashed #bbb; }
+    .cell.valid-move { background: #ECECEF; cursor: pointer; border: 2px solid #666699; color: transparent; }
 
     .inst-content { max-width: 600px; margin: 0 auto; text-align: left; }
-    .inst-header { color: #804040; text-align: center; font-size: 1.8rem; font-weight: 900; margin-bottom: 25px; text-transform: uppercase; border-bottom: 3px solid #F9EBEB; padding-bottom: 10px; }
+    .inst-header { color: #666699; text-align: center; font-size: 1.8rem; font-weight: 900; margin-bottom: 25px; text-transform: uppercase; border-bottom: 3px solid #ECECEF; padding-bottom: 10px; }
     .inst-section-title { color: #444; font-size: 1.2rem; font-weight: 800; margin: 20px 0 10px; display: flex; align-items: center; gap: 10px; }
-    .inst-section-title::before { content: ''; width: 6px; height: 22px; background: #804040; border-radius: 3px; display: inline-block; }
+    .inst-section-title::before { content: ''; width: 6px; height: 22px; background: #666699; border-radius: 3px; display: inline-block; }
     .inst-text { color: #666; font-size: 1.05rem; line-height: 1.6; margin-bottom: 15px; }
     .inst-list { list-style: none; padding: 0; }
-    .inst-list li { background: #f9f9f9; margin-bottom: 8px; padding: 12px 15px; border-radius: 12px; border-left: 4px solid #804040; color: #555; font-size: 1rem; line-height: 1.4; }
+    .inst-list li { background: #f9f9f9; margin-bottom: 8px; padding: 12px 15px; border-radius: 12px; border-left: 4px solid #666699; color: #555; font-size: 1rem; line-height: 1.4; }
 
     @media screen and (min-width: 1025px) { :root { --cell-size: 55px; } }
     @media screen and (max-width: 500px) and (orientation: portrait) { :root { --cell-size: 10.5vw; } }
@@ -197,7 +197,7 @@ function ecraModosJogo() {
     const area = document.getElementById('contentor-jogo');
     area.innerHTML = `
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 16px; width: 100%;">
-            <h2 style="color:#401F1F; font-weight:900; text-transform:uppercase; font-size: clamp(1.2rem, 2vw, 1.6rem); margin-bottom: 5px; text-align: center;">Escolhe o Modo de Jogo</h2>
+            <h2 style="color:#262638; font-weight:900; text-transform:uppercase; font-size: clamp(1.2rem, 2vw, 1.6rem); margin-bottom: 5px; text-align: center;">Escolhe o Modo de Jogo</h2>
             <button class="btn-modo-aprimorado btn-modo-cpu" onclick="mostrarNiveis('CPU')"><i class="fas fa-robot"></i> COMPUTADOR</button>
             <button class="btn-modo-aprimorado btn-modo-pvp" onclick="mostrarNiveis('PVP')"><i class="fas fa-users"></i> 2 JOGADORES</button>
             <div id="nivel-select-container" class="nivel-select-container" style="display:none; margin-top: 10px;"></div>
@@ -254,17 +254,21 @@ function iniciarJogo() {
 }
 
 function atualizarUI() {
-    const pcLabel = "Pc";
-    const j2Label = "J2";
+    const pcLabel = "PC";
+    const j2Label = "JOGADOR 2";
     const labelSegundaBox = modoJogo === 'CPU' ? pcLabel : j2Label;
     let turnInfoHTML = "";
+    
     if (modoJogo === 'CPU') {
-        if (turnoAtual === 0) turnInfoHTML = `<div class="status-pill pill-j1 blinking">VEZ DO JOGADOR 1</div>`;
-        else turnInfoHTML = `<div style="flex:1"></div>`; 
+        if (turnoAtual === 0) {
+            turnInfoHTML = `<div class="status-pill pill-j1 blinking">JOGADOR 1</div>`;
+        } else {
+            turnInfoHTML = `<div class="status-pill pill-j2 blinking">PC</div>`; 
+        }
     } else {
         const classPill = (turnoAtual === 0) ? "pill-j1" : "pill-j2";
         const nomeVez = (turnoAtual === 0) ? "JOGADOR 1" : "JOGADOR 2";
-        turnInfoHTML = `<div class="status-pill ${classPill} blinking">VEZ DO ${nomeVez}</div>`;
+        turnInfoHTML = `<div class="status-pill ${classPill} blinking">${nomeVez}</div>`;
     }
 
     const barra = document.getElementById('barra-inferior');
@@ -274,7 +278,7 @@ function atualizarUI() {
             ${turnInfoHTML}
             <div class="score-group">
                 <div class="score-box box-v">J1: ${matchScore[0]}</div>
-                <div class="score-box box-x">${labelSegundaBox}: ${matchScore[1]}</div>
+                <div class="score-box box-x">${modoJogo === 'CPU' ? 'PC' : 'J2'}: ${matchScore[1]}</div>
             </div>
         `;
     }
@@ -360,8 +364,8 @@ function finalizarRonda(vencedorIdx) {
     jogoAtivo = false;
     matchScore[vencedorIdx]++;
     const overlay = document.getElementById('round-feedback');
-    const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");
-    const corVencedor = vencedorIdx === 0 ? "#8cc63f" : "#804040";
+    const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
+    const corVencedor = vencedorIdx === 0 ? "#8cc63f" : "#666699";
 
     let imagemFeedback = DADOS.icons.feedbacks.feedback1;
     if (modoJogo === 'CPU' && vencedorIdx === 1) {
@@ -390,7 +394,7 @@ function finalizarMatch() {
     if (overlay) overlay.style.display = 'none';
     
     const vencedorIdx = (matchScore[0] > matchScore[1]) ? 0 : ((matchScore[1] > matchScore[0]) ? 1 : (matchScore[0] >= matchScore[1] ? 0 : 1));
-    const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");
+    const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
     
     let imagemFeedbackFinal = DADOS.icons.feedbacks.feedback1;
     if (modoJogo === 'CPU' && vencedorIdx === 1) {
@@ -401,10 +405,10 @@ function finalizarMatch() {
     if (contentor) {
         contentor.innerHTML = `<div style="text-align:center;">
             <img src="${imagemFeedbackFinal}" style="height:120px; margin-bottom:8px; object-fit:contain;">
-            <h2 style="color:#804040; font-weight:900; text-transform:uppercase; margin-bottom:15px; font-size: 1.4rem;">GANHOU O ${nomeVencedor}</h2>
+            <h2 style="color:#666699; font-weight:900; text-transform:uppercase; margin-bottom:15px; font-size: 1.4rem;">GANHOU O ${nomeVencedor}</h2>
             <div style="display:flex; justify-content:center; gap:20px; margin-bottom: 20px;">
                 <div class="score-box box-v" style="padding:8px 18px; font-size:1.1rem;">J1: ${matchScore[0]}</div>
-                <div class="score-box box-x" style="padding:8px 18px; font-size:1.1rem;">${modoJogo === 'CPU' ? 'Pc' : 'J2'}: ${matchScore[1]}</div>
+                <div class="score-box box-x" style="padding:8px 18px; font-size:1.1rem;">${modoJogo === 'CPU' ? 'PC' : 'J2'}: ${matchScore[1]}</div>
             </div>
             <div class="btn-feedback-container">
                 <button class="btn-feedback-solid" onclick="location.reload()">Jogar de novo</button>
