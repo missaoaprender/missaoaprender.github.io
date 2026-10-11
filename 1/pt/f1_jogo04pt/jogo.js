@@ -21,13 +21,13 @@ styleJogo.innerHTML = `
         transition: background-color 0.3s ease; border-radius: 20px; padding: 10px;
     }
     .painel-alvo {
-        display: flex; align-items: center; gap: 15px; background: #FFFFFF;
-        padding: 8px 25px; border-radius: 20px; border: 3px solid #B4E4F8;
-        box-shadow: 0 4px 10px rgba(15,139,211,0.15); margin-bottom: 15px;
+        display: flex; align-items: center; gap: 12px; background: #FFFFFF;
+        padding: 6px 20px; border-radius: 20px; border: 3px solid #B4E4F8;
+        box-shadow: 0 4px 10px rgba(15,139,211,0.15); margin-bottom: 10px;
     }
     .alvo-letra {
         font-size: 2.2rem; font-weight: 900; color: #0F8BD3;
-        background: #DEF3FF; width: 55px; height: 55px; display: flex;
+        background: #DEF3FF; width: 52px; height: 52px; display: flex;
         align-items: center; justify-content: center; border-radius: 50%;
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     }
@@ -36,36 +36,45 @@ styleJogo.innerHTML = `
         width: 100%; max-width: 480px; padding: 10px;
     }
     .buraco {
-        position: relative; height: 95px; background: #c2e2f5;
+        position: relative; height: 90px; background: #c2e2f5;
         border-radius: 50% / 30%; border: 4px solid #8ac7e8;
         display: flex; align-items: flex-end; justify-content: center;
         overflow: hidden; box-shadow: inset 0 10px 15px rgba(0,0,0,0.15);
     }
     .toupeira {
-        position: absolute; bottom: -70px; width: 75px; height: 75px;
+        position: absolute; bottom: -75px; width: 75px; height: 75px;
         background: #8B5A2B; border-radius: 50% 50% 10% 10%; border: 3px solid #5c3a1b;
         display: flex; align-items: center; justify-content: center;
         font-size: 2rem; font-weight: 900; color: #FFFFFF; cursor: pointer;
-        box-shadow: 0 -4px 8px rgba(0,0,0,0.2); transition: bottom 0.25s ease-in-out;
+        box-shadow: 0 -4px 8px rgba(0,0,0,0.2); transition: bottom 0.25s ease-in-out, background-color 0.2s ease, border-color 0.2s ease;
         user-select: none;
     }
-    .toupeira.ativa { bottom: 10px; }
+    .toupeira.ativa { bottom: 8px; }
+    .toupeira.certa { background: #8cc63f !important; border-color: #649924 !important; color: #FFFFFF !important; }
+    .toupeira.errada { background: #e74c3c !important; border-color: #c0392b !important; color: #FFFFFF !important; }
     .toupeira:active { transform: scale(0.92); }
 
-    .btn-play-rect { 
-        flex: 1; height: 50px; border-radius: 25px; background: #FFFFFF; color: #0F8BD3; 
-        border: none; font-size: 1.2rem; font-weight: 900; text-transform: uppercase; 
-        cursor: pointer; display: flex; align-items: center; justify-content: center; 
-        gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: 0.2s; z-index: 100; 
+    /* LAYOUT DA BARRA DA CAPA IGUAL À IMAGEM */
+    .barra-capa-layout {
+        width: 100%; display: flex; align-items: center; justify-content: space-between; position: relative;
     }
-    .btn-play-rect:active { transform: scale(0.95); }
+
+    .btn-play-rect-capa { 
+        height: 48px; padding: 0 38px; border-radius: 24px; background: #FFFFFF; color: #0F8BD3; 
+        border: none; font-size: 1.25rem; font-weight: 900; text-transform: uppercase; 
+        cursor: pointer; display: flex; align-items: center; justify-content: center; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12); transition: transform 0.1s ease, background-color 0.2s ease; 
+        margin-left: auto;
+    }
+    .btn-play-rect-capa:active { transform: scale(0.95); }
 
     .btn-audio-circle { 
-        width: 50px; height: 50px; cursor: pointer; flex-shrink: 0; z-index: 100; 
+        width: 44px; height: 44px; cursor: pointer; flex-shrink: 0; z-index: 100; 
         border-radius: 50%; background: rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; 
-        border: none; padding: 0;
+        border: none; padding: 0; transition: transform 0.1s ease;
     }
-    .btn-audio-circle img { width: 26px; height: 26px; object-fit: contain; pointer-events: none; }
+    .btn-audio-circle:active { transform: scale(0.92); }
+    .btn-audio-circle img { width: 24px; height: 24px; object-fit: contain; pointer-events: none; }
 
     .botao-acao-jogo {
         width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 50%; border: none;
@@ -124,10 +133,12 @@ function atualizarBarraEstado(modoCapa = false) {
 
     if (modoCapa) {
         barra.innerHTML = `
-            <button class="btn-audio-circle" onclick="tocarAudioInstrucoes()" aria-label="Som">
-              <img src="${iconeSomPath}" alt="Som">
-            </button>
-            <button class="btn-play-rect" onclick="iniciarJogo()">JOGAR</button>
+            <div class="barra-capa-layout">
+                <button class="btn-audio-circle" onclick="tocarAudioInstrucoes()" aria-label="Som">
+                  <img src="${iconeSomPath}" alt="Som">
+                </button>
+                <button class="btn-play-rect-capa" onclick="iniciarJogo()">JOGAR</button>
+            </div>
         `;
     } else {
         const progressoPercent = ((rondaAtual - 1) / totalRondas) * 100;
@@ -156,15 +167,15 @@ function atualizarBarraEstado(modoCapa = false) {
 }
 
 // ==========================================
-// 4. CAPA E ÁUDIO DE INSTRUÇÃO
+// 4. CAPA E SIMULAÇÃO ANIMADA REAL
 // ==========================================
 function tocarAudioInstrucoes() {
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     if (audioInstrucao) { audioInstrucao.pause(); audioInstrucao.currentTime = 0; }
-    else { audioInstrucao = new Audio("../../../sons/f1_jogo03.mp3"); }
+    else { audioInstrucao = new Audio("../../../sons/f1_jogo04pt.mp3"); }
     
     audioInstrucao.play().catch(() => {
-        const utter = new SpeechSynthesisUtterance("Clica na toupeira que tem a letra correta que aparece no topo!");
+        const utter = new SpeechSynthesisUtterance("Procura e clica na toupeira que tem a letra em destaque!");
         utter.lang = 'pt-PT'; window.speechSynthesis.speak(utter);
     });
 }
@@ -175,21 +186,80 @@ function carregarCapaJogo() {
     if (!contentor) return;
 
     contentor.innerHTML = `
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%;">
-            <div style="font-size: 3.5rem; margin-bottom: 10px;">🐹🔨</div>
-            <p style="color:#062B42; font-weight:800; text-align:center; font-size:1.1rem; max-width: 500px; margin: 0 0 10px 0;">
-                Apanha a toupeira certa! Clica na toupeira que tem a letra pedida.
+        <div class="toupeira-area-geral" style="transform: scale(0.9); pointer-events: none;">
+            <div class="painel-alvo">
+                <span style="font-weight:900; color:#062B42; font-size:1rem;">Procura a letra:</span>
+                <div class="alvo-letra">A</div>
+            </div>
+            <div class="grelha-toupeiras" style="position:relative;">
+                <div class="buraco"><div class="toupeira" id="simu-t0">B</div></div>
+                <div class="buraco"><div class="toupeira" id="simu-t1">A</div></div>
+                <div class="buraco"><div class="toupeira" id="simu-t2">C</div></div>
+                <div id="simu-hand" style="position:absolute; font-size:3rem; z-index:100; opacity:0; transition: all 0.4s ease; filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.3));">👆</div>
+            </div>
+            <p style="color:#062B42; font-weight:800; text-align:center; font-size:1.05rem; max-width: 500px; margin-top: 15px;">
+                Clica na toupeira que tem a letra pedida para ganhares pontos!
             </p>
         </div>
     `;
 
     atualizarBarraEstado(true);
+    setTimeout(iniciarSimulacaoAnimada, 200);
+}
+
+function iniciarSimulacaoAnimada() {
+    const t0 = document.getElementById('simu-t0');
+    const t1 = document.getElementById('simu-t1');
+    const hand = document.getElementById('simu-hand');
+    if (!t1 || !hand) return;
+
+    function cicloAnimacaoCapa() {
+        if (jogoAtivo || !document.getElementById('simu-hand')) return;
+
+        // Reset
+        hand.style.opacity = '0';
+        if (t0) { t0.classList.remove('ativa'); t0.classList.remove('errada'); }
+        t1.classList.remove('ativa'); t1.classList.remove('certa');
+
+        // Subir toupeira com a letra A
+        setTimeout(() => {
+            if (jogoAtivo) return;
+            t1.classList.add('ativa');
+
+            // Mão posiciona-se em cima da toupeira A
+            setTimeout(() => {
+                if (jogoAtivo) return;
+                hand.style.left = (t1.offsetLeft + 15) + "px";
+                hand.style.top = (t1.offsetTop - 10) + "px";
+                hand.style.opacity = '1';
+                hand.innerText = "👆";
+
+                // Ação de bater
+                setTimeout(() => {
+                    if (jogoAtivo) return;
+                    hand.innerText = "✊";
+                    t1.classList.add('certa'); // Fica verde
+
+                    setTimeout(() => {
+                        if (jogoAtivo) return;
+                        hand.style.opacity = '0';
+                        t1.classList.remove('ativa');
+                        t1.classList.remove('certa');
+                        simuTimer = setTimeout(cicloAnimacaoCapa, 1200);
+                    }, 600);
+                }, 400);
+            }, 400);
+        }, 500);
+    }
+
+    cicloAnimacaoCapa();
 }
 
 // ==========================================
 // 5. LÓGICA DO JOGO PRINCIPAL
 // ==========================================
 function limparTimersToupeiras() {
+    clearTimeout(simuTimer);
     toupeirasTimers.forEach(t => clearTimeout(t));
     toupeirasTimers = [];
 }
@@ -208,10 +278,9 @@ function proximaRonda() {
     let letrasEmbaralhadas = [...alfabeto].sort(() => Math.random() - 0.5);
     letraAlvo = letrasEmbaralhadas[0];
 
-    // Escolher 6 letras diferentes para os 6 buracos, garantindo que a letra alvo está incluída
     let letrasBuracos = [letraAlvo];
     while (letrasBuracos.length < 6) {
-        let l = letrasEmbaralhadas[Math.random() * letrasEmbaralhadas.length | 0];
+        let l = letrasEmbaralhadas[Math.floor(Math.random() * letrasEmbaralhadas.length)];
         if (!letrasBuracos.includes(l)) letrasBuracos.push(l);
     }
     letrasBuracos.sort(() => Math.random() - 0.5);
@@ -243,7 +312,6 @@ function iniciarCicloToupeiras() {
     function rodadaToupeiras() {
         if (!jogoAtivo) return;
 
-        // Escolher aleatoriamente 1 ou 2 buracos para subir
         const indices = [0, 1, 2, 3, 4, 5].sort(() => Math.random() - 0.5);
         const quantos = Math.random() > 0.5 ? 2 : 1;
 
@@ -253,15 +321,14 @@ function iniciarCicloToupeiras() {
             if (toupeiraEl && !toupeiraEl.classList.contains('ativa')) {
                 toupeiraEl.classList.add('ativa');
 
-                // Descer passado 1.5 segundos
                 const timerDescer = setTimeout(() => {
                     if (toupeiraEl) toupeiraEl.classList.remove('ativa');
-                }, 1500);
+                }, 1600);
                 toupeirasTimers.push(timerDescer);
             }
         }
 
-        const proximoCiclo = setTimeout(rodadaToupeiras, 2000);
+        const proximoCiclo = setTimeout(rodadaToupeiras, 2100);
         toupeirasTimers.push(proximoCiclo);
     }
 
@@ -269,43 +336,37 @@ function iniciarCicloToupeiras() {
 }
 
 function clicarToupeira(letraClicada, elemento) {
-    if (!jogoAtivo) return;
-    const areaGeral = document.getElementById('area-toupeiras');
+    if (!jogoAtivo || !elemento || !elemento.classList.contains('ativa')) return;
 
     if (letraClicada === letraAlvo) {
-        // ACERTOU
+        // ACERTOU -> Fica VERDE na letra/toupeira
         jogoAtivo = false;
         limparTimersToupeiras();
         certos++;
         somAcerto.currentTime = 0; somAcerto.play().catch(() => {});
 
-        if (areaGeral) {
-            areaGeral.style.backgroundColor = "#e8f8ec";
-        }
-        if (elemento) {
-            elemento.style.background = "#8cc63f";
-        }
+        elemento.classList.add('certa');
 
         setTimeout(() => {
             rondaAtual++;
             jogoAtivo = true;
             proximaRonda();
-        }, 1200);
+        }, 1100);
 
     } else {
-        // ERROU
+        // ERROU -> Fica VERMELHO na letra/toupeira + Desconta 1 estrela
         erros++;
-        certos = Math.max(0, certos - 1); // Desconta logo uma estrela
+        certos = Math.max(0, certos - 1);
         somErro.currentTime = 0; somErro.play().catch(() => {});
 
-        if (areaGeral) {
-            areaGeral.style.backgroundColor = "#fde8e8";
-            setTimeout(() => { if (areaGeral) areaGeral.style.backgroundColor = "transparent"; }, 500);
-        }
+        elemento.classList.add('errada');
+        setTimeout(() => {
+            if (elemento) {
+                elemento.classList.remove('errada');
+                elemento.classList.remove('ativa');
+            }
+        }, 500);
 
-        if (elemento) {
-            elemento.classList.remove('ativa');
-        }
         atualizarBarraEstado(false);
     }
 }
@@ -316,15 +377,16 @@ function darAjuda() {
     certos = Math.max(0, certos - 1);
     atualizarBarraEstado(false);
 
-    // Faz a toupeira correta subir e piscar para ajudar
     for (let i = 0; i < 6; i++) {
         const t = document.getElementById(`toupeira-${i}`);
         if (t && t.innerText === letraAlvo) {
             t.classList.add('ativa');
-            t.style.background = "#FFB400";
+            t.classList.add('certa');
             setTimeout(() => {
-                t.classList.remove('ativa');
-                t.style.background = "#8B5A2B";
+                if (t) {
+                    t.classList.remove('ativa');
+                    t.classList.remove('certa');
+                }
             }, 1200);
             break;
         }
@@ -366,5 +428,5 @@ function finalizarJogo() {
     if (barra) barra.innerHTML = '';
 }
 
-// Iniciar a capa do jogo
+// Iniciar a capa do jogo ao carregar
 carregarCapaJogo();
