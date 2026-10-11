@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Quicksand:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
@@ -90,7 +91,7 @@
           font-family: "Nunito", "Quicksand", "Arial Rounded MT Bold", sans-serif;
         }
         html {
-          background: linear-gradient(180deg, ${DADOS.cores.ceu1} 0%, ${DADOS.cores.ceu2} 19%, #F2F8FC 38%, ${DADOS.cores.fundo} 100%);
+          background: linear-gradient(180deg, ${DADOS.cores.ceu1} 0%, ${DADOS.cores.ceu2} 19%, #FAF2F2 38%, ${DADOS.cores.fundo} 100%);
           background-attachment: fixed;
         }
         body { background: transparent; color: ${DADOS.cores.texto}; overflow-x: hidden; }
@@ -107,7 +108,7 @@
           background: linear-gradient(180deg, ${DADOS.cores.headerTopo} 0%, ${DADOS.cores.header} 100%);
           display: flex; align-items: center; justify-content: center;
           border-bottom: 2px solid rgba(255,255,255,.65);
-          box-shadow: 0 3px 10px rgba(15,139,211,.12); z-index: 20;
+          box-shadow: 0 3px 10px rgba(128,64,64,.12); z-index: 20;
         }
 
         .botao-menu, .botao-seta {
@@ -144,15 +145,15 @@
           position: absolute; top: 72px; left: 18px; width: 300px; padding: 0;
           background: rgba(255,255,255,.98); border: 2px solid ${DADOS.cores.linha};
           border-top: 4px solid ${DADOS.cores.azulHeader}; border-radius: 0 0 20px 20px;
-          box-shadow: 0 10px 25px rgba(15,139,211,.24);
+          box-shadow: 0 10px 25px rgba(128,64,64,.24);
           opacity: 0; visibility: hidden; transform: translateY(-12px) scale(.98);
           transform-origin: top left; transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
           z-index: 30;
         }
         .menu-acordeao.aberto { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
-        .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #E6F4FA, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
+        .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #F9EBEB, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
         .menu-acordeao-titulo { font-size: 19px; font-weight: 900; color: ${DADOS.cores.textoEscuro}; }
-        .menu-acordeao-subtitulo { margin-top: 3px; font-size: 12px; font-weight: 700; color: #0F8BD3; }
+        .menu-acordeao-subtitulo { margin-top: 3px; font-size: 12px; font-weight: 700; color: #804040; }
         
         .menu-anos { display: flex; flex-direction: column; padding: 8px; gap: 5px; max-height: 60vh; overflow-y: auto; }
         .menu-ano {
@@ -160,8 +161,8 @@
           border: 0; border-radius: 13px; background: #FFFFFF; color: ${DADOS.cores.textoEscuro};
           font-size: 15px; font-weight: 800; text-align: left; cursor: pointer; transition: background .16s ease;
         }
-        .menu-ano:hover { background: #E6F4FA; transform: translateX(3px); }
-        .menu-ano-icon { width: 45px; height: 45px; flex: 0 0 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #F0F9FC; }
+        .menu-ano:hover { background: #F9EBEB; transform: translateX(3px); }
+        .menu-ano-icon { width: 45px; height: 45px; flex: 0 0 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #FAF2F2; }
         .menu-ano-icon img { width: 100%; height: 100%; object-fit: contain; }
         .menu-ano-nome { flex: 1; }
 
@@ -171,9 +172,9 @@
         }
         .titulo-menu {
           width: fit-content; margin: 0 auto 10px; padding: 6px 24px;
-          border: 2px solid rgba(15,139,211,.32); border-radius: 14px;
+          border: 2px solid rgba(128,64,64,.32); border-radius: 14px;
           background: linear-gradient(180deg, #FFFFFF, ${DADOS.cores.creme});
-          box-shadow: 0 3px 7px rgba(15,139,211,.12);
+          box-shadow: 0 3px 7px rgba(128,64,64,.12);
         }
         .titulo-menu h2 { margin: 0; font-size: clamp(16px, 1.5vw, 22px); font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-align: center; }
 
@@ -218,7 +219,6 @@
           font-size: 12px; font-weight: 900; overflow: hidden; flex-shrink: 0;
         }
 
-        /* Media Queries do Header idênticas ao modelo partilhado */
         @media (max-width: 900px) {
           .cabecalho { height: 62px; }
           .botao-menu, .botao-seta { width: 42px; height: 42px; }
