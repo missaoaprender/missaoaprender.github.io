@@ -78,20 +78,21 @@ styleJogo.innerHTML = `
     /* Ecrã de Feedback Melhorado */
     .ecra-feedback-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        height: 100%; color: #062B42; text-align: center; padding: 25px;
+        height: 100%; color: #062B42; text-align: center; padding: 20px;
         background: linear-gradient(135deg, #ffffff 0%, #E1F2FA 100%);
         border-radius: 20px; box-shadow: inset 0 2px 8px rgba(15,139,211,0.1);
     }
-    .ecra-feedback-titulo { font-size: 2.4rem; font-weight: 900; margin-bottom: 8px; color: #0F8BD3; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .ecra-feedback-sub { font-size: 1.25rem; font-weight: 800; margin-bottom: 20px; color: #062B42; }
-    .ecra-feedback-estrelas { font-size: 2rem; margin-bottom: 20px; letter-spacing: 5px; }
+    .ecra-feedback-titulo { font-size: 2.2rem; font-weight: 900; margin-bottom: 4px; color: #0F8BD3; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .ecra-feedback-sub { font-size: 1.1rem; font-weight: 800; margin-bottom: 12px; color: #062B42; }
+    .ecra-feedback-imagem { width: 90px; height: 90px; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.15)); }
+    .ecra-feedback-estrelas { font-size: 1.6rem; margin-bottom: 12px; letter-spacing: 3px; }
 
     .container-botoes-feedback {
-        display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 10px;
+        display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 5px;
     }
     .btn-feedback {
-        padding: 14px 28px; border-radius: 25px; border: none; font-weight: 900; 
-        font-size: 1.05rem; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.2s ease;
+        padding: 12px 26px; border-radius: 25px; border: none; font-weight: 900; 
+        font-size: 1rem; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.2s ease;
         box-shadow: 0 4px 12px rgba(15,139,211,0.25);
     }
     .btn-feedback-primario { background: #0F8BD3; color: #ffffff; }
@@ -531,6 +532,16 @@ function finalizarJogo() {
     jogoAtivo = false;
     const contentor = document.getElementById('contentor-jogo');
     
+    // Seleciona a imagem de feedback com base nas regras de estrelas indicadas
+    let imagemFeedback = DADOS.icons.feedbacks.feedback4; // Até 4 estrelas
+    if (estrelasGanhas >= 9) {
+        imagemFeedback = DADOS.icons.feedbacks.feedback1;
+    } else if (estrelasGanhas >= 7) {
+        imagemFeedback = DADOS.icons.feedbacks.feedback2;
+    } else if (estrelasGanhas >= 5) {
+        imagemFeedback = DADOS.icons.feedbacks.feedback3;
+    }
+
     let estrelasHtml = "";
     for (let i = 0; i < Math.min(estrelasGanhas, 10); i++) { estrelasHtml += "⭐ "; }
     if (estrelasHtml === "") estrelasHtml = "💪 Continua a treinar!";
@@ -538,9 +549,9 @@ function finalizarJogo() {
     contentor.innerHTML = `
       <div class="ecra-feedback-container">
         <h2 class="ecra-feedback-titulo">Parabéns! 🎉</h2>
-        <p class="ecra-feedback-sub">Completaste todas as rondas com sucesso!</p>
+        <img src="${imagemFeedback}" alt="Feedback" class="ecra-feedback-imagem">
         <div class="ecra-feedback-estrelas">${estrelasHtml}</div>
-        <p style="font-size: 1.1rem; font-weight: 800; margin-bottom: 20px;">Total de Estrelas: <strong>${estrelasGanhas}</strong></p>
+        <p style="font-size: 1rem; font-weight: 800; margin-bottom: 12px;">Total de Estrelas: <strong>${estrelasGanhas}</strong></p>
         <div class="container-botoes-feedback">
             <button onclick="iniciarJogo()" class="btn-feedback btn-feedback-primario">Jogar de novo</button>
             <button onclick="window.location.href='../'" class="btn-feedback btn-feedback-secundario">Escolher outro jogo</button>
