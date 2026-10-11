@@ -2,7 +2,7 @@
 // ESTADO GLOBAL E SONS
 // ==========================================
 let jogoAtivo = false;
-let rondaAtual = 1, totalRondas = 10, certos = 0, erros = 0, ajudasUsadas = 0;
+let rondaAtual = 1, totalRondas = 10, estrelasGanhas = 0, erros = 0, ajudasUsadas = 0;
 let itemDestaque = null;
 
 let canvas, ctx;
@@ -47,16 +47,47 @@ styleJogo.innerHTML = `
         width: 22px; height: 22px; object-fit: contain; pointer-events: none;
     }
 
+    /* Botão de ajuda sem formato redondo */
+    .botao-ajuda-retangular {
+        width: auto !important; height: 38px !important; border-radius: 12px !important;
+        padding: 0 12px !important; display: flex; align-items: center; gap: 6px;
+        background: rgba(0,0,0,0.2); border: none; cursor: pointer; transition: transform 0.1s ease;
+    }
+    .botao-ajuda-retangular:active { transform: scale(0.92); }
+    .botao-ajuda-retangular img { width: 22px; height: 22px; object-fit: contain; pointer-events: none; }
+
+    /* Grupo da barra extensível + contador juntos */
+    .wrapper-progresso-completo {
+        flex: 1; display: flex; align-items: center; gap: 10px; min-width: 150px; max-width: 380px;
+    }
+    .container-progresso-jogo {
+        flex: 1; height: 16px; background: rgba(0,0,0,0.15);
+        border-radius: 10px; overflow: hidden; position: relative;
+    }
+    .barra-progresso-interna { width: 0%; height: 100%; background: #FFB400; border-radius: 10px; transition: width 0.3s ease; }
+    .contador-rondas { background: rgba(0,0,0,0.15); color: #FFFFFF; padding: 5px 10px; border-radius: 10px; font-weight: 900; font-size: 13px; white-space: nowrap; }
+
+    /* Ecrã de Feedback Melhorado */
+    .ecra-feedback-container {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        height: 100%; color: #062B42; text-align: center; padding: 25px;
+        background: linear-gradient(135deg, #ffffff 0%, #E1F2FA 100%);
+        border-radius: 20px; box-shadow: inset 0 2px 8px rgba(15,139,211,0.1);
+    }
+    .ecra-feedback-titulo { font-size: 2.4rem; font-weight: 900; margin-bottom: 8px; color: #0F8BD3; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .ecra-feedback-sub { font-size: 1.25rem; font-weight: 800; margin-bottom: 20px; color: #062B42; }
+    .ecra-feedback-estrelas { font-size: 2rem; margin-bottom: 20px; letter-spacing: 5px; }
+
     .container-botoes-feedback {
-        display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 15px;
+        display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 10px;
     }
     .btn-feedback {
-        padding: 12px 24px; border-radius: 25px; border: none; font-weight: 900; 
-        font-size: 1rem; cursor: pointer; transition: transform 0.1s ease, background 0.2s ease;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        padding: 14px 28px; border-radius: 25px; border: none; font-weight: 900; 
+        font-size: 1.05rem; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 12px rgba(15,139,211,0.25);
     }
     .btn-feedback-primario { background: #0F8BD3; color: #ffffff; }
-    .btn-feedback-secundario { background: #E1F2FA; color: #0B4B71; border: 2px solid #B4E4F8; }
+    .btn-feedback-secundario { background: #FFFFFF; color: #0F8BD3; border: 2px solid #0F8BD3; }
     .btn-feedback:active { transform: scale(0.95); }
 `;
 document.head.appendChild(styleJogo);
@@ -65,7 +96,6 @@ document.head.appendChild(styleJogo);
 // GESTÃO GLOBAL DE CLIQUES PARA PARAR O SOM
 // ==========================================
 document.addEventListener("click", (e) => {
-    // Se o clique não foi no botão de som, para o áudio se estiver a tocar
     const botaoSom = e.target.closest('button[aria-label="Som"]');
     if (!botaoSom && audioInstrucao && !audioInstrucao.paused) {
         audioInstrucao.pause();
@@ -97,18 +127,21 @@ function atualizarBarraEstado(modoCapa = false) {
         barra.innerHTML = `
           <div class="bloco-estrelas-pontos">
             <span>⭐</span>
-            <span id="pontos-jogo">${certos * 10}</span>
+            <span id="pontos-jogo">${estrelasGanhas}</span>
           </div>
-          <div class="container-progresso-jogo">
-            <div class="barra-progresso-interna" id="barra-progresso-interna" style="width: ${progressoPercent}%"></div>
+          <div class="wrapper-progresso-completo">
+            <div class="container-progresso-jogo">
+                <div class="barra-progresso-interna" id="barra-progresso-interna" style="width: ${progressoPercent}%"></div>
+            </div>
+            <div class="contador-rondas" id="contador-rondas">${rondaAtual}/${totalRondas}</div>
           </div>
-          <div class="contador-rondas" id="contador-rondas">${rondaAtual}/${totalRondas}</div>
           <div class="botoes-acao-jogo">
             <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
               <img src="${iconeSomPath}" alt="Som">
             </button>
-            <button class="botao-acao-jogo" onclick="darAjuda()" aria-label="Ajuda">
+            <button class="botao-ajuda-retangular" onclick="darAjuda()" aria-label="Ajuda">
               <img src="${iconeLampadaPath}" alt="Ajuda">
+              <span style="color: #fff; font-size: 13px; font-weight: 800;">Ajuda</span>
             </button>
           </div>
         `;
@@ -199,7 +232,7 @@ function iniciarSimulacaoAnimada() {
 // ==========================================
 function iniciarJogo() {
     clearTimeout(simuTimer); 
-    jogoAtivo = true; rondaAtual = 1; certos = 0; erros = 0; ajudasUsadas = 0; 
+    jogoAtivo = true; rondaAtual = 1; estrelasGanhas = 0; erros = 0; ajudasUsadas = 0; 
     totalRondas = 10; ajudaEmCurso = false;
     
     const padroes = ["reta", "quadrado", "quadrado_inv", "ziguezague", "dente_vert", "dente_diag", "trapezio"];
@@ -391,12 +424,14 @@ function avaliarJogada() {
     let accuraciaNecessaria = (itemDestaque.tipo === "reta") ? 0.40 : 0.70;
     
     if (distanciaFim < 80 && accuracia >= accuraciaNecessaria && !saiuDoCaminho) {
-        jogoAtivo = false; certos++; 
+        jogoAtivo = false; 
+        estrelasGanhas++; // Ganha uma estrela ao acertar
         const endEl = document.getElementById('ponto-fim');
         if (endEl) { endEl.style.color = "#8cc63f"; endEl.classList.add('animating'); }
         setTimeout(() => { rondaAtual++; jogoAtivo = true; proximaRonda(); }, 1500);
     } else {
         erros++; 
+        estrelasGanhas = Math.max(0, estrelasGanhas - 1); // Perde uma estrela ao errar (mínimo 0)
         ctx.clearRect(0, 0, canvas.width, canvas.height); 
         desenharGuiasJogo(); 
         atualizarBarraEstado(false);
@@ -448,7 +483,6 @@ function darAjuda() {
 function tocarAudioInstrucoes() {
     if (audioInstrucao) {
         if (!audioInstrucao.paused) {
-            // Se já estiver a tocar, para, volta ao início e toca de novo
             audioInstrucao.pause();
             audioInstrucao.currentTime = 0;
             audioInstrucao.play().catch(() => {});
@@ -473,10 +507,18 @@ function tocarAudioInstrucoes() {
 function finalizarJogo() {
     jogoAtivo = false;
     const contentor = document.getElementById('contentor-jogo');
+    
+    // Geração dinâmica das estrelas ganhas para o ecrã de feedback
+    let estrelasHtml = "";
+    for (let i = 0; i < Math.min(estrelasGanhas, 10); i++) { estrelasHtml += "⭐ "; }
+    if (estrelasHtml === "") estrelasHtml = "💪 Continua a treinar!";
+
     contentor.innerHTML = `
-      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#062B42; text-align:center; padding:20px;">
-        <h2 style="font-size: 2.2rem; font-weight:900; margin-bottom:10px;">Parabéns! Terminaste o jogo! 🎉</h2>
-        <p style="font-size: 1.3rem; font-weight:800; margin-bottom:20px;">Pontuação: <strong>${certos * 10} pontos</strong> (${certos} de ${totalRondas} rondas)</p>
+      <div class="ecra-feedback-container">
+        <h2 class="ecra-feedback-titulo">Parabéns! 🎉</h2>
+        <p class="ecra-feedback-sub">Completaste todas as rondas com sucesso!</p>
+        <div class="ecra-feedback-estrelas">${estrelasHtml}</div>
+        <p style="font-size: 1.1rem; font-weight: 800; margin-bottom: 20px;">Total de Estrelas: <strong>${estrelasGanhas}</strong></p>
         <div class="container-botoes-feedback">
             <button onclick="iniciarJogo()" class="btn-feedback btn-feedback-primario">Jogar de novo</button>
             <button onclick="carregarCapaJogo()" class="btn-feedback btn-feedback-secundario">Escolher outro jogo</button>
