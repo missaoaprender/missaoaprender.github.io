@@ -55,11 +55,11 @@ styleJogo.innerHTML = `
         width: 22px; height: 22px; object-fit: contain; pointer-events: none;
     }
 
-    /* Botão JOGAR original da capa */
+    /* Botão JOGAR original da capa com bordas perfeitamente arredondadas */
     .btn-jogar-capa {
-      padding: 8px 25px; border-radius: 20px; background: #FFFFFF; color: #0F8BD3;
-      border: none; font-size: 1.1rem; font-weight: 900; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-      transition: transform 0.1s ease;
+      padding: 10px 30px !important; border-radius: 25px !important; background: #FFFFFF !important; color: #0F8BD3 !important;
+      border: none !important; font-size: 1.15rem !important; font-weight: 900 !important; cursor: pointer !important; 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important; transition: transform 0.1s ease !important;
     }
     .btn-jogar-capa:active { transform: scale(0.95); }
 
@@ -526,7 +526,7 @@ function finalizarJogo() {
         <p style="font-size: 1.1rem; font-weight: 800; margin-bottom: 20px;">Total de Estrelas: <strong>${estrelasGanhas}</strong></p>
         <div class="container-botoes-feedback">
             <button onclick="iniciarJogo()" class="btn-feedback btn-feedback-primario">Jogar de novo</button>
-            <button onclick="carregarCapaJogo()" class="btn-feedback btn-feedback-secundario">Escolher outro jogo</button>
+            <button onclick="window.location.href='../'" class="btn-feedback btn-feedback-secundario">Escolher outro jogo</button>
         </div>
       </div>
     `;
