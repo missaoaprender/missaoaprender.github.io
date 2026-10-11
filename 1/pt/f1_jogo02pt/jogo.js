@@ -2,7 +2,7 @@
 // ESTADO GLOBAL E SONS
 // ==========================================
 let jogoAtivo = false;
-let rondaAtual = 1, totalRondas = 10, certos = 0, erros = 0, ajudasUsadas = 0;
+let rondaAtual = 1, totalRondas = 10, estrelasGanhas = 0, erros = 0, ajudasUsadas = 0;
 let itemDestaque = null;
 
 let canvas, ctx;
@@ -15,6 +15,8 @@ let pontosCaminho = [];
 let saiuDoCaminho = false;
 let simuTimer = null; 
 let sequenciaNiveis = [];
+
+let audioInstrucao = null;
 
 // ==========================================
 // ESTILOS ESPECÍFICOS DO JOGO
@@ -40,51 +42,105 @@ styleJogo.innerHTML = `
     .animating { animation: pulse 1s infinite alternate; }
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.3); } }
     canvas { position: absolute; top: 0; left: 0; z-index: 5; cursor: pointer; touch-action: none; }
+
+    /* Botão de som e botão de ajuda com exatamente as mesmas dimensões e estilo */
+    .botao-acao-jogo {
+        width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 50%; border: none;
+        background: rgba(0,0,0,0.2); color: #FFFFFF; font-size: 16px;
+        display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s ease;
+        padding: 0; flex-shrink: 0;
+    }
+    .botao-acao-jogo:active { transform: scale(0.92); }
+    .botao-acao-jogo img {
+        width: 22px; height: 22px; object-fit: contain; pointer-events: none;
+    }
+
+    /* Barra de progresso totalmente extensível a ocupar todo o espaço central em falta */
+    .wrapper-progresso-completo {
+        flex: 1; display: flex; align-items: center; gap: 12px; margin: 0 15px; width: 100%; min-width: 0;
+    }
+    .container-progresso-jogo {
+        flex: 1; width: 100%; height: 16px; background: rgba(0,0,0,0.15);
+        border-radius: 10px; overflow: hidden; position: relative; min-width: 40px;
+    }
+    .barra-progresso-interna { width: 0%; height: 100%; background: #FFB400; border-radius: 10px; transition: width 0.3s ease; }
+    .contador-rondas { background: rgba(0,0,0,0.15); color: #FFFFFF; padding: 5px 12px; border-radius: 10px; font-weight: 900; font-size: 14px; white-space: nowrap; flex-shrink: 0; }
+
+    /* Ecrã de Feedback Melhorado */
+    .ecra-feedback-container {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        height: 100%; color: #062B42; text-align: center; padding: 25px;
+        background: linear-gradient(135deg, #ffffff 0%, #E1F2FA 100%);
+        border-radius: 20px; box-shadow: inset 0 2px 8px rgba(15,139,211,0.1);
+    }
+    .ecra-feedback-titulo { font-size: 2.4rem; font-weight: 900; margin-bottom: 8px; color: #0F8BD3; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .ecra-feedback-sub { font-size: 1.25rem; font-weight: 800; margin-bottom: 20px; color: #062B42; }
+    .ecra-feedback-estrelas { font-size: 2rem; margin-bottom: 20px; letter-spacing: 5px; }
+
+    .container-botoes-feedback {
+        display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 10px;
+    }
+    .btn-feedback {
+        padding: 14px 28px; border-radius: 25px; border: none; font-weight: 900; 
+        font-size: 1.05rem; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.2s ease;
+        box-shadow: 0 4px 12px rgba(15,139,211,0.25);
+    }
+    .btn-feedback-primario { background: #0F8BD3; color: #ffffff; }
+    .btn-feedback-secundario { background: #FFFFFF; color: #0F8BD3; border: 2px solid #0F8BD3; }
+    .btn-feedback:active { transform: scale(0.95); }
 `;
 document.head.appendChild(styleJogo);
 
 // ==========================================
-// FULLSCREEN AUTOMÁTICO
+// GESTÃO GLOBAL DE CLIQUES PARA PARAR O SOM
 // ==========================================
-function ativarFullscreenAutomatico() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-            console.log("Fullscreen automático aguarda interação do utilizador:", err.message);
-        });
+document.addEventListener("click", (e) => {
+    const botaoSom = e.target.closest('button[aria-label="Som"]');
+    if (!botaoSom && audioInstrucao && !audioInstrucao.paused) {
+        audioInstrucao.pause();
+        audioInstrucao.currentTime = 0;
     }
-}
+});
 
 // ==========================================
-// ATUALIZAÇÃO DA BARRA DE ESTADO (CAPA VS JOGO)
+// ATUALIZAÇÃO DA BARRA DE ESTADO
 // ==========================================
 function atualizarBarraEstado(modoCapa = false) {
     const barra = document.getElementById('barra-inferior');
     if (!barra) return;
 
+    const iconeSomPath = (DADOS && DADOS.icons && DADOS.icons.som) ? DADOS.icons.som : '../../../icons/som.png';
+    const iconeLampadaPath = (DADOS && DADOS.icons && DADOS.icons.lampada) ? DADOS.icons.lampada : '../../../icons/lampada.png';
+
     if (modoCapa) {
         barra.innerHTML = `
-            <div class="botoes-acao-jogo">
-              <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">🔊</button>
+            <div style="display: flex; gap: 6px;">
+              <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
+                <img src="${iconeSomPath}" alt="Som">
+              </button>
             </div>
-            <button class="btn-jogar-capa" onclick="iniciarJogoComFullscreen()">JOGAR</button>
+            <button class="btn-jogar-capa" onclick="iniciarJogo()">JOGAR</button>
         `;
     } else {
         const progressoPercent = ((rondaAtual - 1) / totalRondas) * 100;
         barra.innerHTML = `
           <div class="bloco-estrelas-pontos">
             <span>⭐</span>
-            <span id="pontos-jogo">${certos * 10}</span>
+            <span id="pontos-jogo">${estrelasGanhas}</span>
           </div>
-          <div class="estrelas-nivel" id="estrelas-container">
-            <span class="ativa">⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
+          <div class="wrapper-progresso-completo">
+            <div class="container-progresso-jogo">
+                <div class="barra-progresso-interna" id="barra-progresso-interna" style="width: ${progressoPercent}%"></div>
+            </div>
+            <div class="contador-rondas" id="contador-rondas">${rondaAtual}/${totalRondas}</div>
           </div>
-          <div class="container-progresso-jogo">
-            <div class="barra-progresso-interna" id="barra-progresso-interna" style="width: ${progressoPercent}%"></div>
-          </div>
-          <div class="contador-rondas" id="contador-rondas">${rondaAtual}/${totalRondas}</div>
-          <div class="botoes-acao-jogo">
-            <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">🔊</button>
-            <button class="botao-acao-jogo" onclick="darAjuda()" aria-label="Ajuda">❓</button>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
+              <img src="${iconeSomPath}" alt="Som">
+            </button>
+            <button class="botao-acao-jogo" onclick="darAjuda()" aria-label="Ajuda">
+              <img src="${iconeLampadaPath}" alt="Ajuda">
+            </button>
           </div>
         `;
     }
@@ -94,8 +150,6 @@ function atualizarBarraEstado(modoCapa = false) {
 // CAPA DO JOGO (COM ANIMAÇÃO)
 // ==========================================
 function carregarCapaJogo() {
-  ativarFullscreenAutomatico();
-
   const contentor = document.getElementById('contentor-jogo');
   if (!contentor) return;
 
@@ -174,14 +228,9 @@ function iniciarSimulacaoAnimada() {
 // ==========================================
 // LÓGICA PRINCIPAL DO JOGO
 // ==========================================
-function iniciarJogoComFullscreen() {
-    ativarFullscreenAutomatico();
-    iniciarJogo();
-}
-
 function iniciarJogo() {
     clearTimeout(simuTimer); 
-    jogoAtivo = true; rondaAtual = 1; certos = 0; erros = 0; ajudasUsadas = 0; 
+    jogoAtivo = true; rondaAtual = 1; estrelasGanhas = 0; erros = 0; ajudasUsadas = 0; 
     totalRondas = 10; ajudaEmCurso = false;
     
     const padroes = ["reta", "quadrado", "quadrado_inv", "ziguezague", "dente_vert", "dente_diag", "trapezio"];
@@ -373,12 +422,14 @@ function avaliarJogada() {
     let accuraciaNecessaria = (itemDestaque.tipo === "reta") ? 0.40 : 0.70;
     
     if (distanciaFim < 80 && accuracia >= accuraciaNecessaria && !saiuDoCaminho) {
-        jogoAtivo = false; certos++; 
+        jogoAtivo = false; 
+        estrelasGanhas++; 
         const endEl = document.getElementById('ponto-fim');
         if (endEl) { endEl.style.color = "#8cc63f"; endEl.classList.add('animating'); }
         setTimeout(() => { rondaAtual++; jogoAtivo = true; proximaRonda(); }, 1500);
     } else {
         erros++; 
+        estrelasGanhas = Math.max(0, estrelasGanhas - 1); 
         ctx.clearRect(0, 0, canvas.width, canvas.height); 
         desenharGuiasJogo(); 
         atualizarBarraEstado(false);
@@ -428,30 +479,52 @@ function darAjuda() {
 }
 
 function tocarAudioInstrucoes() {
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance("Começa na bola e arrasta o dedo pela linha até à seta, sem saíres do traço!");
-    utter.lang = 'pt-PT'; window.speechSynthesis.speak(utter);
+    if (audioInstrucao) {
+        if (!audioInstrucao.paused) {
+            audioInstrucao.pause();
+            audioInstrucao.currentTime = 0;
+            audioInstrucao.play().catch(() => {});
+            return;
+        } else {
+            audioInstrucao.currentTime = 0;
+        }
+    } else {
+        audioInstrucao = new Audio("f1_jogo01pt.wav");
+    }
+
+    audioInstrucao.play().catch(() => {
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+            const utter = new SpeechSynthesisUtterance("Começa na bola e arrasta o dedo pela linha até à seta, sem saíres do traço!");
+            utter.lang = 'pt-PT'; 
+            window.speechSynthesis.speak(utter);
+        }
+    });
 }
 
 function finalizarJogo() {
     jogoAtivo = false;
     const contentor = document.getElementById('contentor-jogo');
+    
+    let estrelasHtml = "";
+    for (let i = 0; i < Math.min(estrelasGanhas, 10); i++) { estrelasHtml += "⭐ "; }
+    if (estrelasHtml === "") estrelasHtml = "💪 Continua a treinar!";
+
     contentor.innerHTML = `
-      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#062B42; text-align:center; padding:20px;">
-        <h2 style="font-size: 2.2rem; font-weight:900; margin-bottom:10px;">Fim do Jogo! 🎉</h2>
-        <p style="font-size: 1.2rem; font-weight:800; margin-bottom:20px;">Acertaste em ${certos} de ${totalRondas} rondas!</p>
-        <button onclick="carregarCapaJogo()" style="padding: 12px 30px; border-radius: 25px; background: #0F8BD3; color: #fff; border: none; font-weight: 900; font-size: 1.1rem; cursor: pointer;">Recomeçar</button>
+      <div class="ecra-feedback-container">
+        <h2 class="ecra-feedback-titulo">Parabéns! 🎉</h2>
+        <p class="ecra-feedback-sub">Completaste todas as rondas com sucesso!</p>
+        <div class="ecra-feedback-estrelas">${estrelasHtml}</div>
+        <p style="font-size: 1.1rem; font-weight: 800; margin-bottom: 20px;">Total de Estrelas: <strong>${estrelasGanhas}</strong></p>
+        <div class="container-botoes-feedback">
+            <button onclick="iniciarJogo()" class="btn-feedback btn-feedback-primario">Jogar de novo</button>
+            <button onclick="carregarCapaJogo()" class="btn-feedback btn-feedback-secundario">Escolher outro jogo</button>
+        </div>
       </div>
     `;
     const barra = document.getElementById('barra-inferior');
     if (barra) barra.innerHTML = '';
 }
 
-// Garante que a capa e a animação só arrancam após o DOM estar pronto
-document.addEventListener("DOMContentLoaded", () => {
-  carregarCapaJogo();
-});
-
-if (document.readyState === "complete" || document.readyState === "interactive") {
-  carregarCapaJogo();
-}
+// Dispara o carregamento assim que o script é lido e injetado pelo index.html
+carregarCapaJogo();
