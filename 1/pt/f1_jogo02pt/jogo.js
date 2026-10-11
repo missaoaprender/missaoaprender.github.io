@@ -1,9 +1,14 @@
 // ==========================================
-// ESTADO GLOBAL E SONS
+// 1. ESTADO GLOBAL E SONS
 // ==========================================
 let jogoAtivo = false;
-let rondaAtual = 1, totalRondas = 10, estrelasGanhas = 0, erros = 0, ajudasUsadas = 0;
+let rondaAtual = 0, totalRondas = 10, certos = 0, erros = 0, ajudasUsadas = 0;
 let itemDestaque = null;
+let audioInstrucoes = null;
+
+const somAcerto = new Audio(JOGO_CONFIG.caminhoSons + JOGO_CONFIG.sons.acerto);
+const somErro = new Audio(JOGO_CONFIG.caminhoSons + JOGO_CONFIG.sons.erro);
+const somClique = new Audio(JOGO_CONFIG.caminhoSons + JOGO_CONFIG.sons.clique);
 
 let canvas, ctx;
 let isDrawing = false;
@@ -16,159 +21,112 @@ let saiuDoCaminho = false;
 let simuTimer = null; 
 let sequenciaNiveis = [];
 
-let audioInstrucao = null;
+// ==========================================
+// 2. CONFIGURAÇÃO VISUAL (CSS INJETADO)
+// ==========================================
+const style = document.createElement('style');
+style.innerHTML = `
+    .btn-play-rect { flex: 1; height: 65px; border-radius: 35px; background: var(--primary-color); color: white; border: none; font-size: 1.5rem; font-weight: 900; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: 0.2s; z-index: 100; }
+    .btn-audio-circle { width: 65px; height: 65px; cursor: pointer; flex-shrink: 0; z-index: 100; }
 
-// ==========================================
-// ESTILOS ESPECÍFICOS DO JOGO
-// ==========================================
-const styleJogo = document.createElement('style');
-styleJogo.innerHTML = `
     .grafismo-area {
-        position: relative; width: 100%; max-width: 750px; height: 260px;
-        background: #fdfdfd; border: 4px dashed #B4E4F8; border-radius: 20px;
+        position: relative; width: 100%; max-width: 800px; height: 320px;
+        background: #fdfdfd; border: 4px dashed #e0e0e0; border-radius: 30px;
         margin: 0 auto; display: flex; justify-content: space-between; align-items: center;
         padding: 0 40px; overflow: hidden;
+        transition: background-color 0.3s ease;
     }
+
     .ponto-inicio {
         width: 35px; height: 35px; border-radius: 50%; 
-        background: #0F8BD3; border: 4px solid #fff; 
-        box-shadow: 0 0 0 5px rgba(15,139,211,0.3), 0 4px 10px rgba(0,0,0,0.2); 
+        background: var(--primary-color); border: 4px solid #fff; 
+        box-shadow: 0 0 0 5px var(--primary-color), 0 4px 10px rgba(0,0,0,0.2); 
         z-index: 10; position: relative; flex-shrink: 0;
     }
+    
     .ponto-fim { 
-        font-size: 3rem; color: #d0d0d0; z-index: 10; position: relative; 
+        font-size: 3.5rem; color: #d0d0d0; z-index: 10; position: relative; 
         transition: 0.3s; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
     }
+
     .animating { animation: pulse 1s infinite alternate; }
     @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.3); } }
+
     canvas { position: absolute; top: 0; left: 0; z-index: 5; cursor: pointer; touch-action: none; }
+    canvas:active { cursor: grabbing; }
 
-    /* Botão de som e botão de ajuda com exatamente as mesmas dimensões e estilo */
-    .botao-acao-jogo {
-        width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 50%; border: none;
-        background: rgba(0,0,0,0.2); color: #FFFFFF; font-size: 16px;
-        display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.1s ease;
-        padding: 0; flex-shrink: 0;
-    }
-    .botao-acao-jogo:active { transform: scale(0.92); }
-    .botao-acao-jogo img {
-        width: 22px; height: 22px; object-fit: contain; pointer-events: none;
-    }
-
-    /* Barra de progresso totalmente extensível a ocupar todo o espaço central em falta */
-    .wrapper-progresso-completo {
-        flex: 1; display: flex; align-items: center; gap: 12px; margin: 0 15px; width: 100%; min-width: 0;
-    }
-    .container-progresso-jogo {
-        flex: 1; width: 100%; height: 16px; background: rgba(0,0,0,0.15);
-        border-radius: 10px; overflow: hidden; position: relative; min-width: 40px;
-    }
-    .barra-progresso-interna { width: 0%; height: 100%; background: #FFB400; border-radius: 10px; transition: width 0.3s ease; }
-    .contador-rondas { background: rgba(0,0,0,0.15); color: #FFFFFF; padding: 5px 12px; border-radius: 10px; font-weight: 900; font-size: 14px; white-space: nowrap; flex-shrink: 0; }
-
-    /* Ecrã de Feedback Melhorado */
+    /* Ecrã de Feedback Melhorado com Destaque Máximo */
     .ecra-feedback-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        height: 100%; color: #062B42; text-align: center; padding: 25px;
+        height: 100%; color: #062B42; text-align: center; padding: 15px;
         background: linear-gradient(135deg, #ffffff 0%, #E1F2FA 100%);
-        border-radius: 20px; box-shadow: inset 0 2px 8px rgba(15,139,211,0.1);
+        border-radius: 30px; box-shadow: inset 0 2px 8px rgba(15,139,211,0.1);
     }
-    .ecra-feedback-titulo { font-size: 2.4rem; font-weight: 900; margin-bottom: 8px; color: #0F8BD3; text-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .ecra-feedback-sub { font-size: 1.25rem; font-weight: 800; margin-bottom: 20px; color: #062B42; }
-    .ecra-feedback-estrelas { font-size: 2rem; margin-bottom: 20px; letter-spacing: 5px; }
+    .ecra-feedback-imagem { width: 180px; height: 180px; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.22)); }
+    .ecra-feedback-estrelas { font-size: 1.8rem; margin-bottom: 15px; letter-spacing: 4px; }
 
     .container-botoes-feedback {
-        display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 10px;
+        display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 5px;
     }
     .btn-feedback {
-        padding: 14px 28px; border-radius: 25px; border: none; font-weight: 900; 
-        font-size: 1.05rem; cursor: pointer; transition: transform 0.1s ease, box-shadow 0.2s ease;
+        width: 190px; height: 50px; border-radius: 25px; border: none; font-weight: 900; 
+        font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        transition: transform 0.1s ease, box-shadow 0.2s ease;
         box-shadow: 0 4px 12px rgba(15,139,211,0.25);
     }
-    .btn-feedback-primario { background: #0F8BD3; color: #ffffff; }
-    .btn-feedback-secundario { background: #FFFFFF; color: #0F8BD3; border: 2px solid #0F8BD3; }
+    .btn-feedback-primario { background: var(--primary-color); color: #ffffff; }
+    .btn-feedback-secundario { background: #FFFFFF; color: var(--primary-color); border: 2px solid var(--primary-color); }
     .btn-feedback:active { transform: scale(0.95); }
+
+    @media screen and (max-width: 500px) {
+        .grafismo-area { height: 240px; padding: 0 20px; }
+        .ponto-inicio { width: 25px; height: 25px; }
+        .ponto-fim { font-size: 2.5rem; }
+    }
 `;
-document.head.appendChild(styleJogo);
+document.head.appendChild(style);
 
 // ==========================================
-// GESTÃO GLOBAL DE CLIQUES PARA PARAR O SOM
+// 3. LÓGICA DE CAPA COM SIMULAÇÃO ANIMADA
 // ==========================================
-document.addEventListener("click", (e) => {
-    const botaoSom = e.target.closest('button[aria-label="Som"]');
-    if (!botaoSom && audioInstrucao && !audioInstrucao.paused) {
-        audioInstrucao.pause();
-        audioInstrucao.currentTime = 0;
-    }
-});
-
-// ==========================================
-// ATUALIZAÇÃO DA BARRA DE ESTADO
-// ==========================================
-function atualizarBarraEstado(modoCapa = false) {
-    const barra = document.getElementById('barra-inferior');
-    if (!barra) return;
-
-    const iconeSomPath = (DADOS && DADOS.icons && DADOS.icons.som) ? DADOS.icons.som : '../../../icons/som.png';
-    const iconeLampadaPath = (DADOS && DADOS.icons && DADOS.icons.lampada) ? DADOS.icons.lampada : '../../../icons/lampada.png';
-
-    if (modoCapa) {
-        barra.innerHTML = `
-            <div style="display: flex; gap: 6px;">
-              <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
-                <img src="${iconeSomPath}" alt="Som">
-              </button>
-            </div>
-            <button class="btn-jogar-capa" onclick="iniciarJogo()">JOGAR</button>
-        `;
-    } else {
-        const progressoPercent = ((rondaAtual - 1) / totalRondas) * 100;
-        barra.innerHTML = `
-          <div class="bloco-estrelas-pontos">
-            <span>⭐</span>
-            <span id="pontos-jogo">${estrelasGanhas}</span>
-          </div>
-          <div class="wrapper-progresso-completo">
-            <div class="container-progresso-jogo">
-                <div class="barra-progresso-interna" id="barra-progresso-interna" style="width: ${progressoPercent}%"></div>
-            </div>
-            <div class="contador-rondas" id="contador-rondas">${rondaAtual}/${totalRondas}</div>
-          </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
-              <img src="${iconeSomPath}" alt="Som">
-            </button>
-            <button class="botao-acao-jogo" onclick="darAjuda()" aria-label="Ajuda">
-              <img src="${iconeLampadaPath}" alt="Ajuda">
-            </button>
-          </div>
-        `;
-    }
+function tocarAudioInstrucoes() {
+    somClique.currentTime = 0; somClique.play().catch(e=>console.log(e));
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (audioInstrucoes) { audioInstrucoes.pause(); audioInstrucoes.currentTime = 0; }
+    else { audioInstrucoes = new Audio(JOGO_CONFIG.caminhoSons + "f1_jogo02pt.mp3"); }
+    
+    audioInstrucoes.play().catch(() => {
+        const utter = new SpeechSynthesisUtterance("Começa na bola e arrasta o dedo pela linha até à seta, sem saíres do traço!");
+        utter.lang = 'pt-PT'; window.speechSynthesis.speak(utter);
+    });
 }
 
-// ==========================================
-// CAPA DO JOGO (COM ANIMAÇÃO)
-// ==========================================
-function carregarCapaJogo() {
-  const contentor = document.getElementById('contentor-jogo');
-  if (!contentor) return;
-
-  contentor.innerHTML = `
-    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%;">
-        <div class="grafismo-area" id="simu-area" style="transform: scale(0.9); height: 210px; margin-bottom: 5px;">
-            <div class="ponto-inicio" id="simu-inicio"></div>
-            <canvas id="simu-canvas"></canvas>
-            <div class="ponto-fim" id="simu-fim">➡️</div>
-            <div id="simu-hand" style="position:absolute; font-size:2.5rem; z-index:100; pointer-events:none; transition: opacity 0.3s;">👆</div>
+function mostrarCapa() {
+    if (jogoAtivo) return;
+    document.getElementById('shell-header-content').innerHTML = `<h2 style="color:var(--primary-color); font-weight:900; text-transform:uppercase;">${JOGO_CONFIG.nomeDoJogo}</h2>`;
+    
+    document.getElementById('game-content').innerHTML = `
+        <div style="display:flex; flex-direction:column; align-items:center; width: 100%;">
+            <div class="grafismo-area" id="simu-area" style="transform: scale(0.8); height: 220px; border-color: var(--primary-color); margin-bottom: -10px;">
+                <div class="ponto-inicio" id="simu-inicio"></div>
+                <canvas id="simu-canvas"></canvas>
+                <div class="ponto-fim" id="simu-fim"><i class="fas fa-arrow-right"></i></div>
+                <div id="simu-hand" style="position:absolute; font-size:3rem; z-index:100; pointer-events:none; filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.3)); transition: opacity 0.3s;">👆</div>
+            </div>
+            <p style="color:var(--text-grey); font-weight:800; text-align:center; font-size:1.1rem; max-width: 500px; padding: 0 15px;">
+                ${JOGO_CONFIG.descricao}
+            </p>
         </div>
-        <p style="color:#062B42; font-weight:800; text-align:center; font-size:1.05rem; max-width: 500px; margin: 0;">
-            Começa na bola e arrasta o dedo pela linha até à seta, sem saíres do traço!
-        </p>
-    </div>
-  `;
+    `;
+    
+    const footer = document.getElementById('shell-footer-content');
+    footer.style.display = "flex";
+    footer.innerHTML = `
+        <img src="${JOGO_CONFIG.caminhoIconsMenu}audio.png" class="btn-audio-circle" onclick="tocarAudioInstrucoes()"> 
+        <button class="btn-play-rect" onclick="iniciarJogo()"><i class="fas fa-play"></i> JOGAR</button>
+    `;
 
-  atualizarBarraEstado(true);
-  setTimeout(iniciarSimulacaoAnimada, 150);
+    setTimeout(iniciarSimulacaoAnimada, 100);
 }
 
 function iniciarSimulacaoAnimada() {
@@ -176,24 +134,24 @@ function iniciarSimulacaoAnimada() {
     if(!sCanvas) return;
     const sCtx = sCanvas.getContext('2d');
     const sArea = document.getElementById('simu-area');
-    if(!sArea) return;
     
     sCanvas.width = sArea.clientWidth; sCanvas.height = sArea.clientHeight;
+    
     const startEl = document.getElementById('simu-inicio');
     const endEl = document.getElementById('simu-fim');
     
-    if (!startEl || !endEl) return;
     const startX = startEl.offsetLeft + (startEl.offsetWidth / 2);
     const startY = sCanvas.height / 2; 
     const endX = endEl.offsetLeft + 5;
     const endY = sCanvas.height / 2;
 
-    const path = gerarPontosGrafismos("trapezio", startX, startY, endX, endY);
+    const path = gerarPontosGrafismos("onda", startX, startY, endX, endY);
     
     function desenhaFundo(ctx) {
-        ctx.beginPath(); ctx.setLineDash([12, 12]); ctx.lineWidth = 5; ctx.strokeStyle = "#c0c0c0";
+        ctx.beginPath(); ctx.setLineDash([15, 15]); ctx.lineWidth = 6; ctx.strokeStyle = "#d0d0d0";
         ctx.moveTo(path[0].x, path[0].y); path.forEach(p => ctx.lineTo(p.x, p.y)); ctx.stroke(); ctx.setLineDash([]);
     }
+
     desenhaFundo(sCtx);
 
     const hand = document.getElementById('simu-hand');
@@ -204,20 +162,22 @@ function iniciarSimulacaoAnimada() {
         if (step === 0) {
             sCtx.clearRect(0,0, sCanvas.width, sCanvas.height);
             desenhaFundo(sCtx);
-            sCtx.beginPath(); sCtx.lineWidth = 12; sCtx.strokeStyle = "#0F8BD3"; sCtx.lineCap = "round"; sCtx.lineJoin = "round";
+            sCtx.beginPath(); sCtx.lineWidth = 14; sCtx.strokeStyle = "var(--primary-color)"; sCtx.lineCap = "round"; sCtx.lineJoin = "round";
             sCtx.moveTo(path[0].x, path[0].y);
-            if (hand) { hand.style.opacity = 1; hand.innerText = "👆"; }
+            hand.style.opacity = 1; hand.innerText = "👆";
         }
 
-        if (step < path.length && hand) {
+        if (step < path.length) {
             const pt = path[step];
-            hand.style.left = (pt.x - 15) + "px"; 
+            hand.style.left = (pt.x - 22) + "px"; 
             hand.style.top = (pt.y - 5) + "px"; 
-            if(step > 5) hand.innerText = "✊"; 
+            
+            if(step > 10) hand.innerText = "✊"; 
+            
             sCtx.lineTo(pt.x, pt.y); sCtx.stroke();
-            step++;
+            step += 2; 
             simuTimer = setTimeout(animar, 15); 
-        } else if (hand) {
+        } else {
             hand.style.opacity = 0; step = 0;
             simuTimer = setTimeout(animar, 1500); 
         }
@@ -226,16 +186,22 @@ function iniciarSimulacaoAnimada() {
 }
 
 // ==========================================
-// LÓGICA PRINCIPAL DO JOGO
+// 4. LÓGICA DE JOGO PRINCIPAL
 // ==========================================
 function iniciarJogo() {
     clearTimeout(simuTimer); 
-    jogoAtivo = true; rondaAtual = 1; estrelasGanhas = 0; erros = 0; ajudasUsadas = 0; 
-    totalRondas = 10; ajudaEmCurso = false;
+    jogoAtivo = true; rondaAtual = 1; certos = 0; erros = 0; ajudasUsadas = 0; 
+    totalRondas = 10; 
+    ajudaEmCurso = false;
     
-    const padroes = ["reta", "quadrado", "quadrado_inv", "ziguezague", "dente_vert", "dente_diag", "trapezio"];
+    const padroes = [
+        "onda", "onda_larga", "onda_assimetrica", "onda_crescente", 
+        "lacos", "lacos_duplos", "molas", 
+        "montanha", "arcos_baixo", "castelo_curvo"
+    ];
     sequenciaNiveis = [];
-    let deck = [...padroes, ...padroes]; 
+    
+    let deck = [...padroes]; 
     deck.sort(() => Math.random() - 0.5);
     for(let i=0; i<10; i++) sequenciaNiveis.push({ tipo: deck[i] });
 
@@ -246,29 +212,28 @@ function proximaRonda() {
     if (rondaAtual > totalRondas) { finalizarJogo(); return; }
     
     ajudaEmCurso = false;
-    const contentor = document.getElementById('contentor-jogo');
+    Engine.showStatusBar(rondaAtual, totalRondas, certos, erros, ajudasUsadas < 2);
+    const area = document.getElementById('game-content');
     itemDestaque = sequenciaNiveis[rondaAtual - 1]; 
     
-    contentor.innerHTML = `
-      <div class="grafismo-area" id="area-desenho">
-          <div class="ponto-inicio" id="ponto-inicio"></div>
-          <canvas id="linhaCanvas"></canvas>
-          <div class="ponto-fim" id="ponto-fim">➡️</div>
-          <div id="game-hand" style="position:absolute; font-size:2.5rem; z-index:100; pointer-events:none; opacity:0; transition: opacity 0.3s;">👆</div>
-      </div>
+    area.innerHTML = `
+        <div class="grafismo-area" id="area-desenho">
+            <div class="ponto-inicio" id="ponto-inicio"></div>
+            <canvas id="linhaCanvas"></canvas>
+            <div class="ponto-fim" id="ponto-fim"><i class="fas fa-arrow-right"></i></div>
+            <div id="game-hand" style="position:absolute; font-size:3rem; z-index:100; pointer-events:none; opacity:0; filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.3)); transition: opacity 0.3s;">👆</div>
+        </div>
     `;
-
-    atualizarBarraEstado(false);
     setTimeout(configurarCanvas, 100); 
 }
 
 function desenharGuiasJogo() {
-    ctx.beginPath(); ctx.lineWidth = 35; ctx.strokeStyle = "#ffffff"; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.beginPath(); ctx.lineWidth = 40; ctx.strokeStyle = "#ffffff"; ctx.lineCap = "round"; ctx.lineJoin = "round";
     ctx.moveTo(pontosCaminho[0].x, pontosCaminho[0].y);
     pontosCaminho.forEach(pt => ctx.lineTo(pt.x, pt.y));
     ctx.stroke();
 
-    ctx.beginPath(); ctx.setLineDash([12, 12]); ctx.lineWidth = 5; ctx.strokeStyle = "#c0c0c0"; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.beginPath(); ctx.setLineDash([15, 15]); ctx.lineWidth = 6; ctx.strokeStyle = "#c0c0c0"; ctx.lineCap = "round"; ctx.lineJoin = "round";
     ctx.moveTo(pontosCaminho[0].x, pontosCaminho[0].y);
     pontosCaminho.forEach(pt => ctx.lineTo(pt.x, pt.y));
     ctx.stroke(); ctx.setLineDash([]);
@@ -277,13 +242,11 @@ function desenharGuiasJogo() {
 function configurarCanvas() {
     const container = document.getElementById('area-desenho');
     canvas = document.getElementById('linhaCanvas');
-    if (!canvas || !container) return;
     ctx = canvas.getContext('2d');
     canvas.width = container.clientWidth; canvas.height = container.clientHeight;
 
     const startEl = document.getElementById('ponto-inicio');
     const endEl = document.getElementById('ponto-fim');
-    if (!startEl || !endEl) return;
     
     const startX = startEl.offsetLeft + (startEl.offsetWidth / 2);
     const startY = canvas.height / 2;
@@ -291,6 +254,7 @@ function configurarCanvas() {
     posFinalY = canvas.height / 2;
 
     pontosCaminho = gerarPontosGrafismos(itemDestaque.tipo, startX, startY, posFinalX, posFinalY);
+    
     desenharGuiasJogo();
 
     canvas.addEventListener('mousedown', startDrawing); canvas.addEventListener('mousemove', draw);
@@ -300,69 +264,69 @@ function configurarCanvas() {
     canvas.addEventListener('touchend', stopDrawing);
 }
 
+// ==========================================
+// GERADOR DE CURVAS (MATEMÁTICA)
+// ==========================================
 function gerarPontosGrafismos(tipo, sX, sY, eX, eY) {
-    let nodes = [];
+    let pts = [];
     const w = eX - sX;
-    const h = 70; const ciclos = 3; const cw = w / ciclos;
-    nodes.push({x: sX, y: sY}); 
+    const h = 75; 
+    const steps = 250; 
+    
+    let ciclos = 3;
 
-    if (tipo === "reta") nodes.push({x: eX, y: eY});
-    else if (tipo === "quadrado") { 
-        for(let i=0; i<ciclos; i++) {
-            let bx = sX + (i * cw);
-            nodes.push({x: bx, y: sY - h}); nodes.push({x: bx + cw/2, y: sY - h});
-            nodes.push({x: bx + cw/2, y: sY}); nodes.push({x: bx + cw, y: sY});
-        }
-    }
-    else if (tipo === "quadrado_inv") { 
-        for(let i=0; i<ciclos; i++) {
-            let bx = sX + (i * cw);
-            nodes.push({x: bx, y: sY + h}); nodes.push({x: bx + cw/2, y: sY + h});
-            nodes.push({x: bx + cw/2, y: sY}); nodes.push({x: bx + cw, y: sY});
-        }
-    }
-    else if (tipo === "trapezio") { 
-        for(let i=0; i<ciclos; i++) {
-            let bx = sX + (i * cw);
-            nodes.push({x: bx + cw*0.25, y: sY - h}); nodes.push({x: bx + cw*0.75, y: sY - h}); nodes.push({x: bx + cw, y: sY});
-        }
-    }
-    else if (tipo === "ziguezague") { 
-        let picos = 3; let zw = w / (picos * 2); 
-        for(let i=1; i<=picos*2; i++) nodes.push({x: sX + (i*zw), y: (i%2 !== 0) ? sY - h : sY});
-    }
-    else if (tipo === "dente_vert") { 
-        for(let i=0; i<ciclos; i++) {
-            let bx = sX + (i * cw);
-            nodes.push({x: bx, y: sY - h}); nodes.push({x: bx + cw, y: sY});
-        }
-    }
-    else if (tipo === "dente_diag") { 
-        for(let i=0; i<ciclos; i++) {
-            let bx = sX + (i * cw);
-            nodes.push({x: bx + cw, y: sY - h}); nodes.push({x: bx + cw, y: sY});
-        }
-    }
-
-    nodes.push({x: eX, y: eY}); 
-    let pts = []; let totalDist = 0; let segDist = [];
-    for(let i = 0; i < nodes.length - 1; i++) {
-        let d = Math.hypot(nodes[i+1].x - nodes[i].x, nodes[i+1].y - nodes[i].y);
-        totalDist += d; segDist.push(d);
-    }
-
-    const steps = 150;
     for(let i = 0; i <= steps; i++) {
-        let targetD = totalDist * (i / steps); let currD = 0;
-        for(let j = 0; j < nodes.length - 1; j++) {
-            if (currD + segDist[j] >= targetD || j === nodes.length - 2) {
-                let prog = Math.max(0, Math.min(1, (targetD - currD) / segDist[j]));
-                pts.push({ x: nodes[j].x + (nodes[j+1].x - nodes[j].x) * prog, y: nodes[j].y + (nodes[j+1].y - nodes[j].y) * prog, hit: false });
-                break;
-            }
-            currD += segDist[j];
+        let prog = i / steps; 
+        let t = prog * Math.PI * 2 * ciclos;
+        
+        let currX = sX + w * prog;
+        let currY = sY;
+
+        if (tipo === "onda") {
+            currY = sY - (Math.sin(t) * h);
         }
+        else if (tipo === "onda_larga") {
+            currY = sY - (Math.sin(prog * Math.PI * 2 * 1.5) * h);
+        }
+        else if (tipo === "onda_assimetrica") {
+            currY = sY - (Math.sin(t) + 0.5 * Math.sin(2 * t)) * (h * 0.65);
+        }
+        else if (tipo === "onda_crescente") {
+            let amp = 10 + prog * (h - 10);
+            currY = sY - Math.sin(prog * Math.PI * 2 * 4) * amp;
+        }
+        else if (tipo === "lacos") {
+            let radius = h * 0.7;
+            currX = sX + w * prog - Math.sin(t) * radius;
+            currY = sY - Math.cos(t) * radius + radius; 
+        }
+        else if (tipo === "lacos_duplos") {
+            let radius3 = h * 0.6;
+            currX = sX + w * prog - Math.sin(t) * radius3 * 0.4; 
+            currY = sY - Math.sin(t * 2) * radius3; 
+        }
+        else if (tipo === "molas") {
+            let tMola = prog * Math.PI * 2 * 6;
+            let radius2 = h * 0.45;
+            currX = sX + w * prog - Math.sin(tMola) * radius2;
+            currY = sY - Math.cos(tMola) * radius2;
+        }
+        else if (tipo === "montanha") {
+            currY = sY - (Math.abs(Math.sin(prog * Math.PI * ciclos)) * h);
+        }
+        else if (tipo === "arcos_baixo") {
+            currY = sY + (Math.abs(Math.sin(prog * Math.PI * ciclos)) * h);
+        }
+        else if (tipo === "castelo_curvo") {
+            currY = sY - (Math.sin(t) + (1/3)*Math.sin(3*t) + (1/5)*Math.sin(5*t)) * (h * 0.8);
+        }
+
+        pts.push({ x: currX, y: currY, hit: false });
     }
+
+    pts[0].x = sX; pts[0].y = sY;
+    pts[pts.length-1].x = eX; pts[pts.length-1].y = eY;
+
     return pts;
 }
 
@@ -375,6 +339,7 @@ function getClientOffset(e) {
 function startDrawing(e) {
     if (!jogoAtivo || ajudaEmCurso) return; 
     e.preventDefault();
+    
     const pos = getClientOffset(e);
     const startPt = pontosCaminho[0];
     if (Math.hypot(pos.x - startPt.x, pos.y - startPt.y) > 50) return; 
@@ -382,26 +347,30 @@ function startDrawing(e) {
     isDrawing = true; saiuDoCaminho = false;
     pontosCaminho.forEach(p => p.hit = false); 
     posAtualX = pos.x; posAtualY = pos.y;
+    
     ctx.beginPath(); ctx.moveTo(pos.x, pos.y);
-    ctx.lineWidth = 12; ctx.strokeStyle = "#0F8BD3"; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.lineWidth = 14; ctx.strokeStyle = "var(--primary-color)"; ctx.lineCap = "round"; ctx.lineJoin = "round";
 }
 
 function draw(e) {
     if (!isDrawing || !jogoAtivo || ajudaEmCurso) return;
     e.preventDefault();
     const pos = getClientOffset(e);
+    
     let dist = Math.hypot(pos.x - posAtualX, pos.y - posAtualY);
     let steps = Math.max(1, Math.floor(dist / 5)); 
     
     for(let s = 1; s <= steps; s++) {
         let chkX = posAtualX + (pos.x - posAtualX)*(s/steps); 
         let chkY = posAtualY + (pos.y - posAtualY)*(s/steps);
+        
         let minDist = Infinity; let closestIdx = -1;
         for(let i=0; i<pontosCaminho.length; i++) {
             let d = Math.hypot(chkX - pontosCaminho[i].x, chkY - pontosCaminho[i].y);
             if(d < minDist) { minDist = d; closestIdx = i; }
         }
-        if (minDist > 40) saiuDoCaminho = true; 
+        
+        if (minDist > 55) saiuDoCaminho = true; 
         else if (closestIdx !== -1) pontosCaminho[closestIdx].hit = true; 
     }
     posAtualX = pos.x; posAtualY = pos.y;
@@ -419,53 +388,85 @@ function avaliarJogada() {
     const distanciaFim = Math.hypot(posFinalX - posAtualX, posFinalY - posAtualY);
     let pontosAtingidos = pontosCaminho.filter(p => p.hit).length;
     let accuracia = pontosAtingidos / pontosCaminho.length;
-    let accuraciaNecessaria = (itemDestaque.tipo === "reta") ? 0.40 : 0.70;
+    
+    let accuraciaNecessaria = 0.55; 
     
     if (distanciaFim < 80 && accuracia >= accuraciaNecessaria && !saiuDoCaminho) {
-        jogoAtivo = false; 
-        estrelasGanhas++; 
+        jogoAtivo = false; certos++; 
+        somAcerto.currentTime = 0; somAcerto.play().catch(e=>console.log(e));
+        
         const endEl = document.getElementById('ponto-fim');
-        if (endEl) { endEl.style.color = "#8cc63f"; endEl.classList.add('animating'); }
+        endEl.style.color = "#8cc63f"; endEl.classList.add('animating');
+        document.getElementById('area-desenho').style.borderColor = "#8cc63f";
+        
         setTimeout(() => { rondaAtual++; jogoAtivo = true; proximaRonda(); }, 1500);
     } else {
         erros++; 
-        estrelasGanhas = Math.max(0, estrelasGanhas - 1); 
+        somErro.currentTime = 0; somErro.play().catch(e=>console.log(e));
         ctx.clearRect(0, 0, canvas.width, canvas.height); 
         desenharGuiasJogo(); 
-        atualizarBarraEstado(false);
+        Engine.showStatusBar(rondaAtual, totalRondas, certos, erros, ajudasUsadas < 2);
     }
 }
 
+// ==========================================
+// SISTEMA DE AJUDA ANIMADO (MÁX 2 VEZES)
+// ==========================================
 function darAjuda() {
-    if (!jogoAtivo || ajudaEmCurso) return;
-    ajudasUsadas++; ajudaEmCurso = true; isDrawing = false; 
+    if (!jogoAtivo || ajudaEmCurso || ajudasUsadas >= 2) return;
+    
+    ajudasUsadas++; 
+    certos = Math.max(0, certos - 1); // Desconta uma estrela, mínimo 0
+    somClique.currentTime = 0; somClique.play().catch(e=>console.log(e));
+    
+    Engine.showStatusBar(rondaAtual, totalRondas, certos, erros, ajudasUsadas < 2);
+
+    ajudaEmCurso = true;
+    isDrawing = false; 
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     desenharGuiasJogo();
     
     const hand = document.getElementById('game-hand');
-    if(hand) { hand.style.opacity = 1; hand.innerText = "👆"; }
+    hand.style.opacity = 1;
+    hand.innerText = "👆";
     
     let step = 0;
+    
     function animarAjuda() {
-        if (!jogoAtivo || !document.getElementById('game-hand')) { ajudaEmCurso = false; return; }
+        if (!jogoAtivo || !document.getElementById('game-hand')) {
+            ajudaEmCurso = false; return;
+        }
+        
         if (step === 0) {
-            ctx.beginPath(); ctx.lineWidth = 12; ctx.strokeStyle = "#0F8BD3"; 
+            ctx.beginPath();
+            ctx.lineWidth = 14; 
+            ctx.strokeStyle = "var(--primary-color)"; 
             ctx.lineCap = "round"; ctx.lineJoin = "round";
             ctx.moveTo(pontosCaminho[0].x, pontosCaminho[0].y);
         }
-        if (step < pontosCaminho.length && hand) {
+
+        if (step < pontosCaminho.length) {
             const pt = pontosCaminho[step];
-            hand.style.left = (pt.x - 15) + "px"; hand.style.top = (pt.y - 5) + "px";
-            if(step > 5) hand.innerText = "✊"; 
-            ctx.lineTo(pt.x, pt.y); ctx.stroke();
-            step += 2; 
-            if (step >= pontosCaminho.length) step = pontosCaminho.length - 1;
+            hand.style.left = (pt.x - 22) + "px"; 
+            hand.style.top = (pt.y - 5) + "px";
+            
+            if(step > 10) hand.innerText = "✊"; 
+            
+            ctx.lineTo(pt.x, pt.y); 
+            ctx.stroke();
+            
+            step += 3; 
+            
+            if (step >= pontosCaminho.length) step = pontosCaminho.length - 1; 
+            
             if (step < pontosCaminho.length - 1) {
-                setTimeout(animarAjuda, 12); 
+                setTimeout(animarAjuda, 10); 
             } else {
                 const lastPt = pontosCaminho[pontosCaminho.length - 1];
-                hand.style.left = (lastPt.x - 15) + "px"; hand.style.top = (lastPt.y - 5) + "px";
+                hand.style.left = (lastPt.x - 22) + "px"; hand.style.top = (lastPt.y - 5) + "px";
                 ctx.lineTo(lastPt.x, lastPt.y); ctx.stroke();
+                
                 setTimeout(() => {
                     hand.style.opacity = 0;
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -478,53 +479,17 @@ function darAjuda() {
     animarAjuda();
 }
 
-function tocarAudioInstrucoes() {
-    if (audioInstrucao) {
-        if (!audioInstrucao.paused) {
-            audioInstrucao.pause();
-            audioInstrucao.currentTime = 0;
-            audioInstrucao.play().catch(() => {});
-            return;
-        } else {
-            audioInstrucao.currentTime = 0;
-        }
-    } else {
-        audioInstrucao = new Audio("f1_jogo01pt.wav");
-    }
-
-    audioInstrucao.play().catch(() => {
-        if (window.speechSynthesis) {
-            window.speechSynthesis.cancel();
-            const utter = new SpeechSynthesisUtterance("Começa na bola e arrasta o dedo pela linha até à seta, sem saíres do traço!");
-            utter.lang = 'pt-PT'; 
-            window.speechSynthesis.speak(utter);
-        }
-    });
-}
-
 function finalizarJogo() {
     jogoAtivo = false;
-    const contentor = document.getElementById('contentor-jogo');
+    if(audioInstrucoes) audioInstrucoes.pause();
     
-    let estrelasHtml = "";
-    for (let i = 0; i < Math.min(estrelasGanhas, 10); i++) { estrelasHtml += "⭐ "; }
-    if (estrelasHtml === "") estrelasHtml = "💪 Continua a treinar!";
+    // Reproduz o som correto/errado no fim com base nas estrelas obtidas (>= 5 certo, <= 4 errado)
+    if (certos <= 4) {
+        somErro.currentTime = 0; somErro.play().catch(e=>console.log(e));
+    } else {
+        somAcerto.currentTime = 0; somAcerto.play().catch(e=>console.log(e));
+    }
 
-    contentor.innerHTML = `
-      <div class="ecra-feedback-container">
-        <h2 class="ecra-feedback-titulo">Parabéns! 🎉</h2>
-        <p class="ecra-feedback-sub">Completaste todas as rondas com sucesso!</p>
-        <div class="ecra-feedback-estrelas">${estrelasHtml}</div>
-        <p style="font-size: 1.1rem; font-weight: 800; margin-bottom: 20px;">Total de Estrelas: <strong>${estrelasGanhas}</strong></p>
-        <div class="container-botoes-feedback">
-            <button onclick="iniciarJogo()" class="btn-feedback btn-feedback-primario">Jogar de novo</button>
-            <button onclick="carregarCapaJogo()" class="btn-feedback btn-feedback-secundario">Escolher outro jogo</button>
-        </div>
-      </div>
-    `;
-    const barra = document.getElementById('barra-inferior');
-    if (barra) barra.innerHTML = '';
+    const rel = JOGO_CONFIG.relatorios.find(r => certos >= r.min && certos <= r.max);
+    Engine.showResults(certos, erros, ajudasUsadas, rel);
 }
-
-// Dispara o carregamento assim que o script é lido e injetado pelo index.html
-carregarCapaJogo();
