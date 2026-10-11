@@ -82,16 +82,15 @@ styleJogo.innerHTML = `
     .barra-progresso-interna { width: 0%; height: 100%; background: #FFB400; border-radius: 10px; transition: width 0.3s ease; }
     .contador-rondas { background: rgba(0,0,0,0.15); color: #FFFFFF; padding: 5px 12px; border-radius: 10px; font-weight: 900; font-size: 14px; white-space: nowrap; flex-shrink: 0; }
 
-    /* Ecrã de Feedback Melhorado com Imagem em Destaque */
+    /* Ecrã de Feedback com Imagem em Máximo Destaque */
     .ecra-feedback-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         height: 100%; color: #062B42; text-align: center; padding: 15px;
         background: linear-gradient(135deg, #ffffff 0%, #E1F2FA 100%);
         border-radius: 20px; box-shadow: inset 0 2px 8px rgba(15,139,211,0.1);
     }
-    .ecra-feedback-sub { font-size: 1.15rem; font-weight: 800; margin-bottom: 8px; color: #0F8BD3; }
-    .ecra-feedback-imagem { width: 130px; height: 130px; object-fit: contain; margin-bottom: 10px; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.18)); }
-    .ecra-feedback-estrelas { font-size: 1.5rem; margin-bottom: 10px; letter-spacing: 3px; }
+    .ecra-feedback-imagem { width: 150px; height: 150px; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2)); }
+    .ecra-feedback-estrelas { font-size: 1.6rem; margin-bottom: 12px; letter-spacing: 3px; }
 
     .container-botoes-feedback {
         display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 5px;
@@ -443,7 +442,7 @@ function avaliarJogada() {
         jogoAtivo = false; 
         estrelasGanhas++; 
         
-        tocarSom('certo'); // Toca o som certo.mp3
+        tocarSom('certo');
 
         if (areaDesenho) {
             areaDesenho.style.backgroundColor = "#e8f8ec";
@@ -457,7 +456,7 @@ function avaliarJogada() {
         erros++; 
         estrelasGanhas = Math.max(0, estrelasGanhas - 1); 
 
-        tocarSom('errado'); // Toca o som errado.mp3
+        tocarSom('errado');
 
         if (areaDesenho) {
             areaDesenho.style.backgroundColor = "#fde8e8";
@@ -540,8 +539,7 @@ function finalizarJogo() {
     jogoAtivo = false;
     const contentor = document.getElementById('contentor-jogo');
     
-    // Seleção da imagem de feedback e respetivo som final
-    let imagemFeedback = DADOS.icons.feedbacks.feedback4; // Até 4 estrelas
+    let imagemFeedback = DADOS.icons.feedbacks.feedback4;
     if (estrelasGanhas >= 9) {
         imagemFeedback = DADOS.icons.feedbacks.feedback1;
     } else if (estrelasGanhas >= 7) {
@@ -550,7 +548,6 @@ function finalizarJogo() {
         imagemFeedback = DADOS.icons.feedbacks.feedback3;
     }
 
-    // Toca o som de acordo com o total de estrelas (Até 4 = errado.mp3, 5 ou mais = certo.mp3)
     if (estrelasGanhas <= 4) {
         tocarSom('errado');
     } else {
@@ -563,7 +560,6 @@ function finalizarJogo() {
 
     contentor.innerHTML = `
       <div class="ecra-feedback-container">
-        <p class="ecra-feedback-sub">Completaste todas as rondas!</p>
         <img src="${imagemFeedback}" alt="Feedback" class="ecra-feedback-imagem">
         <div class="ecra-feedback-estrelas">${estrelasHtml}</div>
         <p style="font-size: 0.95rem; font-weight: 800; margin-bottom: 10px;">Total de Estrelas: <strong>${estrelasGanhas}</strong></p>
@@ -577,5 +573,4 @@ function finalizarJogo() {
     if (barra) barra.innerHTML = '';
 }
 
-// Dispara o carregamento assim que o script é lido e injetado pelo index.html
 carregarCapaJogo();
