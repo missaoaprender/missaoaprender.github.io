@@ -57,9 +57,20 @@ const ALFABETO_VETORES = {
 // ==========================================
 const style = document.createElement('style');
 style.innerHTML = `
-    .btn-play-rect { flex: 1; height: 50px; border-radius: 25px; background: #0F8BD3; color: white; border: none; font-size: 1.2rem; font-weight: 900; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: 0.2s; z-index: 100; }
-    .btn-audio-circle { width: 50px; height: 50px; cursor: pointer; flex-shrink: 0; z-index: 100; border-radius: 50%; background: rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; }
-    .btn-audio-circle img { width: 26px; height: 26px; object-fit: contain; }
+    .btn-play-rect { 
+        flex: 1; height: 50px; border-radius: 25px; background: #FFFFFF; color: #0F8BD3; 
+        border: none; font-size: 1.2rem; font-weight: 900; text-transform: uppercase; 
+        cursor: pointer; display: flex; align-items: center; justify-content: center; 
+        gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: 0.2s; z-index: 100; 
+    }
+    .btn-play-rect:active { transform: scale(0.95); }
+
+    .btn-audio-circle { 
+        width: 50px; height: 50px; cursor: pointer; flex-shrink: 0; z-index: 100; 
+        border-radius: 50%; background: rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; 
+        border: none; padding: 0;
+    }
+    .btn-audio-circle img { width: 26px; height: 26px; object-fit: contain; pointer-events: none; }
 
     .grafismo-area {
         position: relative; width: 100%; max-width: 500px; height: 320px;
@@ -145,12 +156,10 @@ function atualizarBarraEstado(modoCapa = false) {
 
     if (modoCapa) {
         barra.innerHTML = `
-            <div style="display: flex; gap: 6px;">
-              <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
-                <img src="${iconeSomPath}" alt="Som">
-              </button>
-            </div>
-            <button class="btn-play-rect" onclick="iniciarJogo()"><i class="fas fa-play" style="margin-right:8px;"></i> JOGAR</button>
+            <button class="btn-audio-circle" onclick="tocarAudioInstrucoes()" aria-label="Som">
+              <img src="${iconeSomPath}" alt="Som">
+            </button>
+            <button class="btn-play-rect" onclick="iniciarJogo()">JOGAR</button>
         `;
     } else {
         const progressoPercent = ((rondaAtual - 1) / totalRondas) * 100;
@@ -435,7 +444,6 @@ function startDrawing(e) {
     const pos = getClientOffset(e);
     const startPt = tracosLetra[tracoAtualIndex][0];
     
-    // Margem de tolerância ampla para facilitar o clique/toque inicial da criança
     if (Math.hypot(pos.x - startPt.x, pos.y - startPt.y) > 45) return; 
 
     isDrawing = true; saiuDoCaminho = false;
@@ -467,7 +475,6 @@ function draw(e) {
             let d = Math.hypot(chkX - trajetoAtual[i].x, chkY - trajetoAtual[i].y);
             if(d < minDist) { minDist = d; closestIdx = i; }
         }
-        // Margem de desvio generosa para facilitar o traço
         if (minDist > 55) saiuDoCaminho = true; 
         else if (closestIdx !== -1) trajetoAtual[closestIdx].hit = true; 
     }
@@ -529,7 +536,7 @@ function avaliarJogada() {
         }
     } else {
         erros++; 
-        certos = Math.max(0, certos - 1); // Desconta estrela ao errar
+        certos = Math.max(0, certos - 1); 
         somErro.currentTime = 0; somErro.play().catch(() => {});
 
         if (areaDesenho) {
