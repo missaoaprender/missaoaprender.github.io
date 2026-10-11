@@ -55,29 +55,6 @@ style.innerHTML = `
     canvas { position: absolute; top: 0; left: 0; z-index: 5; cursor: pointer; touch-action: none; }
     canvas:active { cursor: grabbing; }
 
-    /* Ecrã de Feedback Melhorado com Destaque Máximo */
-    .ecra-feedback-container {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        height: 100%; color: #062B42; text-align: center; padding: 15px;
-        background: linear-gradient(135deg, #ffffff 0%, #E1F2FA 100%);
-        border-radius: 30px; box-shadow: inset 0 2px 8px rgba(15,139,211,0.1);
-    }
-    .ecra-feedback-imagem { width: 180px; height: 180px; object-fit: contain; margin-bottom: 12px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.22)); }
-    .ecra-feedback-estrelas { font-size: 1.8rem; margin-bottom: 15px; letter-spacing: 4px; }
-
-    .container-botoes-feedback {
-        display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 5px;
-    }
-    .btn-feedback {
-        width: 190px; height: 50px; border-radius: 25px; border: none; font-weight: 900; 
-        font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        transition: transform 0.1s ease, box-shadow 0.2s ease;
-        box-shadow: 0 4px 12px rgba(15,139,211,0.25);
-    }
-    .btn-feedback-primario { background: var(--primary-color); color: #ffffff; }
-    .btn-feedback-secundario { background: #FFFFFF; color: var(--primary-color); border: 2px solid var(--primary-color); }
-    .btn-feedback:active { transform: scale(0.95); }
-
     @media screen and (max-width: 500px) {
         .grafismo-area { height: 240px; padding: 0 20px; }
         .ponto-inicio { width: 25px; height: 25px; }
@@ -134,11 +111,13 @@ function iniciarSimulacaoAnimada() {
     if(!sCanvas) return;
     const sCtx = sCanvas.getContext('2d');
     const sArea = document.getElementById('simu-area');
+    if(!sArea) return;
     
     sCanvas.width = sArea.clientWidth; sCanvas.height = sArea.clientHeight;
     
     const startEl = document.getElementById('simu-inicio');
     const endEl = document.getElementById('simu-fim');
+    if(!startEl || !endEl) return;
     
     const startX = startEl.offsetLeft + (startEl.offsetWidth / 2);
     const startY = sCanvas.height / 2; 
@@ -164,10 +143,10 @@ function iniciarSimulacaoAnimada() {
             desenhaFundo(sCtx);
             sCtx.beginPath(); sCtx.lineWidth = 14; sCtx.strokeStyle = "var(--primary-color)"; sCtx.lineCap = "round"; sCtx.lineJoin = "round";
             sCtx.moveTo(path[0].x, path[0].y);
-            hand.style.opacity = 1; hand.innerText = "👆";
+            if(hand) { hand.style.opacity = 1; hand.innerText = "👆"; }
         }
 
-        if (step < path.length) {
+        if (step < path.length && hand) {
             const pt = path[step];
             hand.style.left = (pt.x - 22) + "px"; 
             hand.style.top = (pt.y - 5) + "px"; 
@@ -177,7 +156,7 @@ function iniciarSimulacaoAnimada() {
             sCtx.lineTo(pt.x, pt.y); sCtx.stroke();
             step += 2; 
             simuTimer = setTimeout(animar, 15); 
-        } else {
+        } else if(hand) {
             hand.style.opacity = 0; step = 0;
             simuTimer = setTimeout(animar, 1500); 
         }
@@ -242,11 +221,13 @@ function desenharGuiasJogo() {
 function configurarCanvas() {
     const container = document.getElementById('area-desenho');
     canvas = document.getElementById('linhaCanvas');
+    if (!canvas || !container) return;
     ctx = canvas.getContext('2d');
     canvas.width = container.clientWidth; canvas.height = container.clientHeight;
 
     const startEl = document.getElementById('ponto-inicio');
     const endEl = document.getElementById('ponto-fim');
+    if (!startEl || !endEl) return;
     
     const startX = startEl.offsetLeft + (startEl.offsetWidth / 2);
     const startY = canvas.height / 2;
@@ -396,8 +377,9 @@ function avaliarJogada() {
         somAcerto.currentTime = 0; somAcerto.play().catch(e=>console.log(e));
         
         const endEl = document.getElementById('ponto-fim');
-        endEl.style.color = "#8cc63f"; endEl.classList.add('animating');
-        document.getElementById('area-desenho').style.borderColor = "#8cc63f";
+        if(endEl) { endEl.style.color = "#8cc63f"; endEl.classList.add('animating'); }
+        const areaDesenho = document.getElementById('area-desenho');
+        if(areaDesenho) areaDesenho.style.borderColor = "#8cc63f";
         
         setTimeout(() => { rondaAtual++; jogoAtivo = true; proximaRonda(); }, 1500);
     } else {
@@ -416,7 +398,7 @@ function darAjuda() {
     if (!jogoAtivo || ajudaEmCurso || ajudasUsadas >= 2) return;
     
     ajudasUsadas++; 
-    certos = Math.max(0, certos - 1); // Desconta uma estrela, mínimo 0
+    certos = Math.max(0, certos - 1); 
     somClique.currentTime = 0; somClique.play().catch(e=>console.log(e));
     
     Engine.showStatusBar(rondaAtual, totalRondas, certos, erros, ajudasUsadas < 2);
@@ -428,8 +410,10 @@ function darAjuda() {
     desenharGuiasJogo();
     
     const hand = document.getElementById('game-hand');
-    hand.style.opacity = 1;
-    hand.innerText = "👆";
+    if(hand) {
+        hand.style.opacity = 1;
+        hand.innerText = "👆";
+    }
     
     let step = 0;
     
@@ -446,7 +430,7 @@ function darAjuda() {
             ctx.moveTo(pontosCaminho[0].x, pontosCaminho[0].y);
         }
 
-        if (step < pontosCaminho.length) {
+        if (step < pontosCaminho.length && hand) {
             const pt = pontosCaminho[step];
             hand.style.left = (pt.x - 22) + "px"; 
             hand.style.top = (pt.y - 5) + "px";
@@ -468,7 +452,7 @@ function darAjuda() {
                 ctx.lineTo(lastPt.x, lastPt.y); ctx.stroke();
                 
                 setTimeout(() => {
-                    hand.style.opacity = 0;
+                    if(hand) hand.style.opacity = 0;
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     desenharGuiasJogo();
                     ajudaEmCurso = false; 
@@ -483,7 +467,6 @@ function finalizarJogo() {
     jogoAtivo = false;
     if(audioInstrucoes) audioInstrucoes.pause();
     
-    // Reproduz o som correto/errado no fim com base nas estrelas obtidas (>= 5 certo, <= 4 errado)
     if (certos <= 4) {
         somErro.currentTime = 0; somErro.play().catch(e=>console.log(e));
     } else {
@@ -493,3 +476,6 @@ function finalizarJogo() {
     const rel = JOGO_CONFIG.relatorios.find(r => certos >= r.min && certos <= r.max);
     Engine.showResults(certos, erros, ajudasUsadas, rel);
 }
+
+// Inicia a capa para o jogo carregar corretamente
+mostrarCapa();
