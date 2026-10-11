@@ -62,6 +62,18 @@ styleJogo.innerHTML = `
 document.head.appendChild(styleJogo);
 
 // ==========================================
+// GESTÃO GLOBAL DE CLIQUES PARA PARAR O SOM
+// ==========================================
+document.addEventListener("click", (e) => {
+    // Se o clique não foi no botão de som, para o áudio se estiver a tocar
+    const botaoSom = e.target.closest('button[aria-label="Som"]');
+    if (!botaoSom && audioInstrucao && !audioInstrucao.paused) {
+        audioInstrucao.pause();
+        audioInstrucao.currentTime = 0;
+    }
+});
+
+// ==========================================
 // ATUALIZAÇÃO DA BARRA DE ESTADO
 // ==========================================
 function atualizarBarraEstado(modoCapa = false) {
@@ -69,6 +81,7 @@ function atualizarBarraEstado(modoCapa = false) {
     if (!barra) return;
 
     const iconeSomPath = (DADOS && DADOS.icons && DADOS.icons.som) ? DADOS.icons.som : '../../../icons/som.png';
+    const iconeLampadaPath = (DADOS && DADOS.icons && DADOS.icons.lampada) ? DADOS.icons.lampada : '../../../icons/lampada.png';
 
     if (modoCapa) {
         barra.innerHTML = `
@@ -94,7 +107,9 @@ function atualizarBarraEstado(modoCapa = false) {
             <button class="botao-acao-jogo" onclick="tocarAudioInstrucoes()" aria-label="Som">
               <img src="${iconeSomPath}" alt="Som">
             </button>
-            <button class="botao-acao-jogo" onclick="darAjuda()" aria-label="Ajuda">❓</button>
+            <button class="botao-acao-jogo" onclick="darAjuda()" aria-label="Ajuda">
+              <img src="${iconeLampadaPath}" alt="Ajuda">
+            </button>
           </div>
         `;
     }
@@ -432,10 +447,19 @@ function darAjuda() {
 
 function tocarAudioInstrucoes() {
     if (audioInstrucao) {
-        audioInstrucao.pause();
-        audioInstrucao.currentTime = 0;
+        if (!audioInstrucao.paused) {
+            // Se já estiver a tocar, para, volta ao início e toca de novo
+            audioInstrucao.pause();
+            audioInstrucao.currentTime = 0;
+            audioInstrucao.play().catch(() => {});
+            return;
+        } else {
+            audioInstrucao.currentTime = 0;
+        }
+    } else {
+        audioInstrucao = new Audio("f1_jogo01pt.wav");
     }
-    audioInstrucao = new Audio("f1_jogo01pt.wav");
+
     audioInstrucao.play().catch(() => {
         if (window.speechSynthesis) {
             window.speechSynthesis.cancel();
