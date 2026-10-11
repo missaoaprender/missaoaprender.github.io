@@ -7,7 +7,7 @@ const DADOS = {
     mensagem: "Diverte-te a aprender!",
     informacao: "Jogos CRJM",
     tituloMenuAcordeao: "Menu",
-    urlVoltar: "../../", // Raiz do site
+    urlVoltar: "../../", 
     iconeEstrela: "★",
     iconeInfo: "i"
   },
@@ -18,7 +18,7 @@ const DADOS = {
     seta: "../../icons/seta.png",
     som: "../../icons/som.png",
     lampada: "../../icons/lampada.png",
-    info: "../../icons/info.png", // Ícone info.png adicionado
+    info: "../../icons/info.png",
     feedbacks: {
       feedback1: "../../icons/feedback_1.png",
       feedback2: "../../icons/feedback_2.png",
@@ -41,19 +41,19 @@ const DADOS = {
   },
 
   cores: {
-    fundo: "#FAF2F2",
-    ceu1: "#E8C8C8",
-    ceu2: "#F5E1E1",
-    header: "#F5E1E1",
-    headerTopo: "#E8C8C8",
-    azulHeader: "#804040",
-    texto: "#592B2B",
-    textoEscuro: "#401F1F",
+    fundo: "#F3F3F8",
+    ceu1: "#D1D1E0",
+    ceu2: "#E6E6F2",
+    header: "#E6E6F2",
+    headerTopo: "#D1D1E0",
+    azulHeader: "#666699",
+    texto: "#3E3E59",
+    textoEscuro: "#262638",
     branco: "#FFFFFF",
-    creme: "#F9EBEB",
-    linha: "#D9B3B3",
-    sombra: "rgba(128,64,64,.18)",
-    sombraForte: "rgba(128,64,64,.28)"
+    creme: "#ECECEF",
+    linha: "#C2C2D6",
+    sombra: "rgba(102,102,153,.18)",
+    sombraForte: "rgba(102,102,153,.28)"
   },
 
   dimensoes: {
@@ -67,7 +67,7 @@ const DADOS = {
   },
 
   jogos: [
-    { nome: "Rastros", idade: "Estratégia", imagem: "../../icons/gatos&caes.png", cor: "#804040", cor2: "#592B2B", pagina: "jogo.js" }
+    { nome: "Rastros", idade: "Estratégia", imagem: "../../icons/gatos&caes.png", cor: "#666699", cor2: "#3E3E59", pagina: "jogo.js" }
   ],
 
   menuAnos: [
