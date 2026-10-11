@@ -57,20 +57,25 @@ const ALFABETO_VETORES = {
 // ==========================================
 const style = document.createElement('style');
 style.innerHTML = `
-    .btn-play-rect { 
-        flex: 1; height: 50px; border-radius: 25px; background: #FFFFFF; color: #0F8BD3; 
-        border: none; font-size: 1.2rem; font-weight: 900; text-transform: uppercase; 
-        cursor: pointer; display: flex; align-items: center; justify-content: center; 
-        gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: 0.2s; z-index: 100; 
+    .barra-capa-layout {
+        width: 100%; display: flex; align-items: center; justify-content: space-between; position: relative;
     }
-    .btn-play-rect:active { transform: scale(0.95); }
+    .btn-play-rect-capa { 
+        height: 48px; padding: 0 38px; border-radius: 24px; background: #FFFFFF; color: #0F8BD3; 
+        border: none; font-size: 1.25rem; font-weight: 900; text-transform: uppercase; 
+        cursor: pointer; display: flex; align-items: center; justify-content: center; 
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12); transition: transform 0.1s ease, background-color 0.2s ease; 
+        margin-left: auto;
+    }
+    .btn-play-rect-capa:active { transform: scale(0.95); }
 
     .btn-audio-circle { 
-        width: 50px; height: 50px; cursor: pointer; flex-shrink: 0; z-index: 100; 
+        width: 44px; height: 44px; cursor: pointer; flex-shrink: 0; z-index: 100; 
         border-radius: 50%; background: rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; 
-        border: none; padding: 0;
+        border: none; padding: 0; transition: transform 0.1s ease;
     }
-    .btn-audio-circle img { width: 26px; height: 26px; object-fit: contain; pointer-events: none; }
+    .btn-audio-circle:active { transform: scale(0.92); }
+    .btn-audio-circle img { width: 24px; height: 24px; object-fit: contain; pointer-events: none; }
 
     .grafismo-area {
         position: relative; width: 100%; max-width: 500px; height: 320px;
@@ -156,10 +161,12 @@ function atualizarBarraEstado(modoCapa = false) {
 
     if (modoCapa) {
         barra.innerHTML = `
-            <button class="btn-audio-circle" onclick="tocarAudioInstrucoes()" aria-label="Som">
-              <img src="${iconeSomPath}" alt="Som">
-            </button>
-            <button class="btn-play-rect" onclick="iniciarJogo()">JOGAR</button>
+            <div class="barra-capa-layout">
+                <button class="btn-audio-circle" onclick="tocarAudioInstrucoes()" aria-label="Som">
+                  <img src="${iconeSomPath}" alt="Som">
+                </button>
+                <button class="btn-play-rect-capa" onclick="iniciarJogo()">JOGAR</button>
+            </div>
         `;
     } else {
         const progressoPercent = ((rondaAtual - 1) / totalRondas) * 100;
