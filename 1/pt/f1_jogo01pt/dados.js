@@ -34,6 +34,11 @@ const DADOS = {
     }
   },
 
+  sons: {
+    certo: "../../../sons/certo.mp3",
+    errado: "../../../sons/errado.mp3"
+  },
+
   cores: {
     fundo: "#F2F8FC",
     ceu1: "#B6E2F9",
