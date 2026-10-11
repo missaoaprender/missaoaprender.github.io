@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title data-browser-titulo>1.º Ano - Recursos Educativos</title>
+  <title>1.º Ano - Recursos Educativos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Quicksand:wght@700&display=swap" rel="stylesheet">
+  <!-- DADOS CARREGADOS PRIMEIRO PARA EVITAR ERROS -->
+  <script src="dados.js"></script>
 </head>
 <body>
 
@@ -77,8 +79,7 @@
     </button>
   </template>
 
-  <!-- DADOS E LÓGICA -->
-  <script src="dados.js"></script>
+  <!-- LÓGICA DA PÁGINA -->
   <script>
     function sairFullscreenEVoltar() {
       if (document.fullscreenElement) {
@@ -258,4 +259,64 @@
       if (titulo) titulo.textContent = DADOS.pagina.tituloMenu;
       if (mensagem) mensagem.textContent = DADOS.pagina.mensagem;
       if (tituloMenuAcordeao) tituloMenuAcordeao.textContent = DADOS.pagina.tituloMenuAcordeao;
-      if (iconeEstrela
+      if (iconeEstrela) iconeEstrela.textContent = DADOS.pagina.iconeEstrela;
+      if (iconeInfo) iconeInfo.textContent = DADOS.pagina.iconeInfo;
+      informacoes.forEach(el => { el.textContent = DADOS.pagina.informacao; });
+    }
+
+    function criarMenuAnos() {
+      const recipiente = document.getElementById("menu-anos");
+      const modelo = document.getElementById("modelo-menu-ano");
+      if (!recipiente || !modelo) return;
+
+      recipiente.innerHTML = "";
+      DADOS.menuAnos.forEach(ano => {
+        const item = modelo.content.cloneNode(true);
+        const botao = item.querySelector(".menu-ano");
+        const icone = item.querySelector(".menu-ano-icon");
+        const nome = item.querySelector(".menu-ano-nome");
+
+        const imagem = document.createElement("img");
+        imagem.src = DADOS.icons.menuAnos[ano.icon];
+        imagem.alt = ""; imagem.draggable = false;
+        icone.appendChild(imagem);
+
+        nome.textContent = ano.nome;
+        botao.addEventListener("click", () => { window.location.href = ano.pagina; });
+        recipiente.appendChild(item);
+      });
+    }
+
+    function configurarMenu() {
+      const botaoMenu = document.querySelector(".botao-menu");
+      const menu = document.querySelector(".menu-acordeao");
+
+      if (botaoMenu && menu) {
+        botaoMenu.addEventListener("click", event => {
+          event.stopPropagation();
+          menu.classList.toggle("aberto");
+        });
+        document.addEventListener("click", event => {
+          if (menu.classList.contains("aberto") && !menu.contains(event.target) && !botaoMenu.contains(event.target)) {
+            menu.classList.remove("aberto");
+          }
+        });
+      }
+    }
+
+    function carregarJogoJS() {
+      const scriptJogo = document.createElement("script");
+      scriptJogo.src = "jogo.js";
+      document.body.appendChild(scriptJogo);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      inserirCSS();
+      preencherTextos();
+      criarMenuAnos();
+      configurarMenu();
+      carregarJogoJS();
+    });
+  </script>
+</body>
+</html>
