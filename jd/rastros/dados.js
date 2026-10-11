@@ -3,7 +3,7 @@ const DADOS = {
     browserTitulo: "1.º Ano - Jogos Educativos",
     titulo: "Português",
     subtitulo: "Atividades • 1º Ano",
-    tituloMenu: "Grafismos - Curvas",
+    tituloMenu: "Jogo do Rastro",
     mensagem: "Escolhe um jogo e diverte-te a aprender!",
     informacao: "Jogos educativos para o 1.º ano",
     tituloMenuAcordeao: "Menu",
@@ -13,46 +13,46 @@ const DADOS = {
   },
 
   icons: {
-    cabecalho: "../../../icons/icon1.png",
-    menu: "../../../icons/menu.png",
-    seta: "../../../icons/seta.png",
-    som: "../../../icons/som.png",
-    lampada: "../../../icons/lampada.png",
+    cabecalho: "../../icons/icon1.png",
+    menu: "../../icons/menu.png",
+    seta: "../../icons/seta.png",
+    som: "../../icons/som.png",
+    lampada: "../../icons/lampada.png",
     feedbacks: {
-      feedback1: "../../../icons/feedback_1.png", // 9 a 10 estrelas
-      feedback2: "../../../icons/feedback_2.png", // 7 a 8 estrelas
-      feedback3: "../../../icons/feedback_3.png", // 5 a 6 estrelas
-      feedback4: "../../../icons/feedback_4.png"  // Até 4 estrelas
+      feedback1: "../../icons/feedback_1.png",
+      feedback2: "../../icons/feedback_2.png",
+      feedback3: "../../icons/feedback_3.png",
+      feedback4: "../../icons/feedback_4.png"
     },
     menuAnos: {
-      inicio: "../../../icons/inicio.png",
-      pre: "../../../icons/iconpre.png",
-      ano1: "../../../icons/icon1.png",
-      ano2: "../../../icons/icon2.png",
-      ano3: "../../../icons/icon3.png",
-      ano4: "../../../icons/icon4.png"
+      inicio: "../../icons/inicio.png",
+      pre: "../../icons/iconpre.png",
+      ano1: "../../icons/icon1.png",
+      ano2: "../../icons/icon2.png",
+      ano3: "../../icons/icon3.png",
+      ano4: "../../icons/icon4.png"
     }
   },
 
   sons: {
-    certo: "../../../sons/certo.mp3",
-    errado: "../../../sons/errado.mp3"
+    certo: "../../sons/certo.mp3",
+    errado: "../../sons/errado.mp3"
   },
 
   cores: {
-    fundo: "#F2F8FC",
-    ceu1: "#B6E2F9",
-    ceu2: "#DEF3FF",
-    header: "#DEF3FF",
-    headerTopo: "#B6E2F9",
-    azulHeader: "#0F8BD3",
-    texto: "#0B4B71",
-    textoEscuro: "#062B42",
+    fundo: "#FAF2F2",
+    ceu1: "#E8C8C8",
+    ceu2: "#F5E1E1",
+    header: "#F5E1E1",
+    headerTopo: "#E8C8C8",
+    azulHeader: "#804040",
+    texto: "#592B2B",
+    textoEscuro: "#401F1F",
     branco: "#FFFFFF",
-    creme: "#E1F2FA",
-    linha: "#B4E4F8",
-    sombra: "rgba(15,139,211,.18)",
-    sombraForte: "rgba(15,139,211,.28)"
+    creme: "#F9EBEB",
+    linha: "#D9B3B3",
+    sombra: "rgba(128,64,64,.18)",
+    sombraForte: "rgba(128,64,64,.28)"
   },
 
   dimensoes: {
@@ -66,15 +66,15 @@ const DADOS = {
   },
 
   jogos: [
-    { nome: "Grafismos", idade: "Linhas Retas", imagem: "../../../icons/gatos&caes.png", cor: "#11CBFC", cor2: "#079BC8", pagina: "jogo.js" }
+    { nome: "Rastros", idade: "Estratégia", imagem: "../../icons/gatos&caes.png", cor: "#804040", cor2: "#592B2B", pagina: "jogo.js" }
   ],
 
   menuAnos: [
-    { id: "inicio", nome: "Início", icon: "inicio", pagina: "../../../" },
-    { id: "pre", nome: "Pré-Escolar", icon: "pre", pagina: "../../../pre/" },
-    { id: "ano1", nome: "1.º Ano", icon: "ano1", pagina: "../../../1/" },
-    { id: "ano2", nome: "2.º Ano", icon: "ano2", pagina: "../../../2/" },
-    { id: "ano3", nome: "3.º Ano", icon: "ano3", pagina: "../../../3/" },
-    { id: "ano4", nome: "4.º Ano", icon: "ano4", pagina: "../../../4/" }
+    { id: "inicio", nome: "Início", icon: "inicio", pagina: "../../" },
+    { id: "pre", nome: "Pré-Escolar", icon: "pre", pagina: "../../pre/" },
+    { id: "ano1", nome: "1.º Ano", icon: "ano1", pagina: "../../1/" },
+    { id: "ano2", nome: "2.º Ano", icon: "ano2", pagina: "../../2/" },
+    { id: "ano3", nome: "3.º Ano", icon: "ano3", pagina: "../../3/" },
+    { id: "ano4", nome: "4.º Ano", icon: "ano4", pagina: "../../4/" }
   ]
 };
