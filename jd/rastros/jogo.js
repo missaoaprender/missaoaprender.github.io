@@ -37,7 +37,6 @@ style.innerHTML = `
     .vitoria-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); text-align: center; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* Layout da barra inferior na capa: botão Info à esquerda e Jogar à direita */
     .barra-capa-layout {
         width: 100%; display: flex; align-items: center; justify-content: space-between; position: relative;
     }
@@ -50,7 +49,6 @@ style.innerHTML = `
     }
     .btn-play-rect-capa:active { transform: scale(0.95); }
 
-    /* Botão Info circular com a imagem info.png no mesmo sítio do antigo som.png */
     .btn-info-circle {
         width: 44px; height: 44px; min-width: 44px; min-height: 44px; border-radius: 50%; border: none;
         background: rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -59,7 +57,6 @@ style.innerHTML = `
     .btn-info-circle:active { transform: scale(0.92); }
     .btn-info-circle img { width: 24px; height: 24px; object-fit: contain; pointer-events: none; }
 
-    /* Botões aprimorados do menu de modos (Computador / 2 Jogadores) */
     .btn-modo-aprimorado {
         width: 100%; max-width: 360px; height: 60px; border-radius: 30px; border: none;
         color: white; font-weight: 900; font-size: 1.1rem; cursor: pointer;
@@ -180,7 +177,6 @@ function mostrarCapa() {
     iniciarSimulacao();
 }
 
-// Ecrã intermédio com os botões aprimorados de Computador e 2 Jogadores ao clicar em JOGAR
 function ecraModosJogo() {
     clearInterval(simuInterval);
     const area = document.getElementById('contentor-jogo');
@@ -343,7 +339,7 @@ function getMovimentosPosiveis(cx, cy) {
 }
 
 // ============================================================
-// 5. FINALIZAÇÃO (MÁXIMO DE 3 RONDAS)
+// 5. FINALIZAÇÃO E FEEDBACK DAS RONDAS
 // ============================================================
 function finalizarRonda(vencedorIdx) {
     jogoAtivo = false;
@@ -351,21 +347,29 @@ function finalizarRonda(vencedorIdx) {
     const overlay = document.getElementById('round-feedback');
     const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");
     const corVencedor = vencedorIdx === 0 ? "#8cc63f" : "#804040";
-    const icone = vencedorIdx === 0 ? "fa-star" : "fa-trophy";
+
+    // Seleção de Feedback: 
+    // Em modo PVP, aparece sempre o feedback_1. 
+    // Contra CPU: Se Jogador 1 (idx 0) ganha -> feedback_1; se Computador (idx 1) ganha -> feedback_4.
+    let imagemFeedback = DADOS.icons.feedbacks.feedback1;
+    if (modoJogo === 'CPU' && vencedorIdx === 1) {
+        imagemFeedback = DADOS.icons.feedbacks.feedback4;
+    }
+
     if (overlay) {
         overlay.style.display = 'flex';
         overlay.innerHTML = `<div class="vitoria-card">
-            <div style="font-size: 3rem; color: ${corVencedor}; margin-bottom: 10px;"><i class="fas ${icone}"></i></div>
-            <h1 style="color:${corVencedor}; font-size:2.2rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeVencedor}</h1>
-            <p style="color:#666; font-size:1.1rem; font-weight:700; margin:5px 0 0 0;">Venceu esta ronda!</p>
+            <img src="${imagemFeedback}" style="height:110px; margin-bottom:12px; object-fit:contain;">
+            <h1 style="color:${corVencedor}; font-size:2rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeVencedor}</h1>
+            <p style="color:#666; font-size:1.05rem; font-weight:700; margin:5px 0 0 0;">Venceu esta ronda!</p>
             <div style="margin-top:15px; padding-top:15px; border-top:2px dashed #eee; color:#aaa; font-weight:800;">PLACAR: ${matchScore[0]} - ${matchScore[1]}</div>
         </div>`;
     }
     
     if (currentGameNum >= totalRondas || matchScore[0] >= 2 || matchScore[1] >= 2) {
-        setTimeout(finalizarMatch, 2000);
+        setTimeout(finalizarMatch, 2500);
     } else {
-        setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2000);
+        setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2500);
     }
 }
 
@@ -376,10 +380,15 @@ function finalizarMatch() {
     const vencedorIdx = (matchScore[0] > matchScore[1]) ? 0 : ((matchScore[1] > matchScore[0]) ? 1 : (matchScore[0] >= matchScore[1] ? 0 : 1));
     const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");
     
+    let imagemFeedbackFinal = DADOS.icons.feedbacks.feedback1;
+    if (modoJogo === 'CPU' && vencedorIdx === 1) {
+        imagemFeedbackFinal = DADOS.icons.feedbacks.feedback4;
+    }
+
     const contentor = document.getElementById('contentor-jogo');
     if (contentor) {
         contentor.innerHTML = `<div style="text-align:center;">
-            <img src="${DADOS.icons.feedbacks.feedback1}" style="height:130px; margin-bottom:10px; object-fit:contain;">
+            <img src="${imagemFeedbackFinal}" style="height:130px; margin-bottom:10px; object-fit:contain;">
             <h2 style="color:#804040; font-weight:900; text-transform:uppercase; margin-bottom:20px;">GANHOU O ${nomeVencedor}</h2>
             <div style="display:flex; justify-content:center; gap:20px;">
                 <div class="score-box box-v" style="padding:10px 20px; font-size:1.2rem;">J1: ${matchScore[0]}</div>
