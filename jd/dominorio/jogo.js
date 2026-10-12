@@ -314,7 +314,6 @@ function finalizarRonda(vencedorIdx) {
     const nomeVencedor = vencedorIdx === 0 ? "VERTICAL" : (modoJogo === 'CPU' ? "Pc" : "HORIZONTAL");
     const corVencedor = vencedorIdx === 0 ? "#8cc63f" : "#ff5a5f";
     
-    // Seleção dinâmica dos ícones de feedback (feedback_1 para vitória vertical, feedback_4 para horizontal/pc)
     const iconeFeedback = vencedorIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
 
     overlay.style.display = 'flex';
@@ -387,7 +386,5 @@ function iniciarSimulacao() {
     }, 600);
 }
 
-// Iniciar na capa quando o script for carregado
-document.addEventListener("DOMContentLoaded", () => {
-    mostrarCapa();
-});
+// Chamar a capa imediatamente ao carregar o script
+mostrarCapa();
