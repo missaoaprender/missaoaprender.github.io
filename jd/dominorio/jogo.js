@@ -151,18 +151,22 @@ function mostrarCapa() {
     const area = document.getElementById('contentor-jogo');
     area.innerHTML = `
         <div id="simu-container"><div id="simu-board" style="transform: scale(0.65);"></div></div>
-        
-        <!-- BARRA DA CAPA EXATAMENTE COMO PEDIDO -->
-        <div class="barra-capa-custom" id="barra-capa-dinamica">
-            <div class="btn-capa-info" onclick="toggleInstructions()"><i class="fas fa-info"></i></div>
-            <button class="btn-capa-jogar" onclick="mostrarOpcoesModo()">JOGAR</button>
-        </div>
     `;
+
+    // Garantir que a barra inferior está visível na capa com o botão info e o botão Jogar
+    const barra = document.getElementById('barra-inferior');
+    barra.style.display = 'flex';
+    barra.className = "barra-jogo-topo";
+    barra.innerHTML = `
+        <div class="btn-capa-info" onclick="toggleInstructions()"><i class="fas fa-info"></i></div>
+        <button class="btn-capa-jogar" onclick="mostrarOpcoesModo()">JOGAR</button>
+    `;
+
     iniciarSimulacao();
 }
 
 function mostrarOpcoesModo() {
-    const barra = document.getElementById('barra-capa-dinamica');
+    const barra = document.getElementById('barra-inferior');
     barra.innerHTML = `
         <div class="btn-modo-row">
             <button class="btn-modo-opcao" onclick="mostrarNiveis('CPU')"><i class="fas fa-robot"></i> Computador</button>
@@ -174,7 +178,7 @@ function mostrarOpcoesModo() {
 
 function mostrarNiveis(modo) {
     modoJogo = modo;
-    const barra = document.getElementById('barra-capa-dinamica');
+    const barra = document.getElementById('barra-inferior');
     
     if (modo === 'CPU') {
         barra.innerHTML = `
@@ -227,12 +231,12 @@ function atualizarUI() {
     let turnInfoHTML = "";
     
     if (modoJogo === 'CPU') {
-        if (turnoAtual === 0) turnInfoHTML = `<div class="status-pill pill-j1 blinking">VEZ DO VERTICAL</div>`;
+        if (turnoAtual === 0) turnInfoHTML = `<div class="status-pill pill-j1 blinking">VERTICAL</div>`;
         else turnInfoHTML = `<div style="flex:1"></div>`; 
     } else {
         const classPill = (turnoAtual === 0) ? "pill-j1" : "pill-j2";
         const nomeVez = (turnoAtual === 0) ? "VERTICAL" : "HORIZONTAL";
-        turnInfoHTML = `<div class="status-pill ${classPill} blinking">VEZ DO ${nomeVez}</div>`;
+        turnInfoHTML = `<div class="status-pill ${classPill} blinking">${nomeVez}</div>`;
     }
     
     document.getElementById('barra-inferior').innerHTML = `
