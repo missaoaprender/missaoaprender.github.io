@@ -17,7 +17,7 @@ let currentGameNum = 1;
 let tabuleiro = [];       // 0: vazio, 1: ocupado
 let simuInterval;         
 
-// Sons (utilizando o objeto DADOS se disponíveis)
+// Sons
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somErro = new Audio(DADOS.sons && DADOS.sons.errado ? DADOS.sons.errado : "");
 
@@ -47,34 +47,56 @@ styleJogo.innerHTML = `
     .vitoria-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); text-align: center; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    .capa-btn-row { display: flex; flex-direction: row; gap: 10px; width: 95%; max-width: 480px; justify-content: center; align-items: center; margin-top: 10px; }
-    .btn-capa-small { flex: 1; height: 50px; border-radius: 12px; border: none; color: white; font-weight: 900; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-transform: uppercase; transition: 0.2s; white-space: nowrap; padding: 0 10px; }
-    .btn-inform { width: 50px; height: 50px; flex: none; background: #fff; border: 2px solid ${DADOS.cores.linha}; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 6px rgba(0,0,0,0.08); transition: transform 0.1s; }
-    .btn-inform:active { transform: scale(0.95); }
-    .btn-inform img { width: 26px; height: 26px; object-fit: contain; }
+    /* Estilo exato da Barra da Capa com Info e Jogar */
+    .barra-capa-custom {
+        width: 100%; display: flex; align-items: center; justify-content: space-between;
+        background: ${DADOS.cores.azulHeader}; padding: 10px 18px;
+        border-radius: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+        gap: 10px;
+    }
+    .btn-capa-info {
+        width: 44px; height: 44px; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white;
+        font-size: 1.2rem; font-weight: 900; transition: transform 0.1s;
+    }
+    .btn-capa-info:active { transform: scale(0.92); }
 
-    #simu-container { height: 220px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-top: -10px; margin-bottom: 15px; }
+    .btn-capa-jogar {
+        background: white; color: ${DADOS.cores.azulHeader}; border: none;
+        padding: 10px 28px; border-radius: 20px; font-weight: 900; font-size: 1.1rem;
+        cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.1s;
+        text-transform: uppercase;
+    }
+    .btn-capa-jogar:active { transform: scale(0.95); }
+
+    .btn-modo-row { display: flex; gap: 10px; width: 100%; justify-content: center; align-items: center; }
+    .btn-modo-opcao {
+        flex: 1; background: white; color: ${DADOS.cores.azulHeader}; border: none;
+        padding: 10px; border-radius: 16px; font-weight: 900; font-size: 0.9rem; cursor: pointer;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1); text-transform: uppercase; transition: 0.2s;
+    }
+    .btn-modo-opcao:hover { background: #f0f0f5; }
+
+    #simu-container { height: 210px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-bottom: 10px; }
 
     #instrucoes-panel { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10000; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform: translateY(100%); visibility: hidden; padding: 40px 25px; overflow-y: auto; }
     #instrucoes-panel.open { transform: translateY(0); visibility: visible; }
     .close-x { position: absolute; top: 15px; right: 20px; font-size: 2.2rem; color: #ff5a5f; cursor: pointer; font-weight: 900; line-height: 1; transition: 0.2s; }
 
-    .nivel-select-container { display: none; flex-direction: column; gap: 12px; width: 95%; max-width: 500px; animation: cardPop 0.3s ease; align-items: center; }
+    .nivel-select-container { display: none; flex-direction: column; gap: 10px; width: 100%; animation: cardPop 0.3s ease; align-items: center; }
     .nivel-row { display: flex; flex-direction: row; gap: 6px; width: 100%; justify-content: center; }
-    .btn-nivel { background: white; padding: 12px 2px; border-radius: 12px; border: 2px solid #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex: 1; min-width: 0; }
+    .btn-nivel { background: white; padding: 10px 2px; border-radius: 12px; border: 2px solid #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex: 1; min-width: 0; }
     .btn-nivel b { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; }
     .btn-nivel span { font-size: 0.6rem; font-weight: 700; opacity: 0.7; text-align: center; }
     .btn-nivel.l1 { border-color: #8cc63f; color: #8cc63f; }
     .btn-nivel.l2 { border-color: #f9a825; color: #f9a825; }
     .btn-nivel.l3 { border-color: #ff5a5f; color: #ff5a5f; }
 
-    /* ESTILO TABULEIRO 8x8 DOMINÓRIO */
+    /* TABULEIRO 8x8 */
     .grid-board { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; background: #bbb; padding: 3px; border-radius: 8px; width: fit-content; margin: 0 auto; }
     .cell { width: var(--cell-size); height: var(--cell-size); background: white; border-radius: 2px; position: relative; }
-    
     .cell.v-piece { background: #8cc63f !important; border: 1px solid #6da32f; }
     .cell.h-piece { background: #ff5a5f !important; border: 1px solid #d44348; }
-    
     .cell.preview { background: #e8f5e9; border: 1px solid #8cc63f; cursor: pointer; }
     .cell.preview-h { background: #ffebee; border: 1px solid #ff5a5f; cursor: pointer; }
 
@@ -87,8 +109,8 @@ styleJogo.innerHTML = `
     .inst-list li { background: #f9f9f9; margin-bottom: 8px; padding: 12px 15px; border-radius: 12px; border-left: 4px solid ${DADOS.cores.azulHeader}; color: #555; font-size: 1rem; line-height: 1.4; }
 
     @media screen and (min-width: 1025px) { :root { --cell-size: 45px; } }
-    @media screen and (max-width: 500px) and (orientation: portrait) { :root { --cell-size: 9.5vw; } }
-    @media screen and (max-height: 500px) and (orientation: landscape) { :root { --cell-size: 7vh; } }
+    @media screen and (max-width: 500px) and (orientation: portrait) { :root { --cell-size: 9vw; } }
+    @media screen and (max-height: 500px) and (orientation: landscape) { :root { --cell-size: 6.5vh; } }
 `;
 document.head.appendChild(styleJogo);
 
@@ -129,44 +151,49 @@ function mostrarCapa() {
     const area = document.getElementById('contentor-jogo');
     area.innerHTML = `
         <div id="simu-container"><div id="simu-board" style="transform: scale(0.65);"></div></div>
-        <div id="capa-menu-principal" style="width:100%; display:flex; justify-content:center;">
-            <div class="capa-btn-row">
-                <div class="btn-inform" onclick="toggleInstructions()"><img src="${DADOS.icons.info}"></div>
-                <button class="btn-capa-small" style="background:${DADOS.cores.azulHeader};" onclick="mostrarNiveis('CPU')"><i class="fas fa-robot"></i> COMPUTADOR</button>
-                <button class="btn-capa-small" style="background:#6c757d;" onclick="mostrarNiveis('PVP')"><i class="fas fa-users"></i> 2 JOGADORES</button>
-            </div>
+        
+        <!-- BARRA DA CAPA EXATAMENTE COMO PEDIDO -->
+        <div class="barra-capa-custom" id="barra-capa-dinamica">
+            <div class="btn-capa-info" onclick="toggleInstructions()"><i class="fas fa-info"></i></div>
+            <button class="btn-capa-jogar" onclick="mostrarOpcoesModo()">JOGAR</button>
         </div>
-        <div id="nivel-select-container" class="nivel-select-container"></div>
     `;
     iniciarSimulacao();
 }
 
-function mostrarNiveis(modo) {
-    if (somAcerto.src) somAcerto.play().catch(()=>{});
-    document.getElementById('capa-menu-principal').style.display = 'none';
-    const container = document.getElementById('nivel-select-container');
-    container.style.display = 'flex';
-    if (modo === 'CPU') {
-        container.innerHTML = `<p style="font-weight:800; color:#888; margin-bottom:2px; font-size:0.75rem;">DESAFIO CONTRA PC:</p>
-            <div class="nivel-row">
-                <div class="btn-nivel l1" onclick="setModo('CPU', 1)"><b>Nível 1</b><span>Com Dicas</span></div>
-                <div class="btn-nivel l2" onclick="setModo('CPU', 2)"><b>Nível 2</b><span>Sem Dicas</span></div>
-                <div class="btn-nivel l3" onclick="setModo('CPU', 3)"><b>Nível 3</b><span>Difícil</span></div>
-            </div>
-            <button class="btn-capa-small" style="background:#aaa; height:36px; width:130px; margin-top:5px;" onclick="voltarCapa()">VOLTAR</button>`;
-    } else {
-        container.innerHTML = `<p style="font-weight:800; color:#888; margin-bottom:2px; font-size:0.75rem;">2 JOGADORES (PVP):</p>
-            <div class="nivel-row">
-                <div class="btn-nivel l1" onclick="setModo('PVP', 1)"><b>Nível 1</b><span>Com Dicas</span></div>
-                <div class="btn-nivel l2" onclick="setModo('PVP', 2)"><b>Nível 2</b><span>Sem Dicas</span></div>
-            </div>
-            <button class="btn-capa-small" style="background:#aaa; height:36px; width:130px; margin-top:5px;" onclick="voltarCapa()">VOLTAR</button>`;
-    }
+function mostrarOpcoesModo() {
+    const barra = document.getElementById('barra-capa-dinamica');
+    barra.innerHTML = `
+        <div class="btn-modo-row">
+            <button class="btn-modo-opcao" onclick="mostrarNiveis('CPU')"><i class="fas fa-robot"></i> Computador</button>
+            <button class="btn-modo-opcao" onclick="mostrarNiveis('PVP')"><i class="fas fa-users"></i> 2 Jogadores</button>
+            <button class="btn-capa-info" style="background:#cc5555; border-color:#ff7777;" onclick="mostrarCapa()"><i class="fas fa-arrow-left"></i></button>
+        </div>
+    `;
 }
 
-function voltarCapa() { 
-    document.getElementById('capa-menu-principal').style.display = 'flex'; 
-    document.getElementById('nivel-select-container').style.display = 'none'; 
+function mostrarNiveis(modo) {
+    modoJogo = modo;
+    const barra = document.getElementById('barra-capa-dinamica');
+    
+    if (modo === 'CPU') {
+        barra.innerHTML = `
+            <div class="nivel-select-container" style="display:flex;">
+                <div class="nivel-row">
+                    <div class="btn-nivel l1" onclick="setModo('CPU', 1)"><b>Nível 1</b><span>Com Dicas</span></div>
+                    <div class="btn-nivel l2" onclick="setModo('CPU', 2)"><b>Nível 2</b><span>Sem Dicas</span></div>
+                    <div class="btn-nivel l3" onclick="setModo('CPU', 3)"><b>Nível 3</b><span>Difícil</span></div>
+                </div>
+            </div>`;
+    } else {
+        barra.innerHTML = `
+            <div class="nivel-select-container" style="display:flex;">
+                <div class="nivel-row">
+                    <div class="btn-nivel l1" onclick="setModo('PVP', 1)"><b>Nível 1</b><span>Com Dicas</span></div>
+                    <div class="btn-nivel l2" onclick="setModo('PVP', 2)"><b>Nível 2</b><span>Sem Dicas</span></div>
+                </div>
+            </div>`;
+    }
 }
 
 function toggleInstructions() { 
@@ -175,7 +202,7 @@ function toggleInstructions() {
 
 
 // ============================================================
-// 4. LÓGICA DO JOGO E INTELIGÊNCIA ARTIFICIAL
+// 4. LÓGICA DO JOGO E IA
 // ============================================================
 function setModo(modo, nivel) {
     clearInterval(simuInterval);
@@ -304,7 +331,7 @@ function temJogadas(type) {
 
 
 // ============================================================
-// 5. FINALIZAÇÃO E FEEDBACKS (1 E 4)
+// 5. FINALIZAÇÃO E FEEDBACKS
 // ============================================================
 function finalizarRonda(vencedorIdx) {
     jogoAtivo = false;
@@ -313,7 +340,6 @@ function finalizarRonda(vencedorIdx) {
     const overlay = document.getElementById('round-feedback');
     const nomeVencedor = vencedorIdx === 0 ? "VERTICAL" : (modoJogo === 'CPU' ? "Pc" : "HORIZONTAL");
     const corVencedor = vencedorIdx === 0 ? "#8cc63f" : "#ff5a5f";
-    
     const iconeFeedback = vencedorIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
 
     overlay.style.display = 'flex';
@@ -386,5 +412,5 @@ function iniciarSimulacao() {
     }, 600);
 }
 
-// Chamar a capa imediatamente ao carregar o script
+// Iniciar a capa diretamente
 mostrarCapa();
