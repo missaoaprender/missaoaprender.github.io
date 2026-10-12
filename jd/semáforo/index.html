@@ -1,1 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-browser-titulo>Jogos Matemáticos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Quicksand:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
 
+  <!-- CABEÇALHO -->
+  <header class="cabecalho">
+    <button class="botao-menu" aria-label="Menu Principal" aria-expanded="false" aria-controls="menu-acordeao"></button>
+    
+    <div class="marca">
+      <div class="marca-sol" aria-hidden="true"></div>
+      <div class="marca-texto">
+        <h1 data-marca></h1>
+        <p data-submarca></p>
+      </div>
+    </div>
+
+    <button class="botao-seta" aria-label="Voltar"></button>
+
+    <!-- MENU ACORDEÃO -->
+    <nav id="menu-acordeao" class="menu-acordeao" aria-hidden="true">
+      <div class="menu-acordeao-topo">
+        <div class="menu-acordeao-titulo" data-titulo-menu-acordeao></div>
+        <div class="menu-acordeao-subtitulo" data-informacao></div>
+      </div>
+      <div id="menu-anos" class="menu-anos"></div>
+    </nav>
+  </header>
+
+  <div id="app">
+    <!-- ÁREA PRINCIPAL -->
+    <main class="area-menu">
+      <div class="titulo-menu">
+        <h2 data-titulo-menu></h2>
+      </div>
+
+      <!-- CARTÃO ÚNICO EXPANDIDO COM A BARRA DINÂMICA AO FUNDO -->
+      <div class="cartao-unico-container">
+        <div class="ano">
+          <div class="botao-ano">
+            <!-- CONTEÚDO DINÂMICO (Capa ou Jogo) -->
+            <div id="contentor-jogo" style="flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;"></div>
+
+            <!-- BARRA INFERIOR DINÂMICA -->
+            <div class="barra-jogo-topo" id="barra-inferior"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- RODAPÉ -->
+    <footer class="rodape">
+      <div class="rodape-item">
+        <span class="estrela" data-icone-estrela></span>
+        <span data-mensagem></span>
+      </div>
+      <div class="rodape-item rodape-info">
+        <span data-informacao></span>
+        <div class="info" data-icone-info></div>
+      </div>
+    </footer>
+  </div>
+
+  <template id="modelo-menu-ano">
+    <button class="menu-ano">
+      <div class="menu-ano-icon"></div>
+      <span class="menu-ano-nome"></span>
+    </button>
+  </template>
+
+  <!-- DADOS E LÓGICA -->
+  <script src="dados.js"></script>
+  <script>
+    function inserirCSS() {
+      const estilo = document.createElement("style");
+      estilo.textContent = `
+        * { box-sizing: border-box; }
+        html, body {
+          margin: 0; padding: 0; width: 100%; min-height: 100vh;
+          font-family: "Nunito", "Quicksand", "Arial Rounded MT Bold", sans-serif;
+        }
+        html {
+          background: linear-gradient(180deg, ${DADOS.cores.ceu1} 0%, ${DADOS.cores.ceu2} 19%, #F3F3F8 38%, ${DADOS.cores.fundo} 100%);
+          background-attachment: fixed;
+        }
+        body { background: transparent; color: ${DADOS.cores.texto}; overflow-x: hidden; }
+        button { font-family: inherit; }
+
+        #app {
+          min-height: 100vh; width: min(100%, ${DADOS.dimensoes.larguraMaxima}px);
+          margin: 0 auto; padding: 0 0 16px; position: relative;
+          display: flex; flex-direction: column; justify-content: space-between; background: transparent;
+        }
+
+        .cabecalho {
+          position: relative; width: 100%; height: 82px;
+          background: linear-gradient(180deg, ${DADOS.cores.headerTopo} 0%, ${DADOS.cores.header} 100%);
+          display: flex; align-items: center; justify-content: center;
+          border-bottom: 2px solid rgba(255,255,255,.65);
+          box-shadow: 0 3px 10px rgba(102,102,153,.12); z-index: 20;
+        }
+
+        .botao-menu, .botao-seta {
+          position: absolute; top: 50%; transform: translateY(-50%);
+          width: 58px; height: 58px; padding: 0; border: 0; border-radius: 50%;
+          background: ${DADOS.cores.azulHeader}; cursor: pointer;
+          box-shadow: 0 3px 7px rgba(0,0,0,.18);
+          transition: transform .12s ease, box-shadow .12s ease; z-index: 25;
+        }
+        .botao-menu { left: 18px; }
+        .botao-seta { right: 18px; }
+
+        .botao-menu:active, .botao-seta:active {
+          transform: translateY(calc(-50% + 3px)) scale(0.95);
+          box-shadow: 0 1px 3px rgba(0,0,0,.25);
+        }
+
+        .botao-menu::before {
+          content: ""; position: absolute; width: 56%; height: 56%; left: 22%; top: 22%;
+          background-image: url("${DADOS.icons.menu}"); background-size: contain; background-repeat: no-repeat;
+        }
+        .botao-seta::before {
+          content: ""; position: absolute; width: 58%; height: 58%; left: 21%; top: 21%;
+          background-image: url("${DADOS.icons.seta}"); background-size: contain; background-repeat: no-repeat;
+        }
+
+        .marca { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; max-width: 65%; padding: 0 50px; }
+        .marca-sol { width: 64px; height: 64px; flex: 0 0 64px; background-image: url("${DADOS.icons.cabecalho}"); background-size: contain; background-repeat: no-repeat; background-position: center; }
+        .marca-texto { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+        .marca-texto h1 { margin: 0; font-size: clamp(26px, 2.8vw, 42px); line-height: 1.1; font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-shadow: 0 2px 0 rgba(255,255,255,.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .marca-texto p { margin: 3px 0 0; font-size: clamp(12px, 1.1vw, 16px); line-height: 1.1; font-weight: 800; color: ${DADOS.cores.texto}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .menu-acordeao {
+          position: absolute; top: 72px; left: 18px; width: 300px; padding: 0;
+          background: rgba(255,255,255,.98); border: 2px solid ${DADOS.cores.linha};
+          border-top: 4px solid ${DADOS.cores.azulHeader}; border-radius: 0 0 20px 20px;
+          box-shadow: 0 10px 25px rgba(102,102,153,.24);
+          opacity: 0; visibility: hidden; transform: translateY(-12px) scale(.98);
+          transform-origin: top left; transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
+          z-index: 30;
+        }
+        .menu-acordeao.aberto { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+        .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #ECECEF, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
+        .menu-acordeao-titulo { font-size: 19px; font-weight: 900; color: ${DADOS.cores.textoEscuro}; }
+        .menu-acordeao-subtitulo { margin-top: 3px; font-size: 12px; font-weight: 700; color: #666699; }
+        
+        .menu-anos { display: flex; flex-direction: column; padding: 8px; gap: 5px; max-height: 60vh; overflow-y: auto; }
+        .menu-ano {
+          width: 100%; min-height: 54px; display: flex; align-items: center; gap: 13px; padding: 6px 11px;
+          border: 0; border-radius: 13px; background: #FFFFFF; color: ${DADOS.cores.textoEscuro};
+          font-size: 15px; font-weight: 800; text-align: left; cursor: pointer; transition: background .16s ease;
+        }
+        .menu-ano:hover { background: #ECECEF; transform: translateX(3px); }
+        .menu-ano-icon { width: 45px; height: 45px; flex: 0 0 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #F3F3F8; }
+        .menu-ano-icon img { width: 100%; height: 100%; object-fit: contain; }
+        .menu-ano-nome { flex: 1; }
+
+        .area-menu { 
+          position: relative; width: 100%; flex: 1; display: flex; flex-direction: column; 
+          justify-content: center; align-items: center; padding: 10px 20px; 
+        }
+        .titulo-menu {
+          width: fit-content; margin: 0 auto 10px; padding: 6px 24px;
+          border: 2px solid rgba(102,102,153,.32); border-radius: 14px;
+          background: linear-gradient(180deg, #FFFFFF, ${DADOS.cores.creme});
+          box-shadow: 0 3px 7px rgba(102,102,153,.12);
+        }
+        .titulo-menu h2 { margin: 0; font-size: clamp(16px, 1.5vw, 22px); font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-align: center; }
+
+        .cartao-unico-container { width: 100%; max-width: 850px; flex: 1; display: flex; flex-direction: column; }
+        .ano { width: 100%; height: 100%; display: flex; flex-direction: column; flex: 1; }
+
+        .botao-ano {
+          position: relative; width: 100%; flex: 1; min-height: 65vh;
+          padding: 16px; border: 3px solid rgba(255,255,255,.94);
+          border-radius: ${DADOS.dimensoes.raioAno}px;
+          background: linear-gradient(145deg, #FFFFFF 0%, ${DADOS.cores.creme} 100%);
+          display: flex; flex-direction: column; justify-content: space-between; align-items: stretch;
+          color: ${DADOS.cores.textoEscuro}; overflow: hidden;
+          box-shadow: 0 12px 25px ${DADOS.cores.sombraForte};
+        }
+
+        .barra-jogo-topo {
+          width: 100%; display: flex; align-items: center; justify-content: space-between;
+          background: ${DADOS.cores.azulHeader}; padding: 8px 14px;
+          border-radius: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+          gap: 10px; flex-wrap: wrap; margin-top: 10px;
+        }
+
+        .rodape {
+          width: calc(100% - 40px); min-height: 53px; margin: 10px 20px 0; padding: 8px 17px;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;
+          border: 2px solid ${DADOS.cores.linha}; border-radius: 14px; background: rgba(255,255,255,.78);
+          font-size: clamp(11px, 1vw, 14px); font-weight: 800;
+        }
+        .rodape-item { display: flex; align-items: center; gap: 8px; }
+        .rodape-info { justify-content: flex-end; }
+        .estrela { color: #FFB400; font-size: 25px; }
+        .info { 
+          width: 25px; height: 25px; min-width: 25px; min-height: 25px;
+          display: inline-flex; align-items: center; justify-content: center; 
+          border-radius: 50% !important; color: #fff; background: ${DADOS.cores.azulHeader}; 
+          font-size: 12px; font-weight: 900; overflow: hidden; flex-shrink: 0;
+        }
+
+        @media (max-width: 900px) {
+          .cabecalho { height: 62px; }
+          .botao-menu, .botao-seta { width: 42px; height: 42px; }
+          .botao-menu { left: 10px; }
+          .botao-seta { right: 10px; }
+          .marca { padding: 0 38px; gap: 6px; max-width: 70%; }
+          .marca-sol { width: 36px; height: 36px; flex: 0 0 36px; }
+          .marca-texto h1 { font-size: 16px; }
+          .marca-texto p { font-size: 9px; margin-top: 1px; }
+          .menu-acordeao { top: 54px; left: 10px; width: 280px; }
+          .area-menu { padding: 0 16px; }
+          .rodape { width: calc(100% - 32px); margin: 10px 16px 0; padding: 8px 12px; font-size: 11px; }
+          .info { width: 22px !important; height: 22px !important; min-width: 22px !important; min-height: 22px !important; }
+        }
+      `;
+      document.head.appendChild(estilo);
+    }
+
+    function preencherTextos() {
+      if (DADOS.pagina.browserTitulo) document.title = DADOS.pagina.browserTitulo;
+      const marca = document.querySelector("[data-marca]");
+      const submarca = document.querySelector("[data-submarca]");
+      const titulo = document.querySelector("[data-titulo-menu]");
+      const mensagem = document.querySelector("[data-mensagem]");
+      const informacoes = document.querySelectorAll("[data-informacao]");
+      const tituloMenuAcordeao = document.querySelector("[data-titulo-menu-acordeao]");
+      const iconeEstrela = document.querySelector("[data-icone-estrela]");
+      const iconeInfo = document.querySelector("[data-icone-info]");
+
+      if (marca) marca.textContent = DADOS.pagina.titulo;
+      if (submarca) submarca.textContent = DADOS.pagina.subtitulo;
+      if (titulo) titulo.textContent = DADOS.pagina.tituloMenu;
+      if (mensagem) mensagem.textContent = DADOS.pagina.mensagem;
+      if (tituloMenuAcordeao) tituloMenuAcordeao.textContent = DADOS.pagina.tituloMenuAcordeao;
+      if (iconeEstrela) iconeEstrela.textContent = DADOS.pagina.iconeEstrela;
+      if (iconeInfo) iconeInfo.textContent = DADOS.pagina.iconeInfo;
+      informacoes.forEach(el => { el.textContent = DADOS.pagina.informacao; });
+    }
+
+    function criarMenuAnos() {
+      const recipiente = document.getElementById("menu-anos");
+      const modelo = document.getElementById("modelo-menu-ano");
+      if (!recipiente || !modelo) return;
+
+      recipiente.innerHTML = "";
+      DADOS.menuAnos.forEach(ano => {
+        const item = modelo.content.cloneNode(true);
+        const botao = item.querySelector(".menu-ano");
+        const icone = item.querySelector(".menu-ano-icon");
+        const nome = item.querySelector(".menu-ano-nome");
+
+        const imagem = document.createElement("img");
+        imagem.src = DADOS.icons.menuAnos[ano.icon];
+        imagem.alt = ""; imagem.draggable = false;
+        icone.appendChild(imagem);
+
+        nome.textContent = ano.nome;
+        botao.addEventListener("click", () => { window.location.href = ano.pagina; });
+        recipiente.appendChild(item);
+      });
+    }
+
+    function configurarMenu() {
+      const botaoMenu = document.querySelector(".botao-menu");
+      const menu = document.querySelector(".menu-acordeao");
+      const botaoSeta = document.querySelector(".botao-seta");
+
+      if (botaoMenu && menu) {
+        botaoMenu.addEventListener("click", event => {
+          event.stopPropagation();
+          menu.classList.toggle("aberto");
+        });
+        document.addEventListener("click", event => {
+          if (menu.classList.contains("aberto") && !menu.contains(event.target) && !botaoMenu.contains(event.target)) {
+            menu.classList.remove("aberto");
+          }
+        });
+      }
+      if (botaoSeta) {
+        botaoSeta.addEventListener("click", () => { window.location.href = DADOS.pagina.urlVoltar; });
+      }
+    }
+
+    function carregarJogoJS() {
+      const scriptJogo = document.createElement("script");
+      scriptJogo.src = "jogo.js";
+      document.body.appendChild(scriptJogo);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      inserirCSS();
+      preencherTextos();
+      criarMenuAnos();
+      configurarMenu();
+      carregarJogoJS();
+    });
+  </script>
+</body>
+</html>
