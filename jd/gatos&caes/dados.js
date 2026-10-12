@@ -3,7 +3,7 @@ const DADOS = {
     browserTitulo: "Jogos Matemáticos",
     titulo: "Jogos Matemáticos",
     subtitulo: "Atividades • Matemática",
-    tituloMenu: "Jogo do Rastro",
+    tituloMenu: "Gatos&Cães",
     mensagem: "Diverte-te a aprender!",
     informacao: "Jogos CRJM",
     tituloMenuAcordeao: "Menu",
