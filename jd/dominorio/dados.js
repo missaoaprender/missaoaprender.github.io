@@ -3,7 +3,7 @@ const DADOS = {
     browserTitulo: "Jogos Matemáticos",
     titulo: "Jogos Matemáticos",
     subtitulo: "Atividades • Matemática",
-    tituloMenu: "Gatos&Cães",
+    tituloMenu: "Dominório",
     mensagem: "Diverte-te a aprender!",
     informacao: "Jogos CRJM",
     tituloMenuAcordeao: "Menu",
@@ -13,7 +13,7 @@ const DADOS = {
   },
 
   icons: {
-    cabecalho: "../../icons/rastros.png",
+    cabecalho: "../../icons/dominorio.png",
     menu: "../../icons/menu.png",
     seta: "../../icons/seta.png",
     som: "../../icons/som.png",
