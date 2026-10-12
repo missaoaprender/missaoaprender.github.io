@@ -181,7 +181,6 @@ function mostrarCapa() {
         <div id="simu-container"><div id="simu-board" style="transform: scale(0.75);"></div></div>
     `;
 
-    // Barra inferior com o botão de info e o botão Jogar
     const barra = document.getElementById('barra-inferior');
     barra.style.display = 'flex';
     barra.className = "barra-jogo-topo";
@@ -370,7 +369,7 @@ function verificarVitoria(tab) {
 }
 
 // ============================================================
-// 5. FINALIZAÇÃO
+// 5. FINALIZAÇÃO (MELHOR DE 3 -> 2 VITÓRIAS)
 // ============================================================
 function finalizarRonda(vencedorIdx) {
     jogoAtivo = false;
@@ -390,13 +389,14 @@ function finalizarRonda(vencedorIdx) {
         <div style="margin-top:15px; padding-top:15px; border-top:2px dashed #eee; color:#aaa; font-weight:800;">PLACAR: J1 ${matchScore[0]} - ${matchScore[1]}</div>
     </div>`;
     
-    if (matchScore[0] >= 3 || matchScore[1] >= 3) setTimeout(finalizarMatch, 2000);
+    // Condição alterada para 2 vitórias (Melhor de 3)
+    if (matchScore[0] >= 2 || matchScore[1] >= 2) setTimeout(finalizarMatch, 2000);
     else setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2000);
 }
 
 function finalizarMatch() {
     document.getElementById('round-feedback').style.display = 'none';
-    const vencedorIdx = (matchScore[0] >= 3) ? 0 : 1;
+    const vencedorIdx = (matchScore[0] >= 2) ? 0 : 1;
     const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");
     
     document.getElementById('contentor-jogo').innerHTML = `<div style="text-align:center;">
