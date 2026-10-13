@@ -2,7 +2,7 @@
 // 1. ESTADO GLOBAL E SONS
 // ============================================================
 const JOGO_CONFIG = {
-    nomeDoJogo: "Quelhas",
+    nomeDoJogo: "Avanço",
     caminhoSons: DADOS.sons ? DADOS.sons.caminho : "",
     caminhoIconsMenu: "../../icons/"
 };
@@ -10,16 +10,10 @@ const JOGO_CONFIG = {
 let jogoAtivo = false;
 let modoJogo = 'CPU';     
 let nivelJogo = 1;        
-let mostrarDicas = true;  
 let matchScore = [0, 0];  
 let turnoAtual = 0;       
-let currentGameNum = 1;   
-let tabuleiro = Array(10).fill().map(() => Array(10).fill(0));
-let startCell = null;     
-let primeiraJogadaRealizada = false;
-let j2JaJogou = false; 
-let trocouOrientacao = false; 
-let orientacoes = [0, 1]; // [J1, J2/Pc] -> 0: Vertical, 1: Horizontal
+let tabuleiro = [];       
+let selectedPiece = null; 
 let simuInterval;         
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
@@ -36,11 +30,6 @@ style.innerHTML = `
     
     .status-pill { padding: 4px 15px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; color: white; display: flex; align-items: center; gap: 12px; }
     
-    .status-dots { display: flex; gap: 4px; }
-    .status-dots.v-dir { flex-direction: column; }
-    .status-dots.h-dir { flex-direction: row; }
-    .dot-blink { width: 6px; height: 6px; background: white; border-radius: 50%; animation: blinker 1s linear infinite; }
-
     .score-group { display: flex; gap: 8px; }
     .score-box { padding: 5px 10px; border-radius: 12px; color: white; font-weight: 900; display: flex; align-items: center; gap: 6px; font-size: 1rem; min-width: 55px; justify-content: center; }
     
@@ -140,23 +129,30 @@ style.innerHTML = `
     .inst-list { list-style: none; padding: 0; }
     .inst-list li { background: #f9f9f9; margin-bottom: 10px; padding: 15px; border-radius: 15px; border-left: 5px solid ${DADOS.cores.azulHeader}; color: #555; font-size: 0.95rem; line-height: 1.4; }
 
-    /* TABULEIRO COM ROTAÇÃO */
-    .grid-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #bbb; padding: 3px; border-radius: 8px; width: fit-content; margin: 0 auto; transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
-    .grid-board.rotated { transform: rotate(180deg); }
+    /* TABULEIRO 7x7 DO AVANÇO */
+    .grid-board { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; background: #bbb; padding: 6px; border-radius: 12px; width: fit-content; margin: 0 auto; }
+    .cell { width: var(--cell-size); height: var(--cell-size); background: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; }
+    .piece { width: 80%; height: 80%; border-radius: 50%; }
+    .piece.white { background: radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0); border: 1px solid #ccc; box-shadow: 0 3px 6px rgba(0,0,0,0.15); }
+    .piece.black { background: radial-gradient(circle at 30% 30%, #5f6388, #3e3e59); border: 1px solid #262638; box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
+
+    #round-feedback { 
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(6px); 
+        z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; 
+        border-radius: 35px; overflow: hidden;
+    }
     
-    .cell { width: var(--cell-size); height: var(--cell-size); background: white; border-radius: 1px; display: flex; align-items: center; justify-content: center; position: relative; }
-    .cell.occupied::after { content: ''; width: 85%; height: 85%; background: #333; border-radius: 50%; }
-    .cell.selected { background: #e8f5e9; border: 2px solid #8cc63f; }
+    .feedback-bottom-bar {
+        position: absolute; bottom: 20px; left: 24px; right: 24px; height: 14px;
+        background: #5f6388; border-radius: 7px;
+    }
 
-    .cell.hint::after { content: ''; width: 8px; height: 8px; background: #bbb; border-radius: 50%; opacity: 0.8; }
-
-    #round-feedback { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; border-radius: 35px; }
-    .vitoria-card { background: transparent; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
+    .vitoria-card { background: transparent; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 20px; }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    @media screen and (min-width: 1025px) { :root { --cell-size: 40px; } }
-    @media screen and (max-width: 500px) and (orientation: portrait) { :root { --cell-size: 8.5vw; } }
-    @media screen and (max-height: 500px) and (orientation: landscape) { :root { --cell-size: 7vh; } }
+    :root { --cell-size: 50px; }
+    @media screen and (max-width: 500px) { :root { --cell-size: 11vw; } }
 `;
 document.head.appendChild(style);
 
@@ -173,20 +169,13 @@ function mostrarCapa() {
         panel.innerHTML = `
             <span class="close-x" onclick="toggleInstructions()">&times;</span>
             <div class="inst-content">
-                <div class="inst-header">Como Jogar Quelhas</div>
-                <div class="inst-section-title">Objetivo (Regra Misere)</div>
-                <p class="inst-text">O Quelhas é um jogo de bloqueio estratégico. Ao contrário da maioria dos jogos, este segue a regra <b>Misere</b>: o jogador que realizar a <b>última jogada possível</b> no tabuleiro perde o jogo. O teu objetivo é forçar o adversário a ocupar o último espaço livre.</p>
-                <div class="inst-section-title">As Peças e o Tabuleiro</div>
+                <div class="inst-header">Como Jogar Avanço</div>
+                <div class="inst-section-title">Objetivo do Jogo</div>
+                <p class="inst-text">Vence o primeiro jogador que conseguir levar <b>qualquer uma das suas peças</b> até à primeira linha do campo adversário.</p>
+                <div class="inst-section-title">Como Mover as Peças</div>
                 <ul class="inst-list">
-                    <li><b>Tabuleiro:</b> Um quadrado de 10x10 casas.</li>
-                    <li><b>Jogadores:</b> Um joga na <b>Vertical</b> (colunas) e outro na <b>Horizontal</b> (linhas).</li>
-                    <li><b>Peças:</b> Devem ser colocados blocos de <b>duas ou mais peças</b> seguidas na orientação do jogador.</li>
-                </ul>
-                <div class="inst-section-title">Como Jogar</div>
-                <ul class="inst-list">
-                    <li><b>1.</b> O jogador Vertical começa sempre o jogo.</li>
-                    <li><b>2.</b> Para jogar, clica na casa onde o teu bloco começa e depois na casa onde termina.</li>
-                    <li><b>3. Regra da Troca:</b> Na primeira jogada do segundo jogador (J2), este pode optar por <b>trocar de orientação</b>. O tabuleiro roda 180º e o J2 assume a Vertical.</li>
+                    <li><b>Frente:</b> Podes avançar 1 casa para a frente se esta estiver vazia.</li>
+                    <li><b>Diagonais:</b> Podes mover-te 1 casa para as diagonais frontais se estiverem vazias ou para capturar uma peça adversária.</li>
                 </ul>
             </div>`;
         document.body.appendChild(panel);
@@ -280,26 +269,30 @@ function toggleInstructions() {
 
 
 // ============================================================
-// 4. LÓGICA CORE DO JOGO E IA
+// 4. LÓGICA CORE DO JOGO E IA (AVANÇO)
 // ============================================================
 function setModo(modo, nivel) {
     clearInterval(simuInterval); 
     if (somClique.src) somClique.play().catch(()=>{});
     modoJogo = modo; nivelJogo = nivel;
-    mostrarDicas = (nivel === 1);
-    matchScore = [0, 0]; currentGameNum = 1; orientacoes = [0, 1]; trocouOrientacao = false;
+    matchScore = [0, 0]; turnoAtual = 0; 
     iniciarJogo();
 }
 
 function iniciarJogo() {
     jogoAtivo = true;
-    tabuleiro = Array(10).fill().map(() => Array(10).fill(0));
-    startCell = null; primeiraJogadaRealizada = false; j2JaJogou = false; turnoAtual = 0; 
+    selectedPiece = null;
+    tabuleiro = Array(7).fill().map(() => Array(7).fill(0));
+    for(let c=0; c<7; c++) { 
+        tabuleiro[0][c] = 2; tabuleiro[1][c] = 2; 
+        tabuleiro[5][c] = 1; tabuleiro[6][c] = 1; 
+    }
     const feedbackEl = document.getElementById('round-feedback');
     if (feedbackEl) feedbackEl.style.display = 'none';
     const barra = document.getElementById('barra-inferior');
     if (barra) barra.style.display = 'flex';
     atualizarUI();
+    if(modoJogo === 'CPU' && turnoAtual === 1) setTimeout(iaControlador, 800);
 }
 
 function atualizarUI() {
@@ -307,44 +300,36 @@ function atualizarUI() {
     const labelJ2 = modoJogo === 'CPU' ? "PC" : "Jogador 2";
     const nomeVez = (turnoAtual === 0) ? "Jogador 1" : labelJ2;
     const classPill = (turnoAtual === 0) ? "pill-j1" : "pill-j2";
-    const orient = orientacoes[turnoAtual]; 
-
-    const dotsHTML = `<div class="status-dots ${orient === 0 ? 'v-dir' : 'h-dir'}"><div class="dot-blink"></div><div class="dot-blink"></div></div>`;
 
     const barra = document.getElementById('barra-inferior');
     if (barra) {
         barra.innerHTML = `
-            <div class="status-pill ${classPill}">${nomeVez} ${dotsHTML}</div>
+            <div class="status-pill ${classPill}">${nomeVez}</div>
             <div class="score-group"><div class="score-box box-v">J1: ${matchScore[0]}</div><div class="score-box box-x">${pcLabel}: ${matchScore[1]}</div></div>
         `;
     }
 
     const area = document.getElementById('contentor-jogo');
     if (area) {
-        area.innerHTML = `<div id="grid-mount" class="grid-board ${trocouOrientacao ? 'rotated' : ''}"></div>`;
+        area.innerHTML = `<div id="grid-mount" class="grid-board"></div>`;
         renderTabuleiro(document.getElementById('grid-mount'));
-
-        if (primeiraJogadaRealizada && !j2JaJogou && turnoAtual === 1) {
-            const btn = document.createElement('button');
-            btn.className = "btn-capa-small"; 
-            btn.style = "background:#f9a825; margin: 15px auto; width: 180px; display:block; height:50px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);";
-            btn.innerText = "TROCAR ORIENTAÇÃO"; 
-            btn.onclick = swapOrientations; 
-            area.appendChild(btn);
-        }
     }
 }
 
 function renderTabuleiro(container) {
     if (!container) return;
-    const orient = orientacoes[turnoAtual];
-    for (let r = 0; r < 10; r++) {
-        for (let c = 0; c < 10; c++) {
+    const p = turnoAtual === 0 ? 1 : 2;
+    for (let r = 0; r < 7; r++) {
+        for (let c = 0; c < 7; c++) {
             let cell = document.createElement('div');
             cell.className = "cell";
-            if (tabuleiro[r][c] === 1) cell.classList.add("occupied");
-            if (startCell && startCell.r === r && startCell.c === c) cell.classList.add("selected");
-            if (mostrarDicas && startCell && tabuleiro[r][c] === 0 && validarPeca(startCell.r, startCell.c, r, c, orient)) cell.classList.add("hint");
+            if (selectedPiece && selectedPiece.r === r && selectedPiece.c === c) {
+                cell.style.background = "#e8f5e9";
+                cell.style.border = "2px solid #8cc63f";
+            }
+            if (tabuleiro[r][c] === 1) cell.innerHTML = '<div class="piece white"></div>';
+            else if (tabuleiro[r][c] === 2) cell.innerHTML = '<div class="piece black"></div>';
+            
             cell.onclick = () => handleCellClick(r, c);
             container.appendChild(cell);
         }
@@ -353,143 +338,96 @@ function renderTabuleiro(container) {
 
 function handleCellClick(r, c) {
     if (!jogoAtivo || (modoJogo === 'CPU' && turnoAtual === 1)) return;
-    if (tabuleiro[r][c] !== 0) return;
-    if (!startCell) { 
-        startCell = { r, c }; 
+    const p = turnoAtual === 0 ? 1 : 2;
+    if (tabuleiro[r][c] === p) {
+        selectedPiece = { r, c }; 
         if (somClique.src) somClique.play().catch(()=>{}); 
         atualizarUI(); 
-    } else {
-        if (validarPeca(startCell.r, startCell.c, r, c, orientacoes[turnoAtual])) {
-            colocarPeca(startCell.r, startCell.c, r, c);
-            if(turnoAtual === 1) j2JaJogou = true;
-            startCell = null; 
-            finalizarTurno();
+    } else if (selectedPiece) {
+        if (validarMovimento(selectedPiece.r, selectedPiece.c, r, c, p)) {
+            executarMovimento(selectedPiece.r, selectedPiece.c, r, c);
         } else { 
-            startCell = { r, c }; 
-            if (somClique.src) somClique.play().catch(()=>{}); 
+            selectedPiece = null; 
             atualizarUI(); 
         }
     }
 }
 
-function swapOrientations() { 
-    if (somAcerto.src) somAcerto.play().catch(()=>{}); 
-    trocouOrientacao = !trocouOrientacao; 
-    orientacoes = [orientacoes[1], orientacoes[0]]; 
-    j2JaJogou = true; 
-    turnoAtual = 0; 
-    atualizarUI(); 
-}
-
-function validarPeca(r1, c1, r2, c2, orient) {
-    let rs = Math.min(r1, r2), re = Math.max(r1, r2), cs = Math.min(c1, c2), ce = Math.max(c1, c2);
-    if (orient === 0) { if (c1 !== c2 || re - rs < 1) return false; for (let i = rs; i <= re; i++) if (tabuleiro[i][c1] !== 0) return false; }
-    else { if (r1 !== r2 || ce - cs < 1) return false; for (let i = cs; i <= ce; i++) if (tabuleiro[r1][i] !== 0) return false; }
-    return true;
-}
-
-function colocarPeca(r1, c1, r2, c2) {
-    let rs = Math.min(r1, r2), re = Math.max(r1, r2), cs = Math.min(c1, c2), ce = Math.max(c1, c2);
-    for (let r = rs; r <= re; r++) for (let c = cs; c <= ce; c++) tabuleiro[r][c] = 1;
-    primeiraJogadaRealizada = true; 
-    if (somClique.src) somClique.play().catch(()=>{});
-}
-
-function finalizarTurno() {
-    const proximoJogador = (turnoAtual === 0) ? 1 : 0;
-    const orientProximo = orientacoes[proximoJogador];
-    if (!temLancesLegais(orientProximo)) { finalizarRonda(turnoAtual); return; }
-    turnoAtual = proximoJogador; 
-    atualizarUI();
-    if (modoJogo === 'CPU' && turnoAtual === 1) setTimeout(iaControlador, 800);
-}
-
-function temLancesLegais(o) {
-    for (let r = 0; r < 10; r++) for (let c = 0; c < 10; c++) if (tabuleiro[r][c] === 0) {
-        if (o === 0 && r < 9 && tabuleiro[r+1][c] === 0) return true;
-        if (o === 1 && c < 9 && tabuleiro[r][c+1] === 0) return true;
-    }
+function validarMovimento(r1, c1, r2, c2, p) {
+    const dir = p === 1 ? -1 : 1;
+    const enemy = p === 1 ? 2 : 1;
+    if (c1 === c2 && r2 === r1 + dir && tabuleiro[r2][c2] === 0) return true;
+    if (Math.abs(c2 - c1) === 1 && r2 === r1 + dir && (tabuleiro[r2][c2] === 0 || tabuleiro[r2][c2] === enemy)) return true;
     return false;
 }
 
+function executarMovimento(fr, fc, tr, tc) {
+    const p = tabuleiro[fr][fc];
+    tabuleiro[fr][fc] = 0; 
+    tabuleiro[tr][tc] = p;
+    selectedPiece = null; 
+    if (somClique.src) somClique.play().catch(()=>{});
+
+    if ((p === 1 && tr === 0) || (p === 2 && tr === 6)) { 
+        finalizarRonda(turnoAtual); 
+        return; 
+    }
+    
+    turnoAtual = 1 - turnoAtual;
+    atualizarUI();
+    if (modoJogo === 'CPU' && turnoAtual === 1) setTimeout(iaControlador, 600);
+}
+
 function iaControlador() {
-    const cpuO = orientacoes[1];
     let moves = [];
-    for (let r=0; r<10; r++) for (let c=0; c<10; c++) if (tabuleiro[r][c] === 0) {
-        if (cpuO === 0 && r<9 && tabuleiro[r+1][c] === 0) moves.push({r1:r, c1:c, r2:r+1, c2:c});
-        if (cpuO === 1 && c<9 && tabuleiro[r][c+1] === 0) moves.push({r1:r, c1:c, r2:r, c2:c+1});
-    }
+    for (let r = 0; r < 7; r++) for (let c = 0; c < 7; c++) if (tabuleiro[r][c] === 2) 
+        for (let dr = 0; dr < 7; dr++) for (let dc = 0; dc < 7; dc++) if (validarMovimento(r, c, dr, dc, 2)) moves.push({fr:r, fc:c, tr:dr, tc:dc});
+    
     if (moves.length === 0) { finalizarRonda(0); return; }
-    let m;
-    if (nivelJogo === 1) {
-        let boas = moves.filter(mv => {
-            let t = tabuleiro.map(row => [...row]); t[mv.r1][mv.c1]=1; t[mv.r2][mv.c2]=1;
-            return temLancesLegaisParaAlguem(t);
-        });
-        m = boas.length > 0 ? boas[Math.floor(Math.random()*boas.length)] : moves[Math.floor(Math.random()*moves.length)];
-    } else {
-        let melhor = -Infinity;
-        for (let mv of moves) {
-            let s = 0; let t = tabuleiro.map(row=>[...row]); t[mv.r1][mv.c1]=1; t[mv.r2][mv.c2]=1;
-            if(!temLancesLegaisParaAlguem(t)) s-=100;
-            let lAdv = contarLances(0, t); let lProp = contarLances(1, t);
-            s += (lAdv % 2 === 0) ? 20 : -10; s += lProp * 5;
-            if(s > melhor){ melhor = s; m = mv; }
-        }
-    }
-    if(!m) m = moves[0];
-    colocarPeca(m.r1, m.c1, m.r2, m.c2); 
-    j2JaJogou = true; 
-    finalizarTurno();
-}
-
-function contarLances(idx, tab) {
-    const o = orientacoes[idx]; let count = 0;
-    for (let r = 0; r < 10; r++) for (let c = 0; c < 10; c++) if (tab[r][c] === 0) {
-        if (o === 0 && r < 9 && tab[r+1][c] === 0) count++;
-        if (o === 1 && c < 9 && tab[r][c+1] === 0) count++;
-    }
-    return count;
-}
-
-function temLancesLegaisParaAlguem(tab) {
-    return (contarLances(0, tab) > 0 || contarLances(1, tab) > 0);
+    
+    const win = moves.find(m => m.tr === 6);
+    const cap = moves.find(m => tabuleiro[m.tr][m.tc] === 1);
+    const m = win || cap || moves[Math.floor(Math.random() * moves.length)];
+    
+    executarMovimento(m.fr, m.fc, m.tr, m.tc);
 }
 
 
 // ============================================================
-// 5. FINALIZAÇÃO (MELHOR DE 3 -> 2 VITÓRIAS)
+// 5. FINALIZAÇÃO (RONDA E MATCH)
 // ============================================================
-function finalizarRonda(perdedorIdx) {
+function finalizarRonda(vIdx) {
     jogoAtivo = false; 
-    let vencedorIdx = perdedorIdx === 0 ? 1 : 0;
-    matchScore[vencedorIdx]++; 
+    matchScore[vIdx]++; 
     if (somAcerto.src) somAcerto.play().catch(()=>{});
     
     const overlay = document.getElementById('round-feedback');
-    const nomeV = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
-    const iconeFeedback = vencedorIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
+    const nomeV = vIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
+    const iconeFeedback = vIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
     const labelBox2 = modoJogo === 'CPU' ? 'PC' : 'J2';
 
     if (overlay) {
         overlay.style.display = 'flex';
-        overlay.innerHTML = `<div class="vitoria-card">
-            <img src="${iconeFeedback}" style="width:110px; height:110px; object-fit:contain;">
-            <h1 style="color:#5f6388; font-size:1.8rem; font-weight:900; margin:0; text-transform:uppercase;">GANHOU O ${nomeV}</h1>
-            <div style="display:flex; justify-content:center; gap:12px;">
-                <div class="score-box box-v" style="padding:8px 16px; font-size:1rem;">J1: ${matchScore[0]}</div>
-                <div class="score-box box-x" style="padding:8px 16px; font-size:1rem;">${labelBox2}: ${matchScore[1]}</div>
+        overlay.innerHTML = `
+            <div class="vitoria-card">
+                <img src="${iconeFeedback}" style="width:110px; height:110px; object-fit:contain;">
+                <h1 style="color:#5f6388; font-size:1.8rem; font-weight:900; margin:0; text-transform:uppercase;">GANHOU O ${nomeV}</h1>
+                <div style="display:flex; justify-content:center; gap:12px;">
+                    <div class="score-box box-v" style="padding:8px 16px; font-size:1rem;">J1: ${matchScore[0]}</div>
+                    <div class="score-box box-x" style="padding:8px 16px; font-size:1rem;">${labelBox2}: ${matchScore[1]}</div>
+                </div>
             </div>
-        </div>`;
+            <div class="feedback-bottom-bar"></div>
+        `;
     }
     
-    if (matchScore[0] >= 2 || matchScore[1] >= 2) setTimeout(finalizarMatch, 2500);
-    else setTimeout(() => { currentGameNum++; trocouOrientacao = false; iniciarJogo(); }, 2500);
+    if (matchScore[0] >= 3 || matchScore[1] >= 3) setTimeout(finalizarMatch, 2500);
+    else setTimeout(() => { iniciarJogo(); }, 2500);
 }
 
 function finalizarMatch() {
     const overlay = document.getElementById('round-feedback');
-    const vIdx = (matchScore[0] >= 2) ? 0 : 1;
+    const vIdx = (matchScore[0] >= 3) ? 0 : 1;
     const nomeV = vIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
     const lb2 = modoJogo === 'CPU' ? 'PC' : 'J2';
     const iconeFeedback = vIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
@@ -508,7 +446,8 @@ function finalizarMatch() {
                     <button class="btn-final-roxo" style="flex:1;" onclick="location.reload()">Jogar de novo</button>
                     <button class="btn-final-branco" style="flex:1;" onclick="window.history.back()">Outro jogo</button>
                 </div>
-            </div>`;
+            </div>
+            <div class="feedback-bottom-bar"></div>`;
     }
     const barra = document.getElementById('barra-inferior');
     if (barra) barra.style.display = "none";
@@ -517,20 +456,35 @@ function finalizarMatch() {
 function iniciarSimulacao() {
     clearInterval(simuInterval);
     const board = document.getElementById('simu-board');
-    let sTab = Array(10).fill().map(() => Array(10).fill(0));
-    let sTurno = 0;
+    if(!board) return;
+    let sTab = Array(7).fill().map(() => Array(7).fill(0));
+    const reset = () => { for(let c=0; c<7; c++){ sTab[0][c]=2; sTab[1][c]=2; sTab[5][c]=1; sTab[6][c]=1; } };
+    reset();
+    
+    let sTurno = 1;
     simuInterval = setInterval(() => {
-        let leg = [];
-        for(let r=0; r<10; r++) for(let c=0; c<10; c++) {
-            if(sTurno===0 && r<9 && sTab[r][c]===0 && sTab[r+1][c]===0) leg.push({r,c,r2:r+1,c2:c});
-            if(sTurno===1 && c<9 && sTab[r][c]===0 && sTab[r][c+1]===0) leg.push({r,c,r2:r,c2:c+1});
-        }
-        if (leg.length === 0) { sTab = Array(10).fill().map(() => Array(10).fill(0)); sTurno = 0; }
-        else { let m = leg[Math.floor(Math.random() * leg.length)]; sTab[m.r][m.c] = 1; sTab[m.r2][m.c2] = 1; sTurno = (sTurno === 0) ? 1 : 0; }
-        let h = `<div class="grid-board" style="opacity:0.4; pointer-events:none;">`;
-        for(let r=0;r<10;r++) for(let c=0;c<10;c++) h+=`<div class="cell ${sTab[r][c]===1?'occupied':''}" style="width:23px; height:23px;"></div>`;
-        if(board) board.innerHTML = h + `</div>`;
-    }, 600);
+        let moves = [];
+        for(let r=0; r<7; r++) for(let c=0; c<7; c++) if(sTab[r][c] === sTurno)
+            for(let dr=0; dr<7; dr++) for(let dc=0; dc<7; dc++) 
+                if(validarMovimentoSimu(r,c,dr,dc,sTurno,sTab)) moves.push({fr:r, fc:c, tr:dr, tc:dc});
+        
+        if(moves.length > 0) {
+            const m = moves[Math.floor(Math.random()*moves.length)];
+            sTab[m.tr][m.tc] = sTab[m.fr][m.fc]; sTab[m.fr][m.fc] = 0;
+            if((sTurno===1 && m.tr===0) || (sTurno===2 && m.tr===6)) reset();
+            else sTurno = sTurno === 1 ? 2 : 1;
+        } else reset();
+
+        board.innerHTML = `<div class="grid-board" style="opacity:0.4; pointer-events:none;">` + 
+            sTab.flat().map(v => `<div class="cell">${v?`<div class="piece ${v==1?'white':'black'}"></div>`:''}</div>`).join('') + `</div>`;
+    }, 700);
+}
+
+function validarMovimentoSimu(r1, c1, r2, c2, p, tab) {
+    const d = p === 1 ? -1 : 1;
+    if(c1 === c2 && r2 === r1 + d && tab[r2][c2] === 0) return true;
+    if(Math.abs(c2 - c1) === 1 && r2 === r1 + d && (tab[r2][c2] === 0 || tab[r2][c2] === (3-p))) return true;
+    return false;
 }
 
 // Iniciar a capa diretamente
