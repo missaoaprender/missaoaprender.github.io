@@ -86,6 +86,21 @@ style.innerHTML = `
     }
     .btn-voltar-grande:active { transform: scale(0.97); }
 
+    /* Estilo exato dos botões finais da imagem */
+    .btn-final-roxo {
+        background: #5f6388; color: white; border: none; padding: 14px 28px;
+        border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.15); text-transform: capitalize; transition: transform 0.1s;
+    }
+    .btn-final-roxo:active { transform: scale(0.95); }
+
+    .btn-final-branco {
+        background: white; color: #5f6388; border: 2px solid #5f6388; padding: 14px 28px;
+        border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.08); text-transform: capitalize; transition: transform 0.1s;
+    }
+    .btn-final-branco:active { transform: scale(0.95); }
+
     .niveis-wrapper {
         display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; margin-top: 5px;
     }
@@ -271,7 +286,7 @@ function iniciarJogo() {
 }
 
 function atualizarUI() {
-    const pcLabel = "Pc";
+    const pcLabel = "PC";
     const j2Label = "J2";
     const labelSegundaBox = modoJogo === 'CPU' ? pcLabel : j2Label;
     let turnInfoHTML = "";
@@ -377,7 +392,7 @@ function finalizarRonda(vencedorIdx) {
     if (somAcerto.src) somAcerto.play().catch(()=>{});
     
     const overlay = document.getElementById('round-feedback');
-    const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");
+    const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
     const corVencedor = vencedorIdx === 0 ? "#8cc63f" : "#ff5a5f";
     const iconeFeedback = vencedorIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
 
@@ -389,7 +404,6 @@ function finalizarRonda(vencedorIdx) {
         <div style="margin-top:15px; padding-top:15px; border-top:2px dashed #eee; color:#aaa; font-weight:800;">PLACAR: J1 ${matchScore[0]} - ${matchScore[1]}</div>
     </div>`;
     
-    // Condição alterada para 2 vitórias (Melhor de 3)
     if (matchScore[0] >= 2 || matchScore[1] >= 2) setTimeout(finalizarMatch, 2000);
     else setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2000);
 }
@@ -397,18 +411,19 @@ function finalizarRonda(vencedorIdx) {
 function finalizarMatch() {
     document.getElementById('round-feedback').style.display = 'none';
     const vencedorIdx = (matchScore[0] >= 2) ? 0 : 1;
-    const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");
+    const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
+    const labelSegundaBox = modoJogo === 'CPU' ? "PC" : "J2";
     
-    document.getElementById('contentor-jogo').innerHTML = `<div style="text-align:center;">
-            <img src="${DADOS.icons.feedbacks.feedback1}" style="width:110px; height:110px; object-fit:contain; margin-bottom:10px;">
-            <h2 style="color:${DADOS.cores.azulHeader}; font-weight:900; text-transform:uppercase; margin-bottom:20px;">GANHOU O ${nomeVencedor}</h2>
-            <div style="display:flex; justify-content:center; gap:20px;">
-                <div class="score-box box-v" style="padding:10px 20px; font-size:1.2rem;">J1: ${matchScore[0]}</div>
-                <div class="score-box box-x" style="padding:10px 20px; font-size:1.2rem;">${modoJogo === 'CPU' ? 'Pc' : 'J2'}: ${matchScore[1]}</div>
+    document.getElementById('contentor-jogo').innerHTML = `
+        <div style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px;">
+            <h2 style="color:${DADOS.cores.azulHeader}; font-weight:900; text-transform:uppercase; margin:0; font-size:1.6rem;">GANHOU O ${nomeVencedor}</h2>
+            <div style="display:flex; justify-content:center; gap:12px;">
+                <div class="score-box box-v" style="padding:10px 20px; font-size:1.1rem;">J1: ${matchScore[0]}</div>
+                <div class="score-box box-x" style="padding:10px 20px; font-size:1.1rem;">${labelSegundaBox}: ${matchScore[1]}</div>
             </div>
-            <div style="display:flex; justify-content:center; gap:12px; margin-top:25px;">
-                <button class="btn-voltar-grande" style="width:140px;" onclick="location.reload()"><i class="fas fa-redo"></i> Repetir</button>
-                <button class="btn-voltar-grande" style="width:140px; background:${DADOS.cores.azulHeader};" onclick="window.history.back()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            <div style="display:flex; justify-content:center; gap:14px; margin-top:10px; width:100%; max-width:420px;">
+                <button class="btn-final-roxo" style="flex:1;" onclick="location.reload()">Jogar de novo</button>
+                <button class="btn-final-branco" style="flex:1;" onclick="window.history.back()">Outro jogo</button>
             </div>
         </div>`;
     document.getElementById('barra-inferior').style.display = "none";
