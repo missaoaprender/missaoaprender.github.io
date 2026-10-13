@@ -81,18 +81,20 @@ style.innerHTML = `
     }
     .btn-voltar-grande:active { transform: scale(0.97); }
 
-    /* Estilo dos botões finais */
+    /* Estilo dos botões finais (espaços largos para uma única linha) */
     .btn-final-roxo {
-        background: #5f6388; color: white; border: none; padding: 14px 28px;
+        background: #5f6388; color: white; border: none; padding: 14px 20px;
         border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
         box-shadow: 0 6px 15px rgba(0,0,0,0.15); text-transform: capitalize; transition: transform 0.1s;
+        white-space: nowrap; flex: 1; text-align: center;
     }
     .btn-final-roxo:active { transform: scale(0.95); }
 
     .btn-final-branco {
-        background: white; color: #5f6388; border: 2px solid #5f6388; padding: 14px 28px;
+        background: white; color: #5f6388; border: 2px solid #5f6388; padding: 14px 20px;
         border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
         box-shadow: 0 6px 15px rgba(0,0,0,0.08); text-transform: capitalize; transition: transform 0.1s;
+        white-space: nowrap; flex: 1; text-align: center;
     }
     .btn-final-branco:active { transform: scale(0.95); }
 
@@ -149,7 +151,7 @@ style.innerHTML = `
         background: #5f6388; border-radius: 7px;
     }
 
-    .vitoria-card { background: transparent; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 20px; }
+    .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 25px; width: 100%; max-width: 480px; }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
     :root { --cell-size: 50px; }
@@ -433,7 +435,7 @@ function finalizarRonda(vIdx) {
         overlay.style.display = 'flex';
         overlay.innerHTML = `
             <div class="vitoria-card">
-                <img src="${iconeFeedback}" style="width:110px; height:110px; object-fit:contain;">
+                <img src="${iconeFeedback}" style="width:140px; height:140px; object-fit:contain;">
                 <h1 style="color:#5f6388; font-size:1.8rem; font-weight:900; margin:0; text-transform:uppercase;">GANHOU O ${nomeV}</h1>
                 <div style="display:flex; justify-content:center; gap:12px;">
                     <div class="score-box box-v" style="padding:8px 16px; font-size:1rem;">J1: ${matchScore[0]}</div>
@@ -459,15 +461,15 @@ function finalizarMatch() {
         overlay.style.display = 'flex';
         overlay.innerHTML = `
             <div class="vitoria-card">
-                <img src="${iconeFeedback}" style="width:110px; height:110px; object-fit:contain;">
+                <img src="${iconeFeedback}" style="width:140px; height:140px; object-fit:contain;">
                 <h1 style="color:#5f6388; font-size:1.8rem; font-weight:900; margin:0; text-transform:uppercase;">GANHOU O ${nomeV}</h1>
                 <div style="display:flex; justify-content:center; gap:12px;">
                     <div class="score-box box-v" style="padding:8px 16px; font-size:1rem;">J1: ${matchScore[0]}</div>
                     <div class="score-box box-x" style="padding:8px 16px; font-size:1rem;">${lb2}: ${matchScore[1]}</div>
                 </div>
-                <div style="display:flex; justify-content:center; gap:14px; margin-top:10px; width:100%; max-width:420px;">
-                    <button class="btn-final-roxo" style="flex:1;" onclick="location.reload()">Jogar de novo</button>
-                    <button class="btn-final-branco" style="flex:1;" onclick="window.history.back()">Outro jogo</button>
+                <div style="display:flex; justify-content:center; gap:14px; margin-top:5px; width:100%; max-width:440px;">
+                    <button class="btn-final-roxo" onclick="location.reload()">Jogar de novo</button>
+                    <button class="btn-final-branco" onclick="window.history.back()">Outro jogo</button>
                 </div>
             </div>
             <div class="feedback-bottom-bar"></div>`;
