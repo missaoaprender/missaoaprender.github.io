@@ -2,9 +2,9 @@ const DADOS = {
   pagina: {
     browserTitulo: "Jogos Matemáticos",
     titulo: "Jogos Matemáticos",
-    subtitulo: "Pré-Escolar • Matemática",
-    tituloMenu: "Avanço",
-    mensagem: "Diverte-te a aprender!",
+    subtitulo: "Pré-Escolar • Atividade Criativa",
+    tituloMenu: "Desenho Livre",
+    mensagem: "Diverte-te a criar!",
     informacao: "Jogos CRJM",
     tituloMenuAcordeao: "Menu",
     urlVoltar: "../../", 
@@ -67,7 +67,7 @@ const DADOS = {
   },
 
   jogos: [
-    { nome: "Avanço", idade: "Pré-Escolar", imagem: "../../icons/gatos&caes.png", cor: "#EFAA0F", cor2: "#3E3E59", pagina: "jogo.js" }
+    { nome: "Desenho Livre", idade: "Pré-Escolar", imagem: "../../icons/gatos&caes.png", cor: "#EFAA0F", cor2: "#3E3E59", pagina: "jogo.js" }
   ],
 
   menuAnos: [
