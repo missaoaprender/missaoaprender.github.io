@@ -45,7 +45,7 @@ style.innerHTML = `
     .score-box { padding: 5px 10px; border-radius: 12px; color: white; font-weight: 900; display: flex; align-items: center; gap: 6px; font-size: 1rem; min-width: 55px; justify-content: center; }
     
     .box-v, .pill-j1 { background: #8cc63f !important; box-shadow: 0 3px 0 #6da32f; }
-    .box-x, .pill-j2 { background: #ff5a5f !important; box-shadow: 0 3px 0 #d44348; }
+    .box-x, .pill-j2 { background: #5f6388 !important; box-shadow: 0 3px 0 #4e5272; }
     
     @keyframes blinker { 50% { opacity: 0.2; } }
 
@@ -91,7 +91,7 @@ style.innerHTML = `
     }
     .btn-voltar-grande:active { transform: scale(0.97); }
 
-    /* Estilo dos botões finais */
+    /* Estilo exato dos botões da imagem (Jogar de novo e Outro jogo) */
     .btn-final-roxo {
         background: #5f6388; color: white; border: none; padding: 14px 28px;
         border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
@@ -150,8 +150,8 @@ style.innerHTML = `
 
     .cell.hint::after { content: ''; width: 8px; height: 8px; background: #bbb; border-radius: 50%; opacity: 0.8; }
 
-    #round-feedback { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; border-radius: 35px; }
-    .vitoria-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); text-align: center; border: 4px solid ${DADOS.cores.fundo}; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
+    #round-feedback { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; border-radius: 35px; }
+    .vitoria-card { background: transparent; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
     @media screen and (min-width: 1025px) { :root { --cell-size: 40px; } }
@@ -301,8 +301,8 @@ function iniciarJogo() {
 }
 
 function atualizarUI() {
-    const pcLabel = modoJogo === 'CPU' ? "Pc" : "J2";
-    const labelJ2 = modoJogo === 'CPU' ? "Pc" : "Jogador 2";
+    const pcLabel = modoJogo === 'CPU' ? "PC" : "J2";
+    const labelJ2 = modoJogo === 'CPU' ? "PC" : "Jogador 2";
     const nomeVez = (turnoAtual === 0) ? "Jogador 1" : labelJ2;
     const classPill = (turnoAtual === 0) ? "pill-j1" : "pill-j2";
     const orient = orientacoes[turnoAtual]; 
@@ -464,18 +464,19 @@ function finalizarRonda(perdedorIdx) {
     if (somAcerto.src) somAcerto.play().catch(()=>{});
     
     const overlay = document.getElementById('round-feedback');
-    const nomeV = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");
-    const corV = vencedorIdx === 0 ? "#8cc63f" : "#ff5a5f";
-    const labelBox2 = modoJogo === 'CPU' ? 'Pc' : 'J2';
+    const nomeV = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
     const iconeFeedback = vencedorIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
+    const labelBox2 = modoJogo === 'CPU' ? 'PC' : 'J2';
 
     if (overlay) {
         overlay.style.display = 'flex';
         overlay.innerHTML = `<div class="vitoria-card">
-            <img src="${iconeFeedback}" style="width:90px; height:90px; object-fit:contain; margin-bottom:10px;">
-            <h1 style="color:${corV}; font-size:2rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeV}</h1>
-            <p style="color:#666; font-size:1.1rem; font-weight:700; margin:5px 0 0 0;">Venceu esta ronda!</p>
-            <div style="margin-top:15px; padding-top:15px; border-top:2px dashed #eee; color:#aaa; font-weight:800;">PLACAR: J1 ${matchScore[0]} - ${matchScore[1]} ${labelBox2}</div>
+            <img src="${iconeFeedback}" style="width:110px; height:110px; object-fit:contain;">
+            <h1 style="color:#5f6388; font-size:1.8rem; font-weight:900; margin:0; text-transform:uppercase;">GANHOU O ${nomeV}</h1>
+            <div style="display:flex; justify-content:center; gap:12px;">
+                <div class="score-box box-v" style="padding:8px 16px; font-size:1rem;">J1: ${matchScore[0]}</div>
+                <div class="score-box box-x" style="padding:8px 16px; font-size:1rem;">${labelBox2}: ${matchScore[1]}</div>
+            </div>
         </div>`;
     }
     
@@ -485,20 +486,20 @@ function finalizarRonda(perdedorIdx) {
 
 function finalizarMatch() {
     const overlay = document.getElementById('round-feedback');
-    if (overlay) overlay.style.display = 'none';
-    
     const vIdx = (matchScore[0] >= 2) ? 0 : 1;
-    const nomeV = vIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");
-    const lb2 = modoJogo === 'CPU' ? 'Pc' : 'J2';
-    
-    const area = document.getElementById('contentor-jogo');
-    if (area) {
-        area.innerHTML = `
-            <div style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px; justify-content:center; height:100%;">
-                <h2 style="color:${DADOS.cores.azulHeader}; font-weight:900; text-transform:uppercase; margin:0; font-size:1.6rem;">GANHOU O ${nomeV}</h2>
+    const nomeV = vIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
+    const lb2 = modoJogo === 'CPU' ? 'PC' : 'J2';
+    const iconeFeedback = vIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
+
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.innerHTML = `
+            <div class="vitoria-card">
+                <img src="${iconeFeedback}" style="width:110px; height:110px; object-fit:contain;">
+                <h1 style="color:#5f6388; font-size:1.8rem; font-weight:900; margin:0; text-transform:uppercase;">GANHOU O ${nomeV}</h1>
                 <div style="display:flex; justify-content:center; gap:12px;">
-                    <div class="score-box box-v" style="padding:10px 20px; font-size:1.1rem;">J1: ${matchScore[0]}</div>
-                    <div class="score-box box-x" style="padding:10px 20px; font-size:1.1rem;">${lb2}: ${matchScore[1]}</div>
+                    <div class="score-box box-v" style="padding:8px 16px; font-size:1rem;">J1: ${matchScore[0]}</div>
+                    <div class="score-box box-x" style="padding:8px 16px; font-size:1rem;">${lb2}: ${matchScore[1]}</div>
                 </div>
                 <div style="display:flex; justify-content:center; gap:14px; margin-top:10px; width:100%; max-width:420px;">
                     <button class="btn-final-roxo" style="flex:1;" onclick="location.reload()">Jogar de novo</button>
