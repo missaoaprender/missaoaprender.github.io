@@ -10,6 +10,7 @@ const JOGO_CONFIG = {
 let jogoAtivo = false;
 let modoJogo = 'CPU';     
 let nivelJogo = 1;        
+let mostrarDicas = true;  
 let matchScore = [0, 0];  
 let turnoAtual = 0;       
 let tabuleiro = [];       
@@ -275,6 +276,7 @@ function setModo(modo, nivel) {
     clearInterval(simuInterval); 
     if (somClique.src) somClique.play().catch(()=>{});
     modoJogo = modo; nivelJogo = nivel;
+    mostrarDicas = (nivel === 1);
     matchScore = [0, 0]; turnoAtual = 0; 
     iniciarJogo();
 }
@@ -319,16 +321,37 @@ function atualizarUI() {
 function renderTabuleiro(container) {
     if (!container) return;
     const p = turnoAtual === 0 ? 1 : 2;
+
+    let hints = [];
+    if (mostrarDicas && selectedPiece) {
+        for (let r = 0; r < 7; r++) {
+            for (let c = 0; c < 7; c++) {
+                if (validarMovimento(selectedPiece.r, selectedPiece.c, r, c, p)) {
+                    hints.push({ r, c });
+                }
+            }
+        }
+    }
+
     for (let r = 0; r < 7; r++) {
         for (let c = 0; c < 7; c++) {
             let cell = document.createElement('div');
             cell.className = "cell";
+            
             if (selectedPiece && selectedPiece.r === r && selectedPiece.c === c) {
                 cell.style.background = "#e8f5e9";
                 cell.style.border = "2px solid #8cc63f";
             }
-            if (tabuleiro[r][c] === 1) cell.innerHTML = '<div class="piece white"></div>';
-            else if (tabuleiro[r][c] === 2) cell.innerHTML = '<div class="piece black"></div>';
+
+            if (hints.some(h => h.r === r && h.c === c)) {
+                cell.innerHTML = '<div style="width:10px; height:10px; background:#8cc63f; border-radius:50%; opacity:0.8;"></div>';
+            }
+
+            if (tabuleiro[r][c] === 1) {
+                cell.innerHTML = '<div class="piece white"></div>';
+            } else if (tabuleiro[r][c] === 2) {
+                cell.innerHTML = '<div class="piece black"></div>';
+            }
             
             cell.onclick = () => handleCellClick(r, c);
             container.appendChild(cell);
@@ -394,7 +417,7 @@ function iaControlador() {
 
 
 // ============================================================
-// 5. FINALIZAÇÃO (RONDA E MATCH)
+// 5. FINALIZAÇÃO (MELHOR DE 3 -> 2 VITÓRIAS)
 // ============================================================
 function finalizarRonda(vIdx) {
     jogoAtivo = false; 
@@ -421,13 +444,13 @@ function finalizarRonda(vIdx) {
         `;
     }
     
-    if (matchScore[0] >= 3 || matchScore[1] >= 3) setTimeout(finalizarMatch, 2500);
+    if (matchScore[0] >= 2 || matchScore[1] >= 2) setTimeout(finalizarMatch, 2500);
     else setTimeout(() => { iniciarJogo(); }, 2500);
 }
 
 function finalizarMatch() {
     const overlay = document.getElementById('round-feedback');
-    const vIdx = (matchScore[0] >= 3) ? 0 : 1;
+    const vIdx = (matchScore[0] >= 2) ? 0 : 1;
     const nomeV = vIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
     const lb2 = modoJogo === 'CPU' ? 'PC' : 'J2';
     const iconeFeedback = vIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
