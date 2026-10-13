@@ -1,1 +1,516 @@
+// ============================================================
+// 1. ESTADO GLOBAL E SONS
+// ============================================================
+const JOGO_CONFIG = {
+    nomeDoJogo: "Avanço",
+    caminhoSons: DADOS.sons ? DADOS.sons.caminho : "",
+    caminhoIconsMenu: "../../icons/"
+};
 
+let jogoAtivo = false;
+let modoJogo = 'CPU';     
+let nivelJogo = 1;        
+let mostrarDicas = true;  
+let matchScore = [0, 0];  
+let turnoAtual = 0;       
+let tabuleiro = [];       
+let selectedPiece = null; 
+let simuInterval;         
+
+const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
+const somErro = new Audio(DADOS.sons && DADOS.sons.errado ? DADOS.sons.errado : "");
+const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
+
+
+// ============================================================
+// 2. CONFIGURAÇÃO VISUAL (DESIGN PREMIUM)
+// ============================================================
+const style = document.createElement('style');
+style.innerHTML = `
+    .status-container { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 2px 5px; }
+    
+    .status-pill { padding: 4px 15px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; color: white; display: flex; align-items: center; gap: 12px; }
+    
+    .score-group { display: flex; gap: 8px; }
+    .score-box { padding: 5px 10px; border-radius: 12px; color: white; font-weight: 900; display: flex; align-items: center; gap: 6px; font-size: 1rem; min-width: 55px; justify-content: center; }
+    
+    .box-v, .pill-j1 { background: #8cc63f !important; box-shadow: 0 3px 0 #6da32f; }
+    .box-x, .pill-j2 { background: #F0AC0E !important; box-shadow: 0 3px 0 #c2880b; color: #fff; }
+    
+    @keyframes blinker { 50% { opacity: 0.2; } }
+
+    /* Barra da Capa com Info e Jogar */
+    .btn-capa-info {
+        width: 44px; height: 44px; background: rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.6);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white;
+        font-size: 1.2rem; font-weight: 900; transition: transform 0.1s;
+    }
+    .btn-capa-info:active { transform: scale(0.92); }
+    .btn-capa-info img { width: 24px; height: 24px; object-fit: contain; }
+
+    .btn-capa-jogar {
+        background: white; color: #D59205; border: none;
+        padding: 10px 28px; border-radius: 20px; font-weight: 900; font-size: 1.1rem;
+        cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.1s;
+        text-transform: uppercase;
+    }
+    .btn-capa-jogar:active { transform: scale(0.95); }
+
+    /* Estilos do Menu de Escolha de Modo / Níveis */
+    .menu-escolha-container {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        width: 100%; height: 100%; gap: 14px; animation: cardPop 0.3s ease;
+    }
+    .menu-titulo {
+        font-size: 1.3rem; font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-transform: uppercase; margin-bottom: 5px; text-align: center;
+    }
+    .btn-modo-grande {
+        width: 100%; max-width: 380px; height: 55px; background: #F0AC0E; color: white; border: none;
+        border-radius: 28px; font-weight: 900; font-size: 1.05rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center; gap: 12px;
+        box-shadow: 0 6px 15px rgba(240,172,14,0.3); text-transform: uppercase; transition: transform 0.1s, background 0.2s;
+    }
+    .btn-modo-grande:hover { background: #d59205; }
+    .btn-modo-grande:active { transform: scale(0.97); }
+
+    .btn-voltar-grande {
+        width: 100%; max-width: 200px; height: 45px; background: #b5b7c4; color: white; border: none;
+        border-radius: 22px; font-weight: 900; font-size: 0.95rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.12); text-transform: uppercase; transition: transform 0.1s; margin-top: 5px;
+    }
+    .btn-voltar-grande:active { transform: scale(0.97); }
+
+    /* Estilo dos botões finais (espaços largos para uma única linha) */
+    .btn-final-roxo {
+        background: #F0AC0E; color: white; border: none; padding: 14px 20px;
+        border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
+        box-shadow: 0 6px 15px rgba(240,172,14,0.3); text-transform: capitalize; transition: transform 0.1s;
+        white-space: nowrap; flex: 1; text-align: center;
+    }
+    .btn-final-roxo:active { transform: scale(0.95); }
+
+    .btn-final-branco {
+        background: white; color: #D59205; border: 2px solid #F0AC0E; padding: 14px 20px;
+        border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.08); text-transform: capitalize; transition: transform 0.1s;
+        white-space: nowrap; flex: 1; text-align: center;
+    }
+    .btn-final-branco:active { transform: scale(0.95); }
+
+    .niveis-wrapper {
+        display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; margin-top: 5px;
+    }
+    .niveis-subtitulo {
+        font-size: 0.75rem; font-weight: 800; color: #777; text-transform: uppercase;
+    }
+    .niveis-row {
+        display: flex; gap: 10px; width: 100%; max-width: 440px; justify-content: center;
+    }
+    .btn-nivel-card {
+        flex: 1; background: white; padding: 10px 6px; border-radius: 14px; border: 2px solid #ccc;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
+    }
+    .btn-nivel-card b { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; }
+    .btn-nivel-card span { font-size: 0.65rem; font-weight: 700; opacity: 0.7; text-align: center; margin-top: 2px; }
+    .btn-nivel-card.l1 { border-color: #8cc63f; color: #8cc63f; }
+    .btn-nivel-card.l2 { border-color: #F0AC0E; color: #D59205; }
+    .btn-nivel-card:active { transform: scale(0.95); }
+
+    #simu-container { height: 260px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-top: 5px; margin-bottom: 20px; }
+    #simu-board { transform: scale(1.1); }
+
+    #instrucoes-panel { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10000; transition: transform 0.5s ease; transform: translateY(100%); visibility: hidden; padding: 40px 25px; overflow-y: auto; border-radius: 35px 35px 0 0; }
+    #instrucoes-panel.open { transform: translateY(0); visibility: visible; }
+    .close-x { position: absolute; top: 15px; right: 20px; font-size: 2.5rem; color: #F0AC0E; cursor: pointer; font-weight: 900; line-height: 1; transition: 0.2s; }
+    .close-x:hover { transform: scale(1.2); }
+
+    .inst-content { max-width: 600px; margin: 0 auto; text-align: left; }
+    .inst-header { color: #D59205; text-align: center; font-size: 1.8rem; font-weight: 900; margin-bottom: 25px; text-transform: uppercase; border-bottom: 3px solid ${DADOS.cores.fundo}; padding-bottom: 10px; }
+    .inst-section-title { color: #444; font-size: 1.2rem; font-weight: 800; margin: 20px 0 12px; display: flex; align-items: center; gap: 10px; }
+    .inst-section-title::before { content: ''; width: 6px; height: 22px; background: #F0AC0E; border-radius: 3px; display: inline-block; }
+    .inst-list { list-style: none; padding: 0; }
+    .inst-list li { background: #f9f9f9; margin-bottom: 10px; padding: 15px; border-radius: 15px; border-left: 5px solid #F0AC0E; color: #555; font-size: 0.95rem; line-height: 1.4; }
+
+    /* TABULEIRO 7x7 DO AVANÇO */
+    .grid-board { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; background: #bbb; padding: 6px; border-radius: 12px; width: fit-content; margin: 0 auto; }
+    .cell { width: var(--cell-size); height: var(--cell-size); background: white; border-radius: 4px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; }
+    .piece { width: 80%; height: 80%; border-radius: 50%; }
+    .piece.white { background: radial-gradient(circle at 30% 30%, #ffffff, #e0e0e0); border: 1px solid #ccc; box-shadow: 0 3px 6px rgba(0,0,0,0.15); }
+    .piece.black { background: radial-gradient(circle at 30% 30%, #F0AC0E, #c2880b); border: 1px solid #9a6d07; box-shadow: 0 3px 6px rgba(0,0,0,0.3); }
+
+    #round-feedback { 
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(6px); 
+        z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; 
+        border-radius: 35px; overflow: hidden;
+    }
+    
+    .feedback-bottom-bar {
+        position: absolute; bottom: 20px; left: 24px; right: 24px; height: 14px;
+        background: #F0AC0E; border-radius: 7px;
+    }
+
+    .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 25px; width: 100%; max-width: 480px; }
+    @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+    :root { --cell-size: 50px; }
+    @media screen and (max-width: 500px) { :root { --cell-size: 11vw; } }
+`;
+document.head.appendChild(style);
+
+
+// ============================================================
+// 3. CAPA, SIMULAÇÃO E INSTRUÇÕES
+// ============================================================
+function mostrarCapa() {
+    if (jogoAtivo) return;
+    
+    if(!document.getElementById('instrucoes-panel')) {
+        const panel = document.createElement('div');
+        panel.id = 'instrucoes-panel';
+        panel.innerHTML = `
+            <span class="close-x" onclick="toggleInstructions()">&times;</span>
+            <div class="inst-content">
+                <div class="inst-header">Como Jogar Avanço</div>
+                <div class="inst-section-title">Objetivo do Jogo</div>
+                <p class="inst-text">Vence o primeiro jogador que conseguir levar <b>qualquer uma das suas peças</b> até à primeira linha do campo adversário.</p>
+                <div class="inst-section-title">Como Mover as Peças</div>
+                <ul class="inst-list">
+                    <li><b>Frente:</b> Podes avançar 1 casa para a frente se esta estiver vazia.</li>
+                    <li><b>Diagonais:</b> Podes mover-te 1 casa para as diagonais frontais se estiverem vazias ou para capturar uma peça adversária.</li>
+                </ul>
+            </div>`;
+        document.body.appendChild(panel);
+        
+        const feedback = document.createElement('div');
+        feedback.id = 'round-feedback';
+        document.querySelector('.botao-ano').appendChild(feedback);
+    }
+
+    const area = document.getElementById('contentor-jogo');
+    if (area) {
+        area.innerHTML = `
+            <div id="simu-container"><div id="simu-board"></div></div>
+        `;
+    }
+
+    const barra = document.getElementById('barra-inferior');
+    if (barra) {
+        barra.style.display = 'flex';
+        barra.className = "barra-jogo-topo";
+        barra.innerHTML = `
+            <div class="btn-capa-info" onclick="toggleInstructions()"><img src="${DADOS.icons.info}" alt="Info"></div>
+            <button class="btn-capa-jogar" onclick="mostrarMenuEscolha()">JOGAR</button>
+        `;
+    }
+
+    iniciarSimulacao();
+}
+
+function mostrarMenuEscolha() {
+    clearInterval(simuInterval);
+    if (somClique.src) somClique.play().catch(()=>{});
+    const area = document.getElementById('contentor-jogo');
+    if (area) {
+        area.innerHTML = `
+            <div class="menu-escolha-container">
+                <div class="menu-titulo">Escolhe o modo de jogo</div>
+                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU')"><i class="fas fa-robot"></i> Computador</button>
+                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP')"><i class="fas fa-users"></i> 2 Jogadores</button>
+                <button class="btn-voltar-grande" onclick="mostrarCapa()">Voltar</button>
+            </div>
+        `;
+    }
+    const barra = document.getElementById('barra-inferior');
+    if (barra) barra.innerHTML = `<div></div>`;
+}
+
+function mostrarMenuNiveis(modo) {
+    modoJogo = modo;
+    if (somClique.src) somClique.play().catch(()=>{});
+    const area = document.getElementById('contentor-jogo');
+    
+    let niveisHtml = '';
+    if (modo === 'CPU') {
+        niveisHtml = `
+            <div class="niveis-wrapper">
+                <div class="niveis-subtitulo">Jogar com o computador:</div>
+                <div class="niveis-row">
+                    <div class="btn-nivel-card l1" onclick="setModo('CPU', 1)"><b>Nível 1</b><span>Fácil</span></div>
+                    <div class="btn-nivel-card l2" onclick="setModo('CPU', 2)"><b>Nível 2</b><span>Difícil</span></div>
+                </div>
+            </div>`;
+    } else {
+        niveisHtml = `
+            <div class="niveis-wrapper">
+                <div class="niveis-subtitulo">Modo 2 Jogadores:</div>
+                <div class="niveis-row">
+                    <div class="btn-nivel-card l1" onclick="setModo('PVP', 1)"><b>Nível 1</b><span>Fácil</span></div>
+                    <div class="btn-nivel-card l2" onclick="setModo('PVP', 2)"><b>Nível 2</b><span>Difícil</span></div>
+                </div>
+            </div>`;
+    }
+
+    if (area) {
+        area.innerHTML = `
+            <div class="menu-escolha-container">
+                <div class="menu-titulo">Escolhe o modo de jogo</div>
+                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU')" style="opacity:0.8;"><i class="fas fa-robot"></i> Computador</button>
+                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP')" style="opacity:0.8;"><i class="fas fa-users"></i> 2 Jogadores</button>
+                ${niveisHtml}
+                <button class="btn-voltar-grande" onclick="mostrarMenuEscolha()">Voltar</button>
+            </div>
+        `;
+    }
+}
+
+function toggleInstructions() { 
+    if (somClique.src) somClique.play().catch(()=>{});
+    document.getElementById('instrucoes-panel').classList.toggle('open'); 
+}
+
+
+// ============================================================
+// 4. LÓGICA CORE DO JOGO E IA (AVANÇO)
+// ============================================================
+function setModo(modo, nivel) {
+    clearInterval(simuInterval); 
+    if (somClique.src) somClique.play().catch(()=>{});
+    modoJogo = modo; nivelJogo = nivel;
+    mostrarDicas = (nivel === 1);
+    matchScore = [0, 0]; turnoAtual = 0; 
+    iniciarJogo();
+}
+
+function iniciarJogo() {
+    jogoAtivo = true;
+    selectedPiece = null;
+    tabuleiro = Array(7).fill().map(() => Array(7).fill(0));
+    for(let c=0; c<7; c++) { 
+        tabuleiro[0][c] = 2; tabuleiro[1][c] = 2; 
+        tabuleiro[5][c] = 1; tabuleiro[6][c] = 1; 
+    }
+    const feedbackEl = document.getElementById('round-feedback');
+    if (feedbackEl) feedbackEl.style.display = 'none';
+    const barra = document.getElementById('barra-inferior');
+    if (barra) barra.style.display = 'flex';
+    atualizarUI();
+    if(modoJogo === 'CPU' && turnoAtual === 1) setTimeout(iaControlador, 800);
+}
+
+function atualizarUI() {
+    const pcLabel = modoJogo === 'CPU' ? "PC" : "J2";
+    const labelJ2 = modoJogo === 'CPU' ? "PC" : "Jogador 2";
+    const nomeVez = (turnoAtual === 0) ? "Jogador 1" : labelJ2;
+    const classPill = (turnoAtual === 0) ? "pill-j1" : "pill-j2";
+
+    const barra = document.getElementById('barra-inferior');
+    if (barra) {
+        barra.innerHTML = `
+            <div class="status-pill ${classPill}">${nomeVez}</div>
+            <div class="score-group"><div class="score-box box-v">J1: ${matchScore[0]}</div><div class="score-box box-x">${pcLabel}: ${matchScore[1]}</div></div>
+        `;
+    }
+
+    const area = document.getElementById('contentor-jogo');
+    if (area) {
+        area.innerHTML = `<div id="grid-mount" class="grid-board"></div>`;
+        renderTabuleiro(document.getElementById('grid-mount'));
+    }
+}
+
+function renderTabuleiro(container) {
+    if (!container) return;
+    const p = turnoAtual === 0 ? 1 : 2;
+
+    let hints = [];
+    if (mostrarDicas && selectedPiece) {
+        for (let r = 0; r < 7; r++) {
+            for (let c = 0; c < 7; c++) {
+                if (validarMovimento(selectedPiece.r, selectedPiece.c, r, c, p)) {
+                    hints.push({ r, c });
+                }
+            }
+        }
+    }
+
+    for (let r = 0; r < 7; r++) {
+        for (let c = 0; c < 7; c++) {
+            let cell = document.createElement('div');
+            cell.className = "cell";
+            
+            if (selectedPiece && selectedPiece.r === r && selectedPiece.c === c) {
+                cell.style.background = "#e8f5e9";
+                cell.style.border = "2px solid #8cc63f";
+            }
+
+            if (hints.some(h => h.r === r && h.c === c)) {
+                cell.innerHTML = '<div style="width:10px; height:10px; background:#F0AC0E; border-radius:50%; opacity:0.8;"></div>';
+            }
+
+            if (tabuleiro[r][c] === 1) {
+                cell.innerHTML = '<div class="piece white"></div>';
+            } else if (tabuleiro[r][c] === 2) {
+                cell.innerHTML = '<div class="piece black"></div>';
+            }
+            
+            cell.onclick = () => handleCellClick(r, c);
+            container.appendChild(cell);
+        }
+    }
+}
+
+function handleCellClick(r, c) {
+    if (!jogoAtivo || (modoJogo === 'CPU' && turnoAtual === 1)) return;
+    const p = turnoAtual === 0 ? 1 : 2;
+    if (tabuleiro[r][c] === p) {
+        selectedPiece = { r, c }; 
+        if (somClique.src) somClique.play().catch(()=>{}); 
+        atualizarUI(); 
+    } else if (selectedPiece) {
+        if (validarMovimento(selectedPiece.r, selectedPiece.c, r, c, p)) {
+            executarMovimento(selectedPiece.r, selectedPiece.c, r, c);
+        } else { 
+            selectedPiece = null; 
+            atualizarUI(); 
+        }
+    }
+}
+
+function validarMovimento(r1, c1, r2, c2, p) {
+    const dir = p === 1 ? -1 : 1;
+    const enemy = p === 1 ? 2 : 1;
+    if (c1 === c2 && r2 === r1 + dir && tabuleiro[r2][c2] === 0) return true;
+    if (Math.abs(c2 - c1) === 1 && r2 === r1 + dir && (tabuleiro[r2][c2] === 0 || tabuleiro[r2][c2] === enemy)) return true;
+    return false;
+}
+
+function executarMovimento(fr, fc, tr, tc) {
+    const p = tabuleiro[fr][fc];
+    tabuleiro[fr][fc] = 0; 
+    tabuleiro[tr][tc] = p;
+    selectedPiece = null; 
+    if (somClique.src) somClique.play().catch(()=>{});
+
+    if ((p === 1 && tr === 0) || (p === 2 && tr === 6)) { 
+        finalizarRonda(turnoAtual); 
+        return; 
+    }
+    
+    turnoAtual = 1 - turnoAtual;
+    atualizarUI();
+    if (modoJogo === 'CPU' && turnoAtual === 1) setTimeout(iaControlador, 600);
+}
+
+function iaControlador() {
+    let moves = [];
+    for (let r = 0; r < 7; r++) for (let c = 0; c < 7; c++) if (tabuleiro[r][c] === 2) 
+        for (let dr = 0; dr < 7; dr++) for (let dc = 0; dc < 7; dc++) if (validarMovimento(r, c, dr, dc, 2)) moves.push({fr:r, fc:c, tr:dr, tc:dc});
+    
+    if (moves.length === 0) { finalizarRonda(0); return; }
+    
+    const win = moves.find(m => m.tr === 6);
+    const cap = moves.find(m => tabuleiro[m.tr][m.tc] === 1);
+    const m = win || cap || moves[Math.floor(Math.random() * moves.length)];
+    
+    executarMovimento(m.fr, m.fc, m.tr, m.tc);
+}
+
+
+// ============================================================
+// 5. FINALIZAÇÃO (MELHOR DE 3 -> 2 VITÓRIAS)
+// ============================================================
+function finalizarRonda(vIdx) {
+    jogoAtivo = false; 
+    matchScore[vIdx]++; 
+    if (somAcerto.src) somAcerto.play().catch(()=>{});
+    
+    const overlay = document.getElementById('round-feedback');
+    const nomeV = vIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
+    const iconeFeedback = vIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
+    const labelBox2 = modoJogo === 'CPU' ? 'PC' : 'J2';
+
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.innerHTML = `
+            <div class="vitoria-card">
+                <img src="${iconeFeedback}" style="width:140px; height:140px; object-fit:contain;">
+                <h1 style="color:#D59205; font-size:1.8rem; font-weight:900; margin:0; text-transform:uppercase;">GANHOU O ${nomeV}</h1>
+                <div style="display:flex; justify-content:center; gap:12px;">
+                    <div class="score-box box-v" style="padding:8px 16px; font-size:1rem;">J1: ${matchScore[0]}</div>
+                    <div class="score-box box-x" style="padding:8px 16px; font-size:1rem;">${labelBox2}: ${matchScore[1]}</div>
+                </div>
+            </div>
+            <div class="feedback-bottom-bar"></div>
+        `;
+    }
+    
+    if (matchScore[0] >= 2 || matchScore[1] >= 2) setTimeout(finalizarMatch, 2500);
+    else setTimeout(() => { iniciarJogo(); }, 2500);
+}
+
+function finalizarMatch() {
+    const overlay = document.getElementById('round-feedback');
+    const vIdx = (matchScore[0] >= 2) ? 0 : 1;
+    const nomeV = vIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
+    const lb2 = modoJogo === 'CPU' ? 'PC' : 'J2';
+    const iconeFeedback = vIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
+
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.innerHTML = `
+            <div class="vitoria-card">
+                <img src="${iconeFeedback}" style="width:140px; height:140px; object-fit:contain;">
+                <h1 style="color:#D59205; font-size:1.8rem; font-weight:900; margin:0; text-transform:uppercase;">GANHOU O ${nomeV}</h1>
+                <div style="display:flex; justify-content:center; gap:12px;">
+                    <div class="score-box box-v" style="padding:8px 16px; font-size:1rem;">J1: ${matchScore[0]}</div>
+                    <div class="score-box box-x" style="padding:8px 16px; font-size:1rem;">${lb2}: ${matchScore[1]}</div>
+                </div>
+                <div style="display:flex; justify-content:center; gap:14px; margin-top:5px; width:100%; max-width:440px;">
+                    <button class="btn-final-roxo" onclick="location.reload()">Jogar de novo</button>
+                    <button class="btn-final-branco" onclick="window.history.back()">Outro jogo</button>
+                </div>
+            </div>
+            <div class="feedback-bottom-bar"></div>`;
+    }
+    const barra = document.getElementById('barra-inferior');
+    if (barra) barra.style.display = "none";
+}
+
+function iniciarSimulacao() {
+    clearInterval(simuInterval);
+    const board = document.getElementById('simu-board');
+    if(!board) return;
+    let sTab = Array(7).fill().map(() => Array(7).fill(0));
+    const reset = () => { for(let c=0; c<7; c++){ sTab[0][c]=2; sTab[1][c]=2; sTab[5][c]=1; sTab[6][c]=1; } };
+    reset();
+    
+    let sTurno = 1;
+    simuInterval = setInterval(() => {
+        let moves = [];
+        for(let r=0; r<7; r++) for(let c=0; c<7; c++) if(sTab[r][c] === sTurno)
+            for(let dr=0; dr<7; dr++) for(let dc=0; dc<7; dc++) 
+                if(validarMovimentoSimu(r,c,dr,dc,sTurno,sTab)) moves.push({fr:r, fc:c, tr:dr, tc:dc});
+        
+        if(moves.length > 0) {
+            const m = moves[Math.floor(Math.random()*moves.length)];
+            sTab[m.tr][m.tc] = sTab[m.fr][m.fc]; sTab[m.fr][m.fc] = 0;
+            if((sTurno===1 && m.tr===0) || (sTurno===2 && m.tr===6)) reset();
+            else sTurno = sTurno === 1 ? 2 : 1;
+        } else reset();
+
+        board.innerHTML = `<div class="grid-board" style="opacity:0.4; pointer-events:none;">` + 
+            sTab.flat().map(v => `<div class="cell">${v?`<div class="piece ${v==1?'white':'black'}"></div>`:''}</div>`).join('') + `</div>`;
+    }, 700);
+}
+
+function validarMovimentoSimu(r1, c1, r2, c2, p, tab) {
+    const d = p === 1 ? -1 : 1;
+    if(c1 === c2 && r2 === r1 + d && tab[r2][c2] === 0) return true;
+    if(Math.abs(c2 - c1) === 1 && r2 === r1 + d && (tab[r2][c2] === 0 || tab[r2][c2] === (3-p))) return true;
+    return false;
+}
+
+// Iniciar a capa diretamente
+mostrarCapa();
