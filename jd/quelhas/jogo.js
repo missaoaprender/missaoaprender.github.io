@@ -14,12 +14,12 @@ let mostrarDicas = true;
 let matchScore = [0, 0];  
 let turnoAtual = 0;       
 let currentGameNum = 1;   
-let tabuleiro = Array(10).fill().map(() => Array(10).fill(0));[cite: 14]
+let tabuleiro = Array(10).fill().map(() => Array(10).fill(0));
 let startCell = null;     
 let primeiraJogadaRealizada = false;
 let j2JaJogou = false; 
 let trocouOrientacao = false; 
-let orientacoes = [0, 1]; // [J1, J2/Pc] -> 0: Vertical, 1: Horizontal[cite: 14]
+let orientacoes = [0, 1]; // [J1, J2/Pc] -> 0: Vertical, 1: Horizontal
 let simuInterval;         
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
@@ -32,22 +32,22 @@ const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique 
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
-    .status-container { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 2px 5px; }[cite: 14]
+    .status-container { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 2px 5px; }
     
-    .status-pill { padding: 4px 15px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; color: white; display: flex; align-items: center; gap: 12px; }[cite: 14]
+    .status-pill { padding: 4px 15px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; color: white; display: flex; align-items: center; gap: 12px; }
     
-    .status-dots { display: flex; gap: 4px; }[cite: 14]
-    .status-dots.v-dir { flex-direction: column; }[cite: 14]
-    .status-dots.h-dir { flex-direction: row; }[cite: 14]
-    .dot-blink { width: 6px; height: 6px; background: white; border-radius: 50%; animation: blinker 1s linear infinite; }[cite: 14]
+    .status-dots { display: flex; gap: 4px; }
+    .status-dots.v-dir { flex-direction: column; }
+    .status-dots.h-dir { flex-direction: row; }
+    .dot-blink { width: 6px; height: 6px; background: white; border-radius: 50%; animation: blinker 1s linear infinite; }
 
-    .score-group { display: flex; gap: 8px; }[cite: 14]
-    .score-box { padding: 5px 10px; border-radius: 12px; color: white; font-weight: 900; display: flex; align-items: center; gap: 6px; font-size: 1rem; min-width: 55px; justify-content: center; }[cite: 14]
+    .score-group { display: flex; gap: 8px; }
+    .score-box { padding: 5px 10px; border-radius: 12px; color: white; font-weight: 900; display: flex; align-items: center; gap: 6px; font-size: 1rem; min-width: 55px; justify-content: center; }
     
-    .box-v, .pill-j1 { background: #8cc63f !important; box-shadow: 0 3px 0 #6da32f; }[cite: 14]
-    .box-x, .pill-j2 { background: #ff5a5f !important; box-shadow: 0 3px 0 #d44348; }[cite: 14]
+    .box-v, .pill-j1 { background: #8cc63f !important; box-shadow: 0 3px 0 #6da32f; }
+    .box-x, .pill-j2 { background: #ff5a5f !important; box-shadow: 0 3px 0 #d44348; }
     
-    @keyframes blinker { 50% { opacity: 0.2; } }[cite: 14]
+    @keyframes blinker { 50% { opacity: 0.2; } }
 
     /* Barra da Capa com Info e Jogar */
     .btn-capa-info {
@@ -125,38 +125,38 @@ style.innerHTML = `
     .btn-nivel-card.l2 { border-color: #ff5a5f; color: #ff5a5f; }
     .btn-nivel-card:active { transform: scale(0.95); }
 
-    #simu-container { height: 260px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-top: 5px; margin-bottom: 20px; }[cite: 14]
-    #simu-board { transform: scale(1.1); }[cite: 14]
+    #simu-container { height: 260px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-top: 5px; margin-bottom: 20px; }
+    #simu-board { transform: scale(1.1); }
 
-    #instrucoes-panel { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10000; transition: transform 0.5s ease; transform: translateY(100%); visibility: hidden; padding: 40px 25px; overflow-y: auto; border-radius: 35px 35px 0 0; }[cite: 14]
-    #instrucoes-panel.open { transform: translateY(0); visibility: visible; }[cite: 14]
-    .close-x { position: absolute; top: 15px; right: 20px; font-size: 2.5rem; color: #ff5a5f; cursor: pointer; font-weight: 900; line-height: 1; transition: 0.2s; }[cite: 14]
-    .close-x:hover { transform: scale(1.2); }[cite: 14]
+    #instrucoes-panel { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10000; transition: transform 0.5s ease; transform: translateY(100%); visibility: hidden; padding: 40px 25px; overflow-y: auto; border-radius: 35px 35px 0 0; }
+    #instrucoes-panel.open { transform: translateY(0); visibility: visible; }
+    .close-x { position: absolute; top: 15px; right: 20px; font-size: 2.5rem; color: #ff5a5f; cursor: pointer; font-weight: 900; line-height: 1; transition: 0.2s; }
+    .close-x:hover { transform: scale(1.2); }
 
-    .inst-content { max-width: 600px; margin: 0 auto; text-align: left; }[cite: 14]
+    .inst-content { max-width: 600px; margin: 0 auto; text-align: left; }
     .inst-header { color: ${DADOS.cores.azulHeader}; text-align: center; font-size: 1.8rem; font-weight: 900; margin-bottom: 25px; text-transform: uppercase; border-bottom: 3px solid ${DADOS.cores.fundo}; padding-bottom: 10px; }
-    .inst-section-title { color: #444; font-size: 1.2rem; font-weight: 800; margin: 20px 0 12px; display: flex; align-items: center; gap: 10px; }[cite: 14]
+    .inst-section-title { color: #444; font-size: 1.2rem; font-weight: 800; margin: 20px 0 12px; display: flex; align-items: center; gap: 10px; }
     .inst-section-title::before { content: ''; width: 6px; height: 22px; background: ${DADOS.cores.azulHeader}; border-radius: 3px; display: inline-block; }
-    .inst-list { list-style: none; padding: 0; }[cite: 14]
-    .inst-list li { background: #f9f9f9; margin-bottom: 10px; padding: 15px; border-radius: 15px; border-left: 5px solid ${DADOS.cores.azulHeader}; color: #555; font-size: 0.95rem; line-height: 1.4; }[cite: 14]
+    .inst-list { list-style: none; padding: 0; }
+    .inst-list li { background: #f9f9f9; margin-bottom: 10px; padding: 15px; border-radius: 15px; border-left: 5px solid ${DADOS.cores.azulHeader}; color: #555; font-size: 0.95rem; line-height: 1.4; }
 
     /* TABULEIRO COM ROTAÇÃO */
-    .grid-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #bbb; padding: 3px; border-radius: 8px; width: fit-content; margin: 0 auto; transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55); }[cite: 14]
-    .grid-board.rotated { transform: rotate(180deg); }[cite: 14]
+    .grid-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #bbb; padding: 3px; border-radius: 8px; width: fit-content; margin: 0 auto; transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+    .grid-board.rotated { transform: rotate(180deg); }
     
-    .cell { width: var(--cell-size); height: var(--cell-size); background: white; border-radius: 1px; display: flex; align-items: center; justify-content: center; position: relative; }[cite: 14]
-    .cell.occupied::after { content: ''; width: 85%; height: 85%; background: #333; border-radius: 50%; }[cite: 14]
-    .cell.selected { background: #e8f5e9; border: 2px solid #8cc63f; }[cite: 14]
+    .cell { width: var(--cell-size); height: var(--cell-size); background: white; border-radius: 1px; display: flex; align-items: center; justify-content: center; position: relative; }
+    .cell.occupied::after { content: ''; width: 85%; height: 85%; background: #333; border-radius: 50%; }
+    .cell.selected { background: #e8f5e9; border: 2px solid #8cc63f; }
 
-    .cell.hint::after { content: ''; width: 8px; height: 8px; background: #bbb; border-radius: 50%; opacity: 0.8; }[cite: 14]
+    .cell.hint::after { content: ''; width: 8px; height: 8px; background: #bbb; border-radius: 50%; opacity: 0.8; }
 
-    #round-feedback { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; border-radius: 35px; }[cite: 14]
-    .vitoria-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); text-align: center; border: 4px solid ${DADOS.cores.fundo}; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }[cite: 14]
-    @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }[cite: 14]
+    #round-feedback { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(6px); z-index: 1000; display: none; align-items: center; justify-content: center; border-radius: 35px; }
+    .vitoria-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); text-align: center; border: 4px solid ${DADOS.cores.fundo}; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
+    @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    @media screen and (min-width: 1025px) { :root { --cell-size: 40px; } }[cite: 14]
-    @media screen and (max-width: 500px) and (orientation: portrait) { :root { --cell-size: 8.5vw; } }[cite: 14]
-    @media screen and (max-height: 500px) and (orientation: landscape) { :root { --cell-size: 7vh; } }[cite: 14]
+    @media screen and (min-width: 1025px) { :root { --cell-size: 40px; } }
+    @media screen and (max-width: 500px) and (orientation: portrait) { :root { --cell-size: 8.5vw; } }
+    @media screen and (max-height: 500px) and (orientation: landscape) { :root { --cell-size: 7vh; } }
 `;
 document.head.appendChild(style);
 
@@ -165,7 +165,6 @@ document.head.appendChild(style);
 // ============================================================
 function mostrarCapa() {
     if (jogoAtivo) return;
-    document.getElementById('shell-header-content').innerHTML = `<h2 style="color:${DADOS.cores.azulHeader}; font-weight:900;">${JOGO_CONFIG.nomeDoJogo.toUpperCase()}</h2>`;[cite: 14]
     
     if(!document.getElementById('instrucoes-panel')) {
         const panel = document.createElement('div');
@@ -175,39 +174,43 @@ function mostrarCapa() {
             <div class="inst-content">
                 <div class="inst-header">Como Jogar Quelhas</div>
                 <div class="inst-section-title">Objetivo (Regra Misere)</div>
-                <p class="inst-text">O Quelhas é um jogo de bloqueio estratégico. Ao contrário da maioria dos jogos, este segue a regra <b>Misere</b>: o jogador que realizar a <b>última jogada possível</b> no tabuleiro perde o jogo. O teu objetivo é forçar o adversário a ocupar o último espaço livre.</p>[cite: 14]
+                <p class="inst-text">O Quelhas é um jogo de bloqueio estratégico. Ao contrário da maioria dos jogos, este segue a regra <b>Misere</b>: o jogador que realizar a <b>última jogada possível</b> no tabuleiro perde o jogo. O teu objetivo é forçar o adversário a ocupar o último espaço livre.</p>
                 <div class="inst-section-title">As Peças e o Tabuleiro</div>
                 <ul class="inst-list">
-                    <li><b>Tabuleiro:</b> Um quadrado de 10x10 casas.</li>[cite: 14]
-                    <li><b>Jogadores:</b> Um joga na <b>Vertical</b> (colunas) e outro na <b>Horizontal</b> (linhas).</li>[cite: 14]
-                    <li><b>Peças:</b> Devem ser colocados blocos de <b>duas ou mais peças</b> seguidas na orientação do jogador.</li>[cite: 14]
+                    <li><b>Tabuleiro:</b> Um quadrado de 10x10 casas.</li>
+                    <li><b>Jogadores:</b> Um joga na <b>Vertical</b> (colunas) e outro na <b>Horizontal</b> (linhas).</li>
+                    <li><b>Peças:</b> Devem ser colocados blocos de <b>duas ou mais peças</b> seguidas na orientação do jogador.</li>
                 </ul>
                 <div class="inst-section-title">Como Jogar</div>
                 <ul class="inst-list">
-                    <li><b>1.</b> O jogador Vertical começa sempre o jogo.</li>[cite: 14]
-                    <li><b>2.</b> Para jogar, clica na casa onde o teu bloco começa e depois na casa onde termina.</li>[cite: 14]
-                    <li><b>3. Regra da Troca:</b> Na primeira jogada do segundo jogador (J2), este pode optar por <b>trocar de orientação</b>. O tabuleiro roda 180º e o J2 assume a Vertical.</li>[cite: 14]
+                    <li><b>1.</b> O jogador Vertical começa sempre o jogo.</li>
+                    <li><b>2.</b> Para jogar, clica na casa onde o teu bloco começa e depois na casa onde termina.</li>
+                    <li><b>3. Regra da Troca:</b> Na primeira jogada do segundo jogador (J2), este pode optar por <b>trocar de orientação</b>. O tabuleiro roda 180º e o J2 assume a Vertical.</li>
                 </ul>
             </div>`;
         document.body.appendChild(panel);
+        
         const feedback = document.createElement('div');
         feedback.id = 'round-feedback';
-        document.querySelector('.game-shell').appendChild(feedback);
+        document.querySelector('.botao-ano').appendChild(feedback);
     }
 
-    const area = document.getElementById('game-content');
-    area.innerHTML = `
-        <div id="simu-container"><div id="simu-board"></div></div>
-    `;
+    const area = document.getElementById('contentor-jogo');
+    if (area) {
+        area.innerHTML = `
+            <div id="simu-container"><div id="simu-board"></div></div>
+        `;
+    }
 
-    // Barra inferior com o botão de info (usando DADOS.icons.info) e o botão JOGAR
-    const barra = document.getElementById('shell-footer-content');
-    barra.style.display = 'flex';
-    barra.className = "barra-jogo-topo";
-    barra.innerHTML = `
-        <div class="btn-capa-info" onclick="toggleInstructions()"><img src="${DADOS.icons.info}" alt="Info"></div>
-        <button class="btn-capa-jogar" onclick="mostrarMenuEscolha()">JOGAR</button>
-    `;
+    const barra = document.getElementById('barra-inferior');
+    if (barra) {
+        barra.style.display = 'flex';
+        barra.className = "barra-jogo-topo";
+        barra.innerHTML = `
+            <div class="btn-capa-info" onclick="toggleInstructions()"><img src="${DADOS.icons.info}" alt="Info"></div>
+            <button class="btn-capa-jogar" onclick="mostrarMenuEscolha()">JOGAR</button>
+        `;
+    }
 
     iniciarSimulacao();
 }
@@ -215,23 +218,25 @@ function mostrarCapa() {
 function mostrarMenuEscolha() {
     clearInterval(simuInterval);
     if (somClique.src) somClique.play().catch(()=>{});
-    const area = document.getElementById('game-content');
-    area.innerHTML = `
-        <div class="menu-escolha-container">
-            <div class="menu-titulo">Escolhe o modo de jogo</div>
-            <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU')"><i class="fas fa-robot"></i> Computador</button>
-            <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP')"><i class="fas fa-users"></i> 2 Jogadores</button>
-            <button class="btn-voltar-grande" onclick="mostrarCapa()">Voltar</button>
-        </div>
-    `;
-    const barra = document.getElementById('shell-footer-content');
-    barra.innerHTML = `<div></div>`;
+    const area = document.getElementById('contentor-jogo');
+    if (area) {
+        area.innerHTML = `
+            <div class="menu-escolha-container">
+                <div class="menu-titulo">Escolhe o modo de jogo</div>
+                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU')"><i class="fas fa-robot"></i> Computador</button>
+                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP')"><i class="fas fa-users"></i> 2 Jogadores</button>
+                <button class="btn-voltar-grande" onclick="mostrarCapa()">Voltar</button>
+            </div>
+        `;
+    }
+    const barra = document.getElementById('barra-inferior');
+    if (barra) barra.innerHTML = `<div></div>`;
 }
 
 function mostrarMenuNiveis(modo) {
     modoJogo = modo;
     if (somClique.src) somClique.play().catch(()=>{});
-    const area = document.getElementById('game-content');
+    const area = document.getElementById('contentor-jogo');
     
     let niveisHtml = '';
     if (modo === 'CPU') {
@@ -254,15 +259,17 @@ function mostrarMenuNiveis(modo) {
             </div>`;
     }
 
-    area.innerHTML = `
-        <div class="menu-escolha-container">
-            <div class="menu-titulo">Escolhe o modo de jogo</div>
-            <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU')" style="opacity:0.8;"><i class="fas fa-robot"></i> Computador</button>
-            <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP')" style="opacity:0.8;"><i class="fas fa-users"></i> 2 Jogadores</button>
-            ${niveisHtml}
-            <button class="btn-voltar-grande" onclick="mostrarMenuEscolha()">Voltar</button>
-        </div>
-    `;
+    if (area) {
+        area.innerHTML = `
+            <div class="menu-escolha-container">
+                <div class="menu-titulo">Escolhe o modo de jogo</div>
+                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU')" style="opacity:0.8;"><i class="fas fa-robot"></i> Computador</button>
+                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP')" style="opacity:0.8;"><i class="fas fa-users"></i> 2 Jogadores</button>
+                ${niveisHtml}
+                <button class="btn-voltar-grande" onclick="mostrarMenuEscolha()">Voltar</button>
+            </div>
+        `;
+    }
 }
 
 function toggleInstructions() { 
@@ -278,76 +285,83 @@ function setModo(modo, nivel) {
     if (somClique.src) somClique.play().catch(()=>{});
     modoJogo = modo; nivelJogo = nivel;
     mostrarDicas = (nivel === 1);
-    matchScore = [0, 0]; currentGameNum = 1; orientacoes = [0, 1]; trocouOrientacao = false;[cite: 14]
+    matchScore = [0, 0]; currentGameNum = 1; orientacoes = [0, 1]; trocouOrientacao = false;
     iniciarJogo();
 }
 
 function iniciarJogo() {
     jogoAtivo = true;
-    tabuleiro = Array(10).fill().map(() => Array(10).fill(0));[cite: 14]
-    startCell = null; primeiraJogadaRealizada = false; j2JaJogou = false; turnoAtual = 0; [cite: 14]
-    document.getElementById('round-feedback').style.display = 'none';
-    document.getElementById('shell-footer-content').style.display = 'flex';
+    tabuleiro = Array(10).fill().map(() => Array(10).fill(0));
+    startCell = null; primeiraJogadaRealizada = false; j2JaJogou = false; turnoAtual = 0; 
+    const feedbackEl = document.getElementById('round-feedback');
+    if (feedbackEl) feedbackEl.style.display = 'none';
+    const barra = document.getElementById('barra-inferior');
+    if (barra) barra.style.display = 'flex';
     atualizarUI();
 }
 
 function atualizarUI() {
-    const pcLabel = modoJogo === 'CPU' ? "Pc" : "J2";[cite: 14]
-    const labelJ2 = modoJogo === 'CPU' ? "Pc" : "Jogador 2";[cite: 14]
-    const nomeVez = (turnoAtual === 0) ? "Jogador 1" : labelJ2;[cite: 14]
-    const classPill = (turnoAtual === 0) ? "pill-j1" : "pill-j2";[cite: 14]
-    const orient = orientacoes[turnoAtual]; [cite: 14]
+    const pcLabel = modoJogo === 'CPU' ? "Pc" : "J2";
+    const labelJ2 = modoJogo === 'CPU' ? "Pc" : "Jogador 2";
+    const nomeVez = (turnoAtual === 0) ? "Jogador 1" : labelJ2;
+    const classPill = (turnoAtual === 0) ? "pill-j1" : "pill-j2";
+    const orient = orientacoes[turnoAtual]; 
 
-    const dotsHTML = `<div class="status-dots ${orient === 0 ? 'v-dir' : 'h-dir'}"><div class="dot-blink"></div><div class="dot-blink"></div></div>`;[cite: 14]
+    const dotsHTML = `<div class="status-dots ${orient === 0 ? 'v-dir' : 'h-dir'}"><div class="dot-blink"></div><div class="dot-blink"></div></div>`;
 
-    document.getElementById('shell-header-content').innerHTML = `
-        <div class="status-container">
+    const barra = document.getElementById('barra-inferior');
+    if (barra) {
+        barra.innerHTML = `
             <div class="status-pill ${classPill}">${nomeVez} ${dotsHTML}</div>
             <div class="score-group"><div class="score-box box-v">J1: ${matchScore[0]}</div><div class="score-box box-x">${pcLabel}: ${matchScore[1]}</div></div>
-        </div>`;[cite: 14]
+        `;
+    }
 
-    const area = document.getElementById('game-content');
-    area.innerHTML = `<div id="grid-mount" class="grid-board ${trocouOrientacao ? 'rotated' : ''}"></div>`;[cite: 14]
-    renderTabuleiro(document.getElementById('grid-mount'));[cite: 14]
+    const area = document.getElementById('contentor-jogo');
+    if (area) {
+        area.innerHTML = `<div id="grid-mount" class="grid-board ${trocouOrientacao ? 'rotated' : ''}"></div>`;
+        renderTabuleiro(document.getElementById('grid-mount'));
 
-    if (primeiraJogadaRealizada && !j2JaJogou && turnoAtual === 1) {
-        const btn = document.createElement('button');
-        btn.className = "btn-capa-small"; 
-        btn.style = "background:#f9a825; margin: 15px auto; width: 180px; display:block; height:50px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);";[cite: 14]
-        btn.innerText = "TROCAR ORIENTAÇÃO"; 
-        btn.onclick = swapOrientations; 
-        area.appendChild(btn);[cite: 14]
+        if (primeiraJogadaRealizada && !j2JaJogou && turnoAtual === 1) {
+            const btn = document.createElement('button');
+            btn.className = "btn-capa-small"; 
+            btn.style = "background:#f9a825; margin: 15px auto; width: 180px; display:block; height:50px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);";
+            btn.innerText = "TROCAR ORIENTAÇÃO"; 
+            btn.onclick = swapOrientations; 
+            area.appendChild(btn);
+        }
     }
 }
 
 function renderTabuleiro(container) {
-    const orient = orientacoes[turnoAtual];[cite: 14]
+    if (!container) return;
+    const orient = orientacoes[turnoAtual];
     for (let r = 0; r < 10; r++) {
         for (let c = 0; c < 10; c++) {
             let cell = document.createElement('div');
-            cell.className = "cell";[cite: 14]
-            if (tabuleiro[r][c] === 1) cell.classList.add("occupied");[cite: 14]
-            if (startCell && startCell.r === r && startCell.c === c) cell.classList.add("selected");[cite: 14]
-            if (mostrarDicas && startCell && tabuleiro[r][c] === 0 && validarPeca(startCell.r, startCell.c, r, c, orient)) cell.classList.add("hint");[cite: 14]
-            cell.onclick = () => handleCellClick(r, c);[cite: 14]
-            container.appendChild(cell);[cite: 14]
+            cell.className = "cell";
+            if (tabuleiro[r][c] === 1) cell.classList.add("occupied");
+            if (startCell && startCell.r === r && startCell.c === c) cell.classList.add("selected");
+            if (mostrarDicas && startCell && tabuleiro[r][c] === 0 && validarPeca(startCell.r, startCell.c, r, c, orient)) cell.classList.add("hint");
+            cell.onclick = () => handleCellClick(r, c);
+            container.appendChild(cell);
         }
     }
 }
 
 function handleCellClick(r, c) {
-    if (!jogoAtivo || (modoJogo === 'CPU' && turnoAtual === 1)) return;[cite: 14]
-    if (tabuleiro[r][c] !== 0) return;[cite: 14]
+    if (!jogoAtivo || (modoJogo === 'CPU' && turnoAtual === 1)) return;
+    if (tabuleiro[r][c] !== 0) return;
     if (!startCell) { 
         startCell = { r, c }; 
         if (somClique.src) somClique.play().catch(()=>{}); 
         atualizarUI(); 
     } else {
         if (validarPeca(startCell.r, startCell.c, r, c, orientacoes[turnoAtual])) {
-            colocarPeca(startCell.r, startCell.c, r, c);[cite: 14]
-            if(turnoAtual === 1) j2JaJogou = true;[cite: 14]
+            colocarPeca(startCell.r, startCell.c, r, c);
+            if(turnoAtual === 1) j2JaJogou = true;
             startCell = null; 
-            finalizarTurno();[cite: 14]
+            finalizarTurno();
         } else { 
             startCell = { r, c }; 
             if (somClique.src) somClique.play().catch(()=>{}); 
@@ -359,85 +373,85 @@ function handleCellClick(r, c) {
 function swapOrientations() { 
     if (somAcerto.src) somAcerto.play().catch(()=>{}); 
     trocouOrientacao = !trocouOrientacao; 
-    orientacoes = [orientacoes[1], orientacoes[0]]; [cite: 14]
+    orientacoes = [orientacoes[1], orientacoes[0]]; 
     j2JaJogou = true; 
     turnoAtual = 0; 
-    atualizarUI(); [cite: 14]
+    atualizarUI(); 
 }
 
 function validarPeca(r1, c1, r2, c2, orient) {
-    let rs = Math.min(r1, r2), re = Math.max(r1, r2), cs = Math.min(c1, c2), ce = Math.max(c1, c2);[cite: 14]
-    if (orient === 0) { if (c1 !== c2 || re - rs < 1) return false; for (let i = rs; i <= re; i++) if (tabuleiro[i][c1] !== 0) return false; }[cite: 14]
-    else { if (r1 !== r2 || ce - cs < 1) return false; for (let i = cs; i <= ce; i++) if (tabuleiro[r1][i] !== 0) return false; }[cite: 14]
-    return true;[cite: 14]
+    let rs = Math.min(r1, r2), re = Math.max(r1, r2), cs = Math.min(c1, c2), ce = Math.max(c1, c2);
+    if (orient === 0) { if (c1 !== c2 || re - rs < 1) return false; for (let i = rs; i <= re; i++) if (tabuleiro[i][c1] !== 0) return false; }
+    else { if (r1 !== r2 || ce - cs < 1) return false; for (let i = cs; i <= ce; i++) if (tabuleiro[r1][i] !== 0) return false; }
+    return true;
 }
 
 function colocarPeca(r1, c1, r2, c2) {
-    let rs = Math.min(r1, r2), re = Math.max(r1, r2), cs = Math.min(c1, c2), ce = Math.max(c1, c2);[cite: 14]
-    for (let r = rs; r <= re; r++) for (let c = cs; c <= ce; c++) tabuleiro[r][c] = 1;[cite: 14]
+    let rs = Math.min(r1, r2), re = Math.max(r1, r2), cs = Math.min(c1, c2), ce = Math.max(c1, c2);
+    for (let r = rs; r <= re; r++) for (let c = cs; c <= ce; c++) tabuleiro[r][c] = 1;
     primeiraJogadaRealizada = true; 
-    if (somClique.src) somClique.play().catch(()=>{});[cite: 14]
+    if (somClique.src) somClique.play().catch(()=>{});
 }
 
 function finalizarTurno() {
-    const proximoJogador = (turnoAtual === 0) ? 1 : 0;[cite: 14]
-    const orientProximo = orientacoes[proximoJogador];[cite: 14]
-    if (!temLancesLegais(orientProximo)) { finalizarRonda(turnoAtual); return; }[cite: 14]
+    const proximoJogador = (turnoAtual === 0) ? 1 : 0;
+    const orientProximo = orientacoes[proximoJogador];
+    if (!temLancesLegais(orientProximo)) { finalizarRonda(turnoAtual); return; }
     turnoAtual = proximoJogador; 
-    atualizarUI();[cite: 14]
-    if (modoJogo === 'CPU' && turnoAtual === 1) setTimeout(iaControlador, 800);[cite: 14]
+    atualizarUI();
+    if (modoJogo === 'CPU' && turnoAtual === 1) setTimeout(iaControlador, 800);
 }
 
 function temLancesLegais(o) {
-    for (let r = 0; r < 10; r++) for (let c = 0; c < 10; c++) if (tabuleiro[r][c] === 0) {[cite: 14]
-        if (o === 0 && r < 9 && tabuleiro[r+1][c] === 0) return true;[cite: 14]
-        if (o === 1 && c < 9 && tabuleiro[r][c+1] === 0) return true;[cite: 14]
+    for (let r = 0; r < 10; r++) for (let c = 0; c < 10; c++) if (tabuleiro[r][c] === 0) {
+        if (o === 0 && r < 9 && tabuleiro[r+1][c] === 0) return true;
+        if (o === 1 && c < 9 && tabuleiro[r][c+1] === 0) return true;
     }
-    return false;[cite: 14]
+    return false;
 }
 
 function iaControlador() {
-    const cpuO = orientacoes[1];[cite: 14]
+    const cpuO = orientacoes[1];
     let moves = [];
-    for (let r=0; r<10; r++) for (let c=0; c<10; c++) if (tabuleiro[r][c] === 0) {[cite: 14]
-        if (cpuO === 0 && r<9 && tabuleiro[r+1][c] === 0) moves.push({r1:r, c1:c, r2:r+1, c2:c});[cite: 14]
-        if (cpuO === 1 && c<9 && tabuleiro[r][c+1] === 0) moves.push({r1:r, c1:c, r2:r, c2:c+1});[cite: 14]
+    for (let r=0; r<10; r++) for (let c=0; c<10; c++) if (tabuleiro[r][c] === 0) {
+        if (cpuO === 0 && r<9 && tabuleiro[r+1][c] === 0) moves.push({r1:r, c1:c, r2:r+1, c2:c});
+        if (cpuO === 1 && c<9 && tabuleiro[r][c+1] === 0) moves.push({r1:r, c1:c, r2:r, c2:c+1});
     }
-    if (moves.length === 0) { finalizarRonda(0); return; }[cite: 14]
+    if (moves.length === 0) { finalizarRonda(0); return; }
     let m;
     if (nivelJogo === 1) {
         let boas = moves.filter(mv => {
-            let t = tabuleiro.map(row => [...row]); t[mv.r1][mv.c1]=1; t[mv.r2][mv.c2]=1;[cite: 14]
-            return temLancesLegaisParaAlguem(t);[cite: 14]
+            let t = tabuleiro.map(row => [...row]); t[mv.r1][mv.c1]=1; t[mv.r2][mv.c2]=1;
+            return temLancesLegaisParaAlguem(t);
         });
-        m = boas.length > 0 ? boas[Math.floor(Math.random()*boas.length)] : moves[Math.floor(Math.random()*moves.length)];[cite: 14]
+        m = boas.length > 0 ? boas[Math.floor(Math.random()*boas.length)] : moves[Math.floor(Math.random()*moves.length)];
     } else {
-        let melhor = -Infinity;[cite: 14]
+        let melhor = -Infinity;
         for (let mv of moves) {
-            let s = 0; let t = tabuleiro.map(row=>[...row]); t[mv.r1][mv.c1]=1; t[mv.r2][mv.c2]=1;[cite: 14]
-            if(!temLancesLegaisParaAlguem(t)) s-=100;[cite: 14]
-            let lAdv = contarLances(0, t); let lProp = contarLances(1, t);[cite: 14]
-            s += (lAdv % 2 === 0) ? 20 : -10; s += lProp * 5;[cite: 14]
-            if(s > melhor){ melhor = s; m = mv; }[cite: 14]
+            let s = 0; let t = tabuleiro.map(row=>[...row]); t[mv.r1][mv.c1]=1; t[mv.r2][mv.c2]=1;
+            if(!temLancesLegaisParaAlguem(t)) s-=100;
+            let lAdv = contarLances(0, t); let lProp = contarLances(1, t);
+            s += (lAdv % 2 === 0) ? 20 : -10; s += lProp * 5;
+            if(s > melhor){ melhor = s; m = mv; }
         }
     }
-    if(!m) m = moves[0];[cite: 14]
+    if(!m) m = moves[0];
     colocarPeca(m.r1, m.c1, m.r2, m.c2); 
     j2JaJogou = true; 
-    finalizarTurno();[cite: 14]
+    finalizarTurno();
 }
 
 function contarLances(idx, tab) {
-    const o = orientacoes[idx]; let count = 0;[cite: 14]
-    for (let r = 0; r < 10; r++) for (let c = 0; c < 10; c++) if (tab[r][c] === 0) {[cite: 14]
-        if (o === 0 && r < 9 && tab[r+1][c] === 0) count++;[cite: 14]
-        if (o === 1 && c < 9 && tab[r][c+1] === 0) count++;[cite: 14]
+    const o = orientacoes[idx]; let count = 0;
+    for (let r = 0; r < 10; r++) for (let c = 0; c < 10; c++) if (tab[r][c] === 0) {
+        if (o === 0 && r < 9 && tab[r+1][c] === 0) count++;
+        if (o === 1 && c < 9 && tab[r][c+1] === 0) count++;
     }
-    return count;[cite: 14]
+    return count;
 }
 
 function temLancesLegaisParaAlguem(tab) {
-    return (contarLances(0, tab) > 0 || contarLances(1, tab) > 0);[cite: 14]
+    return (contarLances(0, tab) > 0 || contarLances(1, tab) > 0);
 }
 
 // ============================================================
@@ -445,69 +459,75 @@ function temLancesLegaisParaAlguem(tab) {
 // ============================================================
 function finalizarRonda(perdedorIdx) {
     jogoAtivo = false; 
-    let vencedorIdx = perdedorIdx === 0 ? 1 : 0;[cite: 14]
+    let vencedorIdx = perdedorIdx === 0 ? 1 : 0;
     matchScore[vencedorIdx]++; 
-    if (somAcerto.src) somAcerto.play().catch(()=>{});[cite: 14]
+    if (somAcerto.src) somAcerto.play().catch(()=>{});
     
     const overlay = document.getElementById('round-feedback');
-    const nomeV = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");[cite: 14]
-    const corV = vencedorIdx === 0 ? "#8cc63f" : "#ff5a5f";[cite: 14]
-    const labelBox2 = modoJogo === 'CPU' ? 'Pc' : 'J2';[cite: 14]
+    const nomeV = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");
+    const corV = vencedorIdx === 0 ? "#8cc63f" : "#ff5a5f";
+    const labelBox2 = modoJogo === 'CPU' ? 'Pc' : 'J2';
     const iconeFeedback = vencedorIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
 
-    overlay.style.display = 'flex';
-    overlay.innerHTML = `<div class="vitoria-card">
-        <img src="${iconeFeedback}" style="width:90px; height:90px; object-fit:contain; margin-bottom:10px;">
-        <h1 style="color:${corV}; font-size:2rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeV}</h1>
-        <p style="color:#666; font-size:1.1rem; font-weight:700; margin:5px 0 0 0;">Venceu esta ronda!</p>
-        <div style="margin-top:15px; padding-top:15px; border-top:2px dashed #eee; color:#aaa; font-weight:800;">PLACAR: J1 ${matchScore[0]} - ${matchScore[1]} ${labelBox2}</div>
-    </div>`;[cite: 14]
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.innerHTML = `<div class="vitoria-card">
+            <img src="${iconeFeedback}" style="width:90px; height:90px; object-fit:contain; margin-bottom:10px;">
+            <h1 style="color:${corV}; font-size:2rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeV}</h1>
+            <p style="color:#666; font-size:1.1rem; font-weight:700; margin:5px 0 0 0;">Venceu esta ronda!</p>
+            <div style="margin-top:15px; padding-top:15px; border-top:2px dashed #eee; color:#aaa; font-weight:800;">PLACAR: J1 ${matchScore[0]} - ${matchScore[1]} ${labelBox2}</div>
+        </div>`;
+    }
     
-    // Condição para 2 vitórias (Melhor de 3)
-    if (matchScore[0] >= 2 || matchScore[1] >= 2) setTimeout(finalizarMatch, 2500);[cite: 14]
-    else setTimeout(() => { currentGameNum++; trocouOrientacao = false; iniciarJogo(); }, 2500);[cite: 14]
+    if (matchScore[0] >= 2 || matchScore[1] >= 2) setTimeout(finalizarMatch, 2500);
+    else setTimeout(() => { currentGameNum++; trocouOrientacao = false; iniciarJogo(); }, 2500);
 }
 
 function finalizarMatch() {
-    document.getElementById('round-feedback').style.display = 'none';[cite: 14]
-    const vIdx = (matchScore[0] >= 2) ? 0 : 1;[cite: 14]
-    const nomeV = vIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");[cite: 14]
-    const lb2 = modoJogo === 'CPU' ? 'Pc' : 'J2';[cite: 14]
+    const overlay = document.getElementById('round-feedback');
+    if (overlay) overlay.style.display = 'none';
     
-    document.getElementById('shell-header-content').innerHTML = `<h2 style="color:${DADOS.cores.azulHeader}; font-weight:900; text-transform:uppercase; margin:0; font-size:1.6rem;">GANHOU O ${nomeV}</h2>`;[cite: 14]
+    const vIdx = (matchScore[0] >= 2) ? 0 : 1;
+    const nomeV = vIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "Pc" : "JOGADOR 2");
+    const lb2 = modoJogo === 'CPU' ? 'Pc' : 'J2';
     
-    document.getElementById('game-content').innerHTML = `
-        <div style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px; justify-content:center; height:100%;">
-            <div style="display:flex; justify-content:center; gap:12px;">
-                <div class="score-box box-v" style="padding:10px 20px; font-size:1.1rem;">J1: ${matchScore[0]}</div>
-                <div class="score-box box-x" style="padding:10px 20px; font-size:1.1rem;">${lb2}: ${matchScore[1]}</div>
-            </div>
-            <div style="display:flex; justify-content:center; gap:14px; margin-top:10px; width:100%; max-width:420px;">
-                <button class="btn-final-roxo" style="flex:1;" onclick="location.reload()">Jogar de novo</button>
-                <button class="btn-final-branco" style="flex:1;" onclick="window.history.back()">Outro jogo</button>
-            </div>
-        </div>`;[cite: 14]
-    document.getElementById('shell-footer-content').style.display = "none";[cite: 14]
+    const area = document.getElementById('contentor-jogo');
+    if (area) {
+        area.innerHTML = `
+            <div style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px; justify-content:center; height:100%;">
+                <h2 style="color:${DADOS.cores.azulHeader}; font-weight:900; text-transform:uppercase; margin:0; font-size:1.6rem;">GANHOU O ${nomeV}</h2>
+                <div style="display:flex; justify-content:center; gap:12px;">
+                    <div class="score-box box-v" style="padding:10px 20px; font-size:1.1rem;">J1: ${matchScore[0]}</div>
+                    <div class="score-box box-x" style="padding:10px 20px; font-size:1.1rem;">${lb2}: ${matchScore[1]}</div>
+                </div>
+                <div style="display:flex; justify-content:center; gap:14px; margin-top:10px; width:100%; max-width:420px;">
+                    <button class="btn-final-roxo" style="flex:1;" onclick="location.reload()">Jogar de novo</button>
+                    <button class="btn-final-branco" style="flex:1;" onclick="window.history.back()">Outro jogo</button>
+                </div>
+            </div>`;
+    }
+    const barra = document.getElementById('barra-inferior');
+    if (barra) barra.style.display = "none";
 }
 
 function iniciarSimulacao() {
     clearInterval(simuInterval);
     const board = document.getElementById('simu-board');
-    let sTab = Array(10).fill().map(() => Array(10).fill(0));[cite: 14]
-    let sTurno = 0;[cite: 14]
+    let sTab = Array(10).fill().map(() => Array(10).fill(0));
+    let sTurno = 0;
     simuInterval = setInterval(() => {
         let leg = [];
-        for(let r=0; r<10; r++) for(let c=0; c<10; c++) {[cite: 14]
-            if(sTurno===0 && r<9 && sTab[r][c]===0 && sTab[r+1][c]===0) leg.push({r,c,r2:r+1,c2:c});[cite: 14]
-            if(sTurno===1 && c<9 && sTab[r][c]===0 && sTab[r][c+1]===0) leg.push({r,c,r2:r,c2:c+1});[cite: 14]
+        for(let r=0; r<10; r++) for(let c=0; c<10; c++) {
+            if(sTurno===0 && r<9 && sTab[r][c]===0 && sTab[r+1][c]===0) leg.push({r,c,r2:r+1,c2:c});
+            if(sTurno===1 && c<9 && sTab[r][c]===0 && sTab[r][c+1]===0) leg.push({r,c,r2:r,c2:c+1});
         }
-        if (leg.length === 0) { sTab = Array(10).fill().map(() => Array(10).fill(0)); sTurno = 0; }[cite: 14]
-        else { let m = leg[Math.floor(Math.random() * leg.length)]; sTab[m.r][m.c] = 1; sTab[m.r2][m.c2] = 1; sTurno = (sTurno === 0) ? 1 : 0; }[cite: 14]
-        let h = `<div class="grid-board" style="opacity:0.4; pointer-events:none;">`;[cite: 14]
-        for(let r=0;r<10;r++) for(let c=0;c<10;c++) h+=`<div class="cell ${sTab[r][c]===1?'occupied':''}" style="width:23px; height:23px;"></div>`;[cite: 14]
-        if(board) board.innerHTML = h + `</div>`;[cite: 14]
-    }, 600);[cite: 14]
+        if (leg.length === 0) { sTab = Array(10).fill().map(() => Array(10).fill(0)); sTurno = 0; }
+        else { let m = leg[Math.floor(Math.random() * leg.length)]; sTab[m.r][m.c] = 1; sTab[m.r2][m.c2] = 1; sTurno = (sTurno === 0) ? 1 : 0; }
+        let h = `<div class="grid-board" style="opacity:0.4; pointer-events:none;">`;
+        for(let r=0;r<10;r++) for(let c=0;c<10;c++) h+=`<div class="cell ${sTab[r][c]===1?'occupied':''}" style="width:23px; height:23px;"></div>`;
+        if(board) board.innerHTML = h + `</div>`;
+    }, 600);
 }
 
 // Iniciar a capa diretamente
-mostrarCapa();[cite: 14]
+mostrarCapa();
