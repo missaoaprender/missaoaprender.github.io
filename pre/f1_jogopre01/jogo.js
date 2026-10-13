@@ -8,8 +8,8 @@ const JOGO_CONFIG = {
 };
 
 let corAtual = "#EFAA0F";
-let tipoLapis = "normal"; // 'normal', 'brilhante'
-let tamanhoPincel = 8;
+let tipoLapis = "normal"; 
+let tamanhoPincel = 10;
 let isDrawing = false;
 let ctx = null;
 let canvas = null;
@@ -24,19 +24,20 @@ const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique 
 const style = document.createElement('style');
 style.innerHTML = `
     .desenho-container {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        width: 100%; height: 100%; gap: 8px; animation: cardPop 0.3s ease;
+        display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+        width: 100%; height: 100%; flex: 1; gap: 8px; animation: cardPop 0.3s ease; padding: 4px 0;
     }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
+        flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0;
     }
-    canvas { display: block; cursor: crosshair; }
+    canvas { display: block; cursor: crosshair; width: 100%; height: 100%; }
 
     .painel-estojo {
-        display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; max-width: 620px; background: rgba(255,255,255,0.7); padding: 6px 10px; border-radius: 16px; border: 2px solid #E2D3AB;
+        display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; background: rgba(255,255,255,0.85); padding: 8px 12px; border-radius: 16px; border: 2px solid #E2D3AB; flex-shrink: 0;
     }
 
     .linha-lapis {
@@ -44,13 +45,13 @@ style.innerHTML = `
     }
     
     .lapis-btn {
-        width: 38px; height: 38px; border-radius: 50%; border: 3px solid white; cursor: pointer;
+        width: 36px; height: 36px; border-radius: 50%; border: 3px solid white; cursor: pointer;
         box-shadow: 0 3px 6px rgba(0,0,0,0.15); transition: transform 0.1s;
     }
     .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.15); border-color: #262638; }
 
     .grossura-btn {
-        background: white; color: #C2890B; border: 2px solid #EFAA0F; width: 34px; height: 34px;
+        background: white; color: #C2890B; border: 2px solid #EFAA0F; width: 32px; height: 32px;
         border-radius: 50%; font-weight: 900; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
         box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.1s;
     }
@@ -174,7 +175,7 @@ function toggleInstructions() {
 
 
 // ============================================================
-// 4. LÓGICA DO ESTOJO MÁGICO
+// 4. LÓGICA DO ESTOJO MÁGICO (REDIMENSIONAMENTO AUTOMÁTICO)
 // ============================================================
 function iniciarJogoDesenho() {
     if (somClique.src) somClique.play().catch(()=>{});
@@ -185,11 +186,10 @@ function iniciarJogoDesenho() {
     if (area) {
         area.innerHTML = `
             <div class="desenho-container">
-                <div class="canvas-wrapper">
-                    <canvas id="paintCanvas" width="560" height="250"></canvas>
+                <div class="canvas-wrapper" id="canvasWrapper">
+                    <canvas id="paintCanvas"></canvas>
                 </div>
                 <div class="painel-estojo">
-                    <!-- Linha de Cores / Lápis -->
                     <div class="linha-lapis">
                         <div class="lapis-btn ativo" style="background:#EFAA0F;" onclick="mudarCor('#EFAA0F', this)"></div>
                         <div class="lapis-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)"></div>
@@ -200,7 +200,6 @@ function iniciarJogoDesenho() {
                         <div class="lapis-btn" style="background:#00f5d4;" onclick="mudarCor('#00f5d4', this)"></div>
                         <div class="lapis-btn" style="background:#262638;" onclick="mudarCor('#262638', this)"></div>
                     </div>
-                    <!-- Linha de Grossuras e Ferramentas Mágicas -->
                     <div class="linha-lapis">
                         <span style="font-size:0.8rem; font-weight:800; color:#555;">Traço:</span>
                         <button class="grossura-btn" onclick="mudarGrossura(4, this)">F</button>
@@ -229,17 +228,18 @@ function iniciarJogoDesenho() {
 
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
-    if (!canvas) return;
+    const wrapper = document.getElementById('canvasWrapper');
+    if (!canvas || !wrapper) return;
+
+    // Ajustar o tamanho interno do canvas para corresponder ao espaço real do container em qualquer dispositivo
+    canvas.width = wrapper.clientWidth;
+    canvas.height = wrapper.clientHeight;
+
     ctx = canvas.getContext('2d');
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = tamanhoPincel;
     ctx.strokeStyle = corAtual;
-
-    if (window.innerWidth < 600) {
-        canvas.width = window.innerWidth - 60;
-        canvas.height = 220;
-    }
 
     const getPos = (e) => {
         const rect = canvas.getBoundingClientRect();
@@ -261,16 +261,14 @@ function configurarCanvas() {
         const pos = getPos(e);
         
         if (tipoLapis === 'brilhante') {
-            // Efeito mágico de brilhantes / estrelinhas ao desenhar
             ctx.fillStyle = corAtual;
             ctx.beginPath();
-            ctx.arc(pos.x + (Math.random()*8 - 4), pos.y + (Math.random()*8 - 4), Math.random() * 5 + 2, 0, Math.PI * 2);
+            ctx.arc(pos.x + (Math.random()*10 - 5), pos.y + (Math.random()*10 - 5), Math.random() * 6 + 2, 0, Math.PI * 2);
             ctx.fill();
             
-            // Desenhar pequeno brilho extra de vez em quando
-            if (Math.random() > 0.6) {
+            if (Math.random() > 0.5) {
                 ctx.fillStyle = "#ffffff";
-                ctx.fillRect(pos.x + (Math.random()*12 - 6), pos.y + (Math.random()*12 - 6), 3, 3);
+                ctx.fillRect(pos.x + (Math.random()*14 - 7), pos.y + (Math.random()*14 - 7), 4, 4);
             }
         } else {
             ctx.lineTo(pos.x, pos.y);
