@@ -3,7 +3,7 @@ const DADOS = {
     browserTitulo: "Jogos Matemáticos",
     titulo: "Jogos Matemáticos",
     subtitulo: "Pré-Escolar • Atividade Criativa",
-    tituloMenu: "Desenho Livre",
+    tituloMenu: "Estojo Mágico",
     mensagem: "Diverte-te a criar!",
     informacao: "Jogos CRJM",
     tituloMenuAcordeao: "Menu",
@@ -67,7 +67,7 @@ const DADOS = {
   },
 
   jogos: [
-    { nome: "Desenho Livre", idade: "Pré-Escolar", imagem: "../../icons/gatos&caes.png", cor: "#EFAA0F", cor2: "#3E3E59", pagina: "jogo.js" }
+    { nome: "Estojo Mágico", idade: "Pré-Escolar", imagem: "../../icons/gatos&caes.png", cor: "#EFAA0F", cor2: "#3E3E59", pagina: "jogo.js" }
   ],
 
   menuAnos: [
