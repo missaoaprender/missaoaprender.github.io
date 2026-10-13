@@ -2,13 +2,14 @@
 // 1. ESTADO GLOBAL E SONS
 // ============================================================
 const JOGO_CONFIG = {
-    nomeDoJogo: "Desenho Livre",
+    nomeDoJogo: "Estojo Mágico",
     caminhoSons: DADOS.sons ? DADOS.sons.caminho : "",
     caminhoIconsMenu: "../../icons/"
 };
 
 let corAtual = "#EFAA0F";
-let tamanhoPincel = 12;
+let tipoLapis = "normal"; // 'normal', 'brilhante'
+let tamanhoPincel = 8;
 let isDrawing = false;
 let ctx = null;
 let canvas = null;
@@ -24,7 +25,7 @@ const style = document.createElement('style');
 style.innerHTML = `
     .desenho-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        width: 100%; height: 100%; gap: 10px; animation: cardPop 0.3s ease;
+        width: 100%; height: 100%; gap: 8px; animation: cardPop 0.3s ease;
     }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
@@ -34,23 +35,36 @@ style.innerHTML = `
     }
     canvas { display: block; cursor: crosshair; }
 
-    .palete-tools {
-        display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; width: 100%; max-width: 600px; padding: 4px;
+    .painel-estojo {
+        display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; max-width: 620px; background: rgba(255,255,255,0.7); padding: 6px 10px; border-radius: 16px; border: 2px solid #E2D3AB;
+    }
+
+    .linha-lapis {
+        display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; width: 100%;
     }
     
-    .cor-btn {
-        width: 36px; height: 36px; border-radius: 50%; border: 3px solid white; cursor: pointer;
+    .lapis-btn {
+        width: 38px; height: 38px; border-radius: 50%; border: 3px solid white; cursor: pointer;
         box-shadow: 0 3px 6px rgba(0,0,0,0.15); transition: transform 0.1s;
     }
-    .cor-btn:active, .cor-btn.ativo { transform: scale(1.15); border-color: #262638; }
+    .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.15); border-color: #262638; }
+
+    .grossura-btn {
+        background: white; color: #C2890B; border: 2px solid #EFAA0F; width: 34px; height: 34px;
+        border-radius: 50%; font-weight: 900; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.1s;
+    }
+    .grossura-btn.ativo { background: #EFAA0F; color: white; transform: scale(1.1); }
 
     .btn-ferramenta {
-        background: white; color: #C2890B; border: 2px solid #EFAA0F; padding: 8px 16px;
-        border-radius: 15px; font-weight: 900; font-size: 0.9rem; cursor: pointer;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; display: flex; align-items: center; gap: 6px;
+        background: white; color: #C2890B; border: 2px solid #EFAA0F; padding: 6px 14px;
+        border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; display: flex; align-items: center; gap: 5px;
     }
     .btn-ferramenta:active { transform: scale(0.95); }
     .btn-ferramenta.destaque { background: #EFAA0F; color: white; }
+    .btn-ferramenta.brilho-estilo { background: linear-gradient(135deg, #ff9aef 0%, #fecfef 99%, #feada6 100%); border-color: #ff6b97; color: #7a1c38; }
+    .btn-ferramenta.brilho-estilo.ativo { border-color: #262638; transform: scale(1.05); }
 
     /* Barra da Capa com Info e Jogar */
     .btn-capa-info {
@@ -123,9 +137,9 @@ function mostrarCapa() {
         panel.innerHTML = `
             <span class="close-x" onclick="toggleInstructions()">&times;</span>
             <div class="inst-content">
-                <div class="inst-header">Como Usar o Desenho Livre</div>
-                <div class="inst-section-title">Solta a tua imaginação!</div>
-                <p class="inst-text">Usa o dedo ou o rato para desenhares livremente no ecrã. Podes escolher várias cores na paleta em baixo, ajustar o tamanho do pincel, limpar a folha ou concluir o teu desenho para receberes os parabéns!</p>
+                <div class="inst-header">Como Usar o Estojo Mágico</div>
+                <div class="inst-section-title">Lápis, Grossuras e Brilhantes!</div>
+                <p class="inst-text">Escolhe a cor do teu lápis, seleciona a grossura do traço e experimenta o <b>Lápis com Brilhantes</b> para criações mágicas com estrelinhas. Podes limpar o desenho quando quiseres ou concluí-lo para receberes os parabéns!</p>
             </div>`;
         document.body.appendChild(panel);
         
@@ -137,8 +151,8 @@ function mostrarCapa() {
     const area = document.getElementById('contentor-jogo');
     if (area) {
         area.innerHTML = `
-            <div style="font-size: 1.5rem; font-weight: 900; color: #C2890B; margin-bottom: 10px; text-transform: uppercase;">Atividade de Desenho</div>
-            <div style="background: rgba(239,170,15,0.15); width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(239,170,15,0.2);">🎨</div>
+            <div style="font-size: 1.5rem; font-weight: 900; color: #C2890B; margin-bottom: 10px; text-transform: uppercase;">Estojo de Desenho Mágico</div>
+            <div style="background: rgba(239,170,15,0.15); width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(239,170,15,0.2);">✏️✨</div>
         `;
     }
 
@@ -160,7 +174,7 @@ function toggleInstructions() {
 
 
 // ============================================================
-// 4. LÓGICA DO JOGO DE DESENHO
+// 4. LÓGICA DO ESTOJO MÁGICO
 // ============================================================
 function iniciarJogoDesenho() {
     if (somClique.src) somClique.play().catch(()=>{});
@@ -172,17 +186,31 @@ function iniciarJogoDesenho() {
         area.innerHTML = `
             <div class="desenho-container">
                 <div class="canvas-wrapper">
-                    <canvas id="paintCanvas" width="560" height="300"></canvas>
+                    <canvas id="paintCanvas" width="560" height="250"></canvas>
                 </div>
-                <div class="palete-tools">
-                    <div class="cor-btn" style="background:#EFAA0F;" onclick="mudarCor('#EFAA0F', this)"></div>
-                    <div class="cor-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)"></div>
-                    <div class="cor-btn" style="background:#8cc63f;" onclick="mudarCor('#8cc63f', this)"></div>
-                    <div class="cor-btn" style="background:#3a86ff;" onclick="mudarCor('#3a86ff', this)"></div>
-                    <div class="cor-btn" style="background:#9b5de5;" onclick="mudarCor('#9b5de5', this)"></div>
-                    <div class="cor-btn" style="background:#262638;" onclick="mudarCor('#262638', this)"></div>
-                    <button class="btn-ferramenta" onclick="limparTela()"><i class="fas fa-trash-alt"></i> Limpar</button>
-                    <button class="btn-ferramenta destaque" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
+                <div class="painel-estojo">
+                    <!-- Linha de Cores / Lápis -->
+                    <div class="linha-lapis">
+                        <div class="lapis-btn ativo" style="background:#EFAA0F;" onclick="mudarCor('#EFAA0F', this)"></div>
+                        <div class="lapis-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)"></div>
+                        <div class="lapis-btn" style="background:#8cc63f;" onclick="mudarCor('#8cc63f', this)"></div>
+                        <div class="lapis-btn" style="background:#3a86ff;" onclick="mudarCor('#3a86ff', this)"></div>
+                        <div class="lapis-btn" style="background:#9b5de5;" onclick="mudarCor('#9b5de5', this)"></div>
+                        <div class="lapis-btn" style="background:#ff007f;" onclick="mudarCor('#ff007f', this)"></div>
+                        <div class="lapis-btn" style="background:#00f5d4;" onclick="mudarCor('#00f5d4', this)"></div>
+                        <div class="lapis-btn" style="background:#262638;" onclick="mudarCor('#262638', this)"></div>
+                    </div>
+                    <!-- Linha de Grossuras e Ferramentas Mágicas -->
+                    <div class="linha-lapis">
+                        <span style="font-size:0.8rem; font-weight:800; color:#555;">Traço:</span>
+                        <button class="grossura-btn" onclick="mudarGrossura(4, this)">F</button>
+                        <button class="grossura-btn ativo" onclick="mudarGrossura(10, this)">M</button>
+                        <button class="grossura-btn" onclick="mudarGrossura(18, this)">G</button>
+                        
+                        <button class="btn-ferramenta brilho-estilo" id="btnBrilho" onclick="ativarLapisBrilhante(this)"><i class="fas fa-magic"></i> Brilhantes ✨</button>
+                        <button class="btn-ferramenta" onclick="limparTela()"><i class="fas fa-trash-alt"></i> Limpar</button>
+                        <button class="btn-ferramenta destaque" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -191,7 +219,7 @@ function iniciarJogoDesenho() {
     const barra = document.getElementById('barra-inferior');
     if (barra) {
         barra.innerHTML = `
-            <div style="color:white; font-weight:800; font-size:0.95rem;">🎨 Desenha o que quiseres!</div>
+            <div style="color:white; font-weight:800; font-size:0.95rem;">✏️ Escolhe os teus lápis e cria magia!</div>
             <button class="btn-ferramenta" onclick="mostrarCapa()" style="padding:4px 12px; font-size:0.8rem;">Voltar</button>
         `;
     }
@@ -208,10 +236,9 @@ function configurarCanvas() {
     ctx.lineWidth = tamanhoPincel;
     ctx.strokeStyle = corAtual;
 
-    // Ajustar tamanho responsivo para telemóveis
     if (window.innerWidth < 600) {
-        canvas.width = window.innerWidth - 65;
-        canvas.height = 260;
+        canvas.width = window.innerWidth - 60;
+        canvas.height = 220;
     }
 
     const getPos = (e) => {
@@ -232,8 +259,23 @@ function configurarCanvas() {
     const draw = (e) => {
         if (!isDrawing) return;
         const pos = getPos(e);
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
+        
+        if (tipoLapis === 'brilhante') {
+            // Efeito mágico de brilhantes / estrelinhas ao desenhar
+            ctx.fillStyle = corAtual;
+            ctx.beginPath();
+            ctx.arc(pos.x + (Math.random()*8 - 4), pos.y + (Math.random()*8 - 4), Math.random() * 5 + 2, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Desenhar pequeno brilho extra de vez em quando
+            if (Math.random() > 0.6) {
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(pos.x + (Math.random()*12 - 6), pos.y + (Math.random()*12 - 6), 3, 3);
+            }
+        } else {
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+        }
         e.preventDefault();
     };
 
@@ -252,8 +294,29 @@ function configurarCanvas() {
 function mudarCor(novaCor, el) {
     if (somClique.src) somClique.play().catch(()=>{});
     corAtual = novaCor;
+    tipoLapis = 'normal';
     if (ctx) ctx.strokeStyle = corAtual;
-    document.querySelectorAll('.cor-btn').forEach(b => b.classList.remove('ativo'));
+    
+    document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
+    const btnBrilho = document.getElementById('btnBrilho');
+    if (btnBrilho) btnBrilho.classList.remove('ativo');
+    
+    if (el) el.classList.add('ativo');
+}
+
+function mudarGrossura(tamanho, el) {
+    if (somClique.src) somClique.play().catch(()=>{});
+    tamanhoPincel = tamanho;
+    if (ctx) ctx.lineWidth = tamanhoPincel;
+    
+    document.querySelectorAll('.grossura-btn').forEach(b => b.classList.remove('ativo'));
+    if (el) el.classList.add('ativo');
+}
+
+function ativarLapisBrilhante(el) {
+    if (somClique.src) somClique.play().catch(()=>{});
+    tipoLapis = 'brilhante';
+    document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
     if (el) el.classList.add('ativo');
 }
 
@@ -271,10 +334,10 @@ function concluirDesenho() {
         overlay.style.display = 'flex';
         overlay.innerHTML = `
             <div class="vitoria-card">
-                <img src="${iconeFeedback}" style="width:140px; height:140px; object-fit:contain;">
-                <h1 style="color:#C2890B; font-size:1.8rem; font-weight:900; margin:0; text-transform:uppercase;">QUE LINDOS DESENHOS!</h1>
-                <p style="color:#555; font-weight:800; margin:0; font-size:0.95rem;">Fizeste um trabalho fantástico!</p>
-                <div style="display:flex; justify-content:center; gap:14px; margin-top:10px; width:100%; max-width:440px;">
+                <img src="${iconeFeedback}" style="width:130px; height:130px; object-fit:contain;">
+                <h1 style="color:#C2890B; font-size:1.6rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
+                <p style="color:#555; font-weight:800; margin:0; font-size:0.9rem;">Fizeste um desenho maravilhoso com brilhantes!</p>
+                <div style="display:flex; justify-content:center; gap:14px; margin-top:8px; width:100%; max-width:440px;">
                     <button class="btn-final-roxo" onclick="iniciarJogoDesenho()">Desenhar Outro</button>
                     <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
                 </div>
