@@ -1,9 +1,9 @@
 const DADOS = {
   pagina: {
-    browserTitulo: "Pré-Escolar",
-    titulo: "Jogos Da Pré",
-    subtitulo: "Atividades • Matemática",
-    tituloMenu: "Desenho",
+    browserTitulo: "Jogos Matemáticos",
+    titulo: "Jogos Matemáticos",
+    subtitulo: "Pré-Escolar • Matemática",
+    tituloMenu: "Avanço",
     mensagem: "Diverte-te a aprender!",
     informacao: "Jogos CRJM",
     tituloMenuAcordeao: "Menu",
@@ -42,18 +42,18 @@ const DADOS = {
 
   cores: {
     fundo: "#F3F3F8",
-    ceu1: "#FDF6E2",
-    ceu2: "#FCEFD0",
-    header: "#FCEFD0",
-    headerTopo: "#FDF6E2",
-    azulHeader: "#F0AC0E",
+    ceu1: "#FDF7E5",
+    ceu2: "#FBF0CC",
+    header: "#FBF0CC",
+    headerTopo: "#FDF7E5",
+    azulHeader: "#EFAA0F",
     texto: "#3E3E59",
     textoEscuro: "#262638",
     branco: "#FFFFFF",
     creme: "#ECECEF",
     linha: "#E2D3AB",
-    sombra: "rgba(240,172,14,.18)",
-    sombraForte: "rgba(240,172,14,.28)"
+    sombra: "rgba(239,170,15,.18)",
+    sombraForte: "rgba(239,170,15,.28)"
   },
 
   dimensoes: {
@@ -67,7 +67,7 @@ const DADOS = {
   },
 
   jogos: [
-    { nome: "Avanço", idade: "Estratégia", imagem: "../../icons/gatos&caes.png", cor: "#F0AC0E", cor2: "#3E3E59", pagina: "jogo.js" }
+    { nome: "Avanço", idade: "Pré-Escolar", imagem: "../../icons/gatos&caes.png", cor: "#EFAA0F", cor2: "#3E3E59", pagina: "jogo.js" }
   ],
 
   menuAnos: [
