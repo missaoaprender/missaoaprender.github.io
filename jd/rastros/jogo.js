@@ -72,17 +72,17 @@ style.innerHTML = `
     .btn-modo-pvp { background: linear-gradient(135deg, #7A7A99 0%, #525266 100%); }
     .btn-modo-voltar { background: #9E9EA8; max-width: 160px; height: 45px; border-radius: 22px; font-size: 0.95rem; }
 
-    /* Botões de feedback */
-    .btn-feedback-container { display: flex; gap: 12px; justify-content: center; margin-top: 15px; margin-bottom: 5px; flex-wrap: wrap; width: 100%; }
+    /* Botões de feedback centralizados */
+    .btn-feedback-container { display: flex; gap: 15px; justify-content: center; margin-top: 25px; margin-bottom: 10px; flex-wrap: wrap; }
     .btn-feedback-solid {
         background-color: #666699; color: #FFFFFF; border: none;
-        padding: 12px 24px; border-radius: 30px; font-weight: 900; font-size: 0.95rem;
+        padding: 14px 28px; border-radius: 30px; font-weight: 900; font-size: 1.05rem;
         cursor: pointer; box-shadow: 0 4px 12px rgba(102,102,153,0.3); transition: transform 0.1s ease;
     }
     .btn-feedback-solid:active { transform: scale(0.95); }
     .btn-feedback-outline {
         background-color: #FFFFFF; color: #666699; border: 3px solid #666699;
-        padding: 12px 24px; border-radius: 30px; font-weight: 900; font-size: 0.95rem;
+        padding: 14px 28px; border-radius: 30px; font-weight: 900; font-size: 1.05rem;
         cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.1s ease;
     }
     .btn-feedback-outline:active { transform: scale(0.95); }
@@ -320,7 +320,6 @@ function cpuControlador() {
     let moves = getMovimentosPosiveis(posBranca.x, posBranca.y);
     if (moves.length === 0) { finalizarRonda(0); return; }
     let move;
-    // Dificuldade Ajustada para 2 Níveis: Nível 2 joga de forma mais inteligente/estratégica
     if (nivelJogo === 2) {
         move = moves.reduce((best, curr) => {
             let score = avaliarFuturo(curr.x, curr.y);
@@ -370,7 +369,6 @@ function finalizarRonda(vencedorIdx) {
 
     if (overlay) {
         overlay.style.display = 'flex';
-        // Imagem aumentada para maior destaque no pop-up da ronda
         overlay.innerHTML = `<div class="vitoria-card">
             <img src="${imagemFeedback}" style="height:140px; width:100%; object-fit:contain; margin-bottom:15px;">
             <h1 style="color:${corVencedor}; font-size:2.1rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeVencedor}</h1>
@@ -400,27 +398,25 @@ function finalizarMatch() {
 
     const contentor = document.getElementById('contentor-jogo');
     if (contentor) {
-        // Imagem final maior e espaçamento otimizado para aproveitar bem o ecrã
-        contentor.innerHTML = `<div style="text-align:center; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
-            <img src="${imagemFeedbackFinal}" style="height:150px; max-width: 100%; object-fit:contain; margin-bottom:12px;">
-            <h2 style="color:#666699; font-weight:900; text-transform:uppercase; margin-bottom:12px; font-size: 1.5rem;">GANHOU O ${nomeVencedor}</h2>
-            <div style="display:flex; justify-content:center; gap:20px; margin-bottom: 15px;">
-                <div class="score-box box-v" style="padding:10px 20px; font-size:1.15rem;">J1: ${matchScore[0]}</div>
-                <div class="score-box box-x" style="padding:10px 20px; font-size:1.15rem;">${modoJogo === 'CPU' ? 'PC' : 'J2'}: ${matchScore[1]}</div>
+        contentor.innerHTML = `<div style="text-align:center;">
+            <img src="${imagemFeedbackFinal}" style="height:150px; margin-bottom:12px; object-fit:contain;">
+            <h2 style="color:#666699; font-weight:900; text-transform:uppercase; margin-bottom:15px; font-size: 1.5rem;">GANHOU O ${nomeVencedor}</h2>
+            <div style="display:flex; justify-content:center; gap:20px; margin-bottom: 20px;">
+                <div class="score-box box-v" style="padding:8px 18px; font-size:1.1rem;">J1: ${matchScore[0]}</div>
+                <div class="score-box box-x" style="padding:8px 18px; font-size:1.1rem;">${modoJogo === 'CPU' ? 'PC' : 'J2'}: ${matchScore[1]}</div>
+            </div>
+            <div class="btn-feedback-container">
+                <button class="btn-feedback-solid" onclick="location.reload()">Jogar de novo</button>
+                <button class="btn-feedback-outline" onclick="window.location.href='../../'">Outro jogo</button>
             </div>
         </div>`;
     }
         
-    // Mantém a barra inferior visível no final com os botões de ação ("Jogar de novo" / "Outro jogo")
+    // Barra inferior idêntica à do ecrã de seleção de modo (completamente limpa)
     const barra = document.getElementById('barra-inferior');
     if (barra) {
         barra.style.display = "flex";
-        barra.innerHTML = `
-            <div class="btn-feedback-container" style="margin: 0; width: 100%;">
-                <button class="btn-feedback-solid" onclick="location.reload()">Jogar de novo</button>
-                <button class="btn-feedback-outline" onclick="window.location.href='../../'">Outro jogo</button>
-            </div>
-        `;
+        barra.innerHTML = '';
     }
 }
 
