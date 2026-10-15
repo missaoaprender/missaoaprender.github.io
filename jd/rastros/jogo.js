@@ -3,13 +3,13 @@
 // ============================================================
 let jogoAtivo = false;
 let modoJogo = 'CPU';      
-let nivelJogo = 1;        
+let nivelJogo = 1;         
 let mostrarDicas = true;  
 let matchScore = [0, 0];  
-let turnoAtual = 0;       
-let currentGameNum = 1;   
-let totalRondas = 3;      
-let tabuleiro = [];       
+let turnoAtual = 0;        
+let currentGameNum = 1;    
+let totalRondas = 3;       
+let tabuleiro = [];        
 let posBranca = { x: 4, y: 2 }; 
 let simuInterval;         
 
@@ -31,10 +31,10 @@ style.innerHTML = `
 
     #round-feedback {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(6px); 
+        background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(6px); 
         z-index: 1000; display: none; align-items: center; justify-content: center; border-radius: 20px;
     }
-    .vitoria-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); text-align: center; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
+    .vitoria-card { background: white; padding: 40px 30px; border-radius: 35px; box-shadow: 0 20px 45px rgba(0,0,0,0.2); text-align: center; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); width: 85%; max-width: 380px; }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
     .barra-capa-layout {
@@ -72,22 +72,20 @@ style.innerHTML = `
     .btn-modo-pvp { background: linear-gradient(135deg, #7A7A99 0%, #525266 100%); }
     .btn-modo-voltar { background: #9E9EA8; max-width: 160px; height: 45px; border-radius: 22px; font-size: 0.95rem; }
 
-    /* Botões de feedback com mais espaço abaixo */
-    .btn-feedback-container { display: flex; gap: 15px; justify-content: center; margin-top: 25px; margin-bottom: 10px; flex-wrap: wrap; }
+    /* Botões de feedback */
+    .btn-feedback-container { display: flex; gap: 12px; justify-content: center; margin-top: 15px; margin-bottom: 5px; flex-wrap: wrap; width: 100%; }
     .btn-feedback-solid {
         background-color: #666699; color: #FFFFFF; border: none;
-        padding: 14px 28px; border-radius: 30px; font-weight: 900; font-size: 1.05rem;
+        padding: 12px 24px; border-radius: 30px; font-weight: 900; font-size: 0.95rem;
         cursor: pointer; box-shadow: 0 4px 12px rgba(102,102,153,0.3); transition: transform 0.1s ease;
     }
     .btn-feedback-solid:active { transform: scale(0.95); }
     .btn-feedback-outline {
         background-color: #FFFFFF; color: #666699; border: 3px solid #666699;
-        padding: 14px 28px; border-radius: 30px; font-weight: 900; font-size: 1.05rem;
+        padding: 12px 24px; border-radius: 30px; font-weight: 900; font-size: 0.95rem;
         cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.1s ease;
     }
     .btn-feedback-outline:active { transform: scale(0.95); }
-
-    .btn-capa-small { flex: 1; height: 48px; border-radius: 24px; border: none; color: white; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-transform: uppercase; transition: 0.2s; white-space: nowrap; padding: 0 15px; }
 
     #simu-container { height: 220px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-bottom: 5px; }
 
@@ -101,13 +99,12 @@ style.innerHTML = `
     .close-x:hover { transform: scale(1.2); }
 
     .nivel-select-container { display: none; flex-direction: column; gap: 12px; width: 95%; max-width: 500px; animation: cardPop 0.3s ease; align-items: center; }
-    .nivel-row { display: flex; flex-direction: row; gap: 6px; width: 100%; justify-content: center; }
-    .btn-nivel { background: white; padding: 12px 2px; border-radius: 12px; border: 2px solid #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex: 1; min-width: 0; }
-    .btn-nivel b { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; }
-    .btn-nivel span { font-size: 0.6rem; font-weight: 700; opacity: 0.7; text-align: center; }
+    .nivel-row { display: flex; flex-direction: row; gap: 10px; width: 100%; justify-content: center; }
+    .btn-nivel { background: white; padding: 16px 10px; border-radius: 16px; border: 2px solid #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; flex: 1; min-width: 0; }
+    .btn-nivel b { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; margin-bottom: 4px; }
+    .btn-nivel span { font-size: 0.7rem; font-weight: 700; opacity: 0.7; text-align: center; }
     .btn-nivel.l1 { border-color: #8cc63f; color: #8cc63f; }
-    .btn-nivel.l2 { border-color: #f9a825; color: #f9a825; }
-    .btn-nivel.l3 { border-color: #666699; color: #666699; }
+    .btn-nivel.l2 { border-color: #666699; color: #666699; }
 
     .rastros-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; background: #C2C2D6; padding: 6px; border-radius: 12px; width: fit-content; margin: 0 auto; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1); }
     .cell { width: var(--cell-size); height: var(--cell-size); background: white; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; position: relative; border-radius: 6px; color: #bbb; }
@@ -215,15 +212,14 @@ function mostrarNiveis(modo) {
     if (modo === 'CPU') {
         container.innerHTML = `<p style="font-weight:800; color:#888; margin-bottom:5px; font-size:0.8rem;">DESAFIO CONTRA PC:</p>
             <div class="nivel-row">
-                <div class="btn-nivel l1" onclick="setModo('CPU', 1)"><b>Nível 1</b><span>Com Dicas</span></div>
-                <div class="btn-nivel l2" onclick="setModo('CPU', 2)"><b>Nível 2</b><span>Sem Dicas</span></div>
-                <div class="btn-nivel l3" onclick="setModo('CPU', 3)"><b>Nível 3</b><span>Difícil</span></div>
+                <div class="btn-nivel l1" onclick="setModo('CPU', 1)"><b>Nível 1</b><span>Aprender</span></div>
+                <div class="btn-nivel l2" onclick="setModo('CPU', 2)"><b>Nível 2</b><span>Jogar</span></div>
             </div>`;
     } else {
         container.innerHTML = `<p style="font-weight:800; color:#888; margin-bottom:5px; font-size:0.8rem;">2 JOGADORES (PVP):</p>
             <div class="nivel-row">
-                <div class="btn-nivel l1" onclick="setModo('PVP', 1)"><b>Nível 1</b><span>Com Dicas</span></div>
-                <div class="btn-nivel l2" onclick="setModo('PVP', 2)"><b>Nível 2</b><span>Sem Dicas</span></div>
+                <div class="btn-nivel l1" onclick="setModo('PVP', 1)"><b>Nível 1</b><span>Aprender</span></div>
+                <div class="btn-nivel l2" onclick="setModo('PVP', 2)"><b>Nível 2</b><span>Jogar</span></div>
             </div>`;
     }
 }
@@ -256,7 +252,6 @@ function iniciarJogo() {
 function atualizarUI() {
     const pcLabel = "PC";
     const j2Label = "JOGADOR 2";
-    const labelSegundaBox = modoJogo === 'CPU' ? pcLabel : j2Label;
     let turnInfoHTML = "";
     
     if (modoJogo === 'CPU') {
@@ -325,7 +320,8 @@ function cpuControlador() {
     let moves = getMovimentosPosiveis(posBranca.x, posBranca.y);
     if (moves.length === 0) { finalizarRonda(0); return; }
     let move;
-    if (nivelJogo === 3) {
+    // Dificuldade Ajustada para 2 Níveis: Nível 2 joga de forma mais inteligente/estratégica
+    if (nivelJogo === 2) {
         move = moves.reduce((best, curr) => {
             let score = avaliarFuturo(curr.x, curr.y);
             return (score > best.score) ? {m: curr, score: score} : best;
@@ -374,18 +370,19 @@ function finalizarRonda(vencedorIdx) {
 
     if (overlay) {
         overlay.style.display = 'flex';
+        // Imagem aumentada para maior destaque no pop-up da ronda
         overlay.innerHTML = `<div class="vitoria-card">
-            <img src="${imagemFeedback}" style="height:110px; margin-bottom:12px; object-fit:contain;">
-            <h1 style="color:${corVencedor}; font-size:2rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeVencedor}</h1>
-            <p style="color:#666; font-size:1.05rem; font-weight:700; margin:5px 0 0 0;">Venceu esta ronda!</p>
-            <div style="margin-top:15px; padding-top:15px; border-top:2px dashed #eee; color:#aaa; font-weight:800;">PLACAR: ${matchScore[0]} - ${matchScore[1]}</div>
+            <img src="${imagemFeedback}" style="height:140px; width:100%; object-fit:contain; margin-bottom:15px;">
+            <h1 style="color:${corVencedor}; font-size:2.1rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeVencedor}</h1>
+            <p style="color:#666; font-size:1.1rem; font-weight:700; margin:6px 0 0 0;">Venceu esta ronda!</p>
+            <div style="margin-top:18px; padding-top:15px; border-top:2px dashed #eee; color:#888; font-weight:800; font-size: 1.05rem;">PLACAR: ${matchScore[0]} - ${matchScore[1]}</div>
         </div>`;
     }
     
     if (currentGameNum >= totalRondas || matchScore[0] >= 2 || matchScore[1] >= 2) {
-        setTimeout(finalizarMatch, 2500);
+        setTimeout(finalizarMatch, 2800);
     } else {
-        setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2500);
+        setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2800);
     }
 }
 
@@ -403,23 +400,27 @@ function finalizarMatch() {
 
     const contentor = document.getElementById('contentor-jogo');
     if (contentor) {
-        contentor.innerHTML = `<div style="text-align:center;">
-            <img src="${imagemFeedbackFinal}" style="height:120px; margin-bottom:8px; object-fit:contain;">
-            <h2 style="color:#666699; font-weight:900; text-transform:uppercase; margin-bottom:15px; font-size: 1.4rem;">GANHOU O ${nomeVencedor}</h2>
-            <div style="display:flex; justify-content:center; gap:20px; margin-bottom: 20px;">
-                <div class="score-box box-v" style="padding:8px 18px; font-size:1.1rem;">J1: ${matchScore[0]}</div>
-                <div class="score-box box-x" style="padding:8px 18px; font-size:1.1rem;">${modoJogo === 'CPU' ? 'PC' : 'J2'}: ${matchScore[1]}</div>
-            </div>
-            <div class="btn-feedback-container">
-                <button class="btn-feedback-solid" onclick="location.reload()">Jogar de novo</button>
-                <button class="btn-feedback-outline" onclick="window.location.href='../../'">Outro jogo</button>
+        // Imagem final maior e espaçamento otimizado para aproveitar bem o ecrã
+        contentor.innerHTML = `<div style="text-align:center; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
+            <img src="${imagemFeedbackFinal}" style="height:150px; max-width: 100%; object-fit:contain; margin-bottom:12px;">
+            <h2 style="color:#666699; font-weight:900; text-transform:uppercase; margin-bottom:12px; font-size: 1.5rem;">GANHOU O ${nomeVencedor}</h2>
+            <div style="display:flex; justify-content:center; gap:20px; margin-bottom: 15px;">
+                <div class="score-box box-v" style="padding:10px 20px; font-size:1.15rem;">J1: ${matchScore[0]}</div>
+                <div class="score-box box-x" style="padding:10px 20px; font-size:1.15rem;">${modoJogo === 'CPU' ? 'PC' : 'J2'}: ${matchScore[1]}</div>
             </div>
         </div>`;
     }
         
+    // Mantém a barra inferior visível no final com os botões de ação ("Jogar de novo" / "Outro jogo")
     const barra = document.getElementById('barra-inferior');
     if (barra) {
-        barra.style.display = "none";
+        barra.style.display = "flex";
+        barra.innerHTML = `
+            <div class="btn-feedback-container" style="margin: 0; width: 100%;">
+                <button class="btn-feedback-solid" onclick="location.reload()">Jogar de novo</button>
+                <button class="btn-feedback-outline" onclick="window.location.href='../../'">Outro jogo</button>
+            </div>
+        `;
     }
 }
 
