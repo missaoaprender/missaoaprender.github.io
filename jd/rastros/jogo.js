@@ -13,6 +13,11 @@ let tabuleiro = [];
 let posBranca = { x: 4, y: 2 }; 
 let simuInterval;         
 
+// Ligação aos sons definidos em DADOS
+const somAcerto = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.certo) new Audio(DADOS.sons.certo).play(); } catch(e){} } };
+const somErro = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.errado) new Audio(DADOS.sons.errado).play(); } catch(e){} } };
+const somClique = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.clique) new Audio(DADOS.sons.clique).play(); } catch(e){} } };
+
 // ============================================================
 // 2. CONFIGURAÇÃO VISUAL (CSS INJETADO RESPONSIVO)
 // ============================================================
@@ -139,10 +144,10 @@ function atualizarBarraCapa() {
 
     barra.innerHTML = `
         <div class="barra-capa-layout">
-            <button class="btn-info-circle" onclick="toggleInstructions()" aria-label="Instruções">
+            <button class="btn-info-circle" onclick="toggleInstructions(); somClique.play();" aria-label="Instruções">
               <img src="${iconeInfoPath}" alt="Info">
             </button>
-            <button class="btn-play-rect-capa" onclick="ecraModosJogo()">JOGAR</button>
+            <button class="btn-play-rect-capa" onclick="ecraModosJogo(); somClique.play();">JOGAR</button>
         </div>
     `;
 }
@@ -154,7 +159,7 @@ function mostrarCapa() {
         const panel = document.createElement('div');
         panel.id = 'instrucoes-panel';
         panel.innerHTML = `
-            <span class="close-x" onclick="toggleInstructions()">&times;</span>
+            <span class="close-x" onclick="toggleInstructions(); somClique.play();">&times;</span>
             <div class="inst-content">
                 <div class="inst-header">Como Jogar</div>
                 <div class="inst-section-title">Objetivo</div>
@@ -191,14 +196,15 @@ function mostrarCapa() {
 
 function ecraModosJogo() {
     clearInterval(simuInterval);
+    somClique.play();
     const area = document.getElementById('contentor-jogo');
     area.innerHTML = `
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 16px; width: 100%;">
             <h2 style="color:#262638; font-weight:900; text-transform:uppercase; font-size: clamp(1.2rem, 2vw, 1.6rem); margin-bottom: 5px; text-align: center;">Escolhe o Modo de Jogo</h2>
-            <button class="btn-modo-aprimorado btn-modo-cpu" onclick="mostrarNiveis('CPU')"><i class="fas fa-robot"></i> COMPUTADOR</button>
-            <button class="btn-modo-aprimorado btn-modo-pvp" onclick="mostrarNiveis('PVP')"><i class="fas fa-users"></i> 2 JOGADORES</button>
+            <button class="btn-modo-aprimorado btn-modo-cpu" onclick="mostrarNiveis('CPU'); somClique.play();"><i class="fas fa-robot"></i> COMPUTADOR</button>
+            <button class="btn-modo-aprimorado btn-modo-pvp" onclick="mostrarNiveis('PVP'); somClique.play();"><i class="fas fa-users"></i> 2 JOGADORES</button>
             <div id="nivel-select-container" class="nivel-select-container" style="display:none; margin-top: 10px;"></div>
-            <button class="btn-modo-aprimorado btn-modo-voltar" onclick="mostrarCapa()">VOLTAR</button>
+            <button class="btn-modo-aprimorado btn-modo-voltar" onclick="mostrarCapa(); somClique.play();">VOLTAR</button>
         </div>
     `;
     const barra = document.getElementById('barra-inferior');
@@ -206,6 +212,7 @@ function ecraModosJogo() {
 }
 
 function mostrarNiveis(modo) {
+    somClique.play();
     const container = document.getElementById('nivel-select-container');
     if(!container) return;
     container.style.display = 'flex';
@@ -234,6 +241,7 @@ function toggleInstructions() {
 // ============================================================
 function setModo(modo, nivel) {
     clearInterval(simuInterval);
+    somClique.play();
     modoJogo = modo; nivelJogo = nivel;
     mostrarDicas = (nivel === 1);
     matchScore = [0, 0]; currentGameNum = 1; turnoAtual = 0; iniciarJogo();
@@ -305,6 +313,7 @@ function renderTabuleiro() {
 
 function moverPeca(nx, ny) {
     if (!jogoAtivo) return;
+    somClique.play();
     tabuleiro[posBranca.y][posBranca.x] = 1;
     posBranca = { x: nx, y: ny };
     tabuleiro[ny][nx] = 2;
@@ -358,6 +367,7 @@ function getMovimentosPosiveis(cx, cy) {
 function finalizarRonda(vencedorIdx) {
     jogoAtivo = false;
     matchScore[vencedorIdx]++;
+    somAcerto.play();
     const overlay = document.getElementById('round-feedback');
     const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
     const corVencedor = vencedorIdx === 0 ? "#8cc63f" : "#666699";
@@ -406,8 +416,8 @@ function finalizarMatch() {
                 <div class="score-box box-x" style="padding:8px 18px; font-size:1.1rem;">${modoJogo === 'CPU' ? 'PC' : 'J2'}: ${matchScore[1]}</div>
             </div>
             <div class="btn-feedback-container">
-                <button class="btn-feedback-solid" onclick="location.reload()">Jogar de novo</button>
-                <button class="btn-feedback-outline" onclick="window.location.href='../../'">Outro jogo</button>
+                <button class="btn-feedback-solid" onclick="location.reload(); somClique.play();">Jogar de novo</button>
+                <button class="btn-feedback-outline" onclick="window.location.href='../../'; somClique.play();">Outro jogo</button>
             </div>
         </div>`;
     }
