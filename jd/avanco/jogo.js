@@ -8,8 +8,8 @@ const JOGO_CONFIG = {
 };
 
 let jogoAtivo = false;
-let modoJogo = 'CPU';     
-let nivelJogo = 1;        
+let modoJogo = 'CPU';      
+let nivelJogo = 1;         
 let mostrarDicas = true;  
 let matchScore = [0, 0];  
 let turnoAtual = 0;       
@@ -17,9 +17,10 @@ let tabuleiro = [];
 let selectedPiece = null; 
 let simuInterval;         
 
-const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
-const somErro = new Audio(DADOS.sons && DADOS.sons.errado ? DADOS.sons.errado : "");
-const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
+// Ligação correta aos sons vindos de DADOS
+const somAcerto = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.certo) new Audio(DADOS.sons.certo).play(); } catch(e){} } };
+const somErro = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.errado) new Audio(DADOS.sons.errado).play(); } catch(e){} } };
+const somClique = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.clique) new Audio(DADOS.sons.clique).play(); } catch(e){} } };
 
 
 // ============================================================
@@ -81,22 +82,22 @@ style.innerHTML = `
     }
     .btn-voltar-grande:active { transform: scale(0.97); }
 
-    /* Estilo dos botões finais (espaços largos para uma única linha) */
-    .btn-final-roxo {
-        background: #5f6388; color: white; border: none; padding: 14px 20px;
-        border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.15); text-transform: capitalize; transition: transform 0.1s;
-        white-space: nowrap; flex: 1; text-align: center;
+    /* Botões de feedback centralizados */
+    .btn-feedback-container { display: flex; gap: 15px; justify-content: center; margin-top: 20px; width: 100%; max-width: 400px; }
+    .btn-feedback-solid {
+        flex: 1; background-color: #5f6388; color: #FFFFFF; border: none;
+        padding: 14px 20px; border-radius: 25px; font-weight: 900; font-size: 1rem;
+        cursor: pointer; box-shadow: 0 4px 12px rgba(95,99,136,0.3); transition: transform 0.1s ease;
+        text-transform: capitalize;
     }
-    .btn-final-roxo:active { transform: scale(0.95); }
-
-    .btn-final-branco {
-        background: white; color: #5f6388; border: 2px solid #5f6388; padding: 14px 20px;
-        border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.08); text-transform: capitalize; transition: transform 0.1s;
-        white-space: nowrap; flex: 1; text-align: center;
+    .btn-feedback-solid:active { transform: scale(0.95); }
+    .btn-feedback-outline {
+        flex: 1; background-color: #FFFFFF; color: #5f6388; border: 2px solid #5f6388;
+        padding: 14px 20px; border-radius: 25px; font-weight: 900; font-size: 1rem;
+        cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.1s ease;
+        text-transform: capitalize;
     }
-    .btn-final-branco:active { transform: scale(0.95); }
+    .btn-feedback-outline:active { transform: scale(0.95); }
 
     .niveis-wrapper {
         display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; margin-top: 5px;
@@ -105,16 +106,16 @@ style.innerHTML = `
         font-size: 0.75rem; font-weight: 800; color: #777; text-transform: uppercase;
     }
     .niveis-row {
-        display: flex; gap: 10px; width: 100%; max-width: 440px; justify-content: center;
+        display: flex; gap: 12px; width: 100%; max-width: 380px; justify-content: center;
     }
     .btn-nivel-card {
-        flex: 1; background: white; padding: 10px 6px; border-radius: 14px; border: 2px solid #ccc;
+        flex: 1; background: white; padding: 14px 10px; border-radius: 16px; border: 2px solid #ccc;
         display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
     }
-    .btn-nivel-card b { font-size: 0.8rem; font-weight: 900; text-transform: uppercase; }
-    .btn-nivel-card span { font-size: 0.65rem; font-weight: 700; opacity: 0.7; text-align: center; margin-top: 2px; }
+    .btn-nivel-card b { font-size: 0.85rem; font-weight: 900; text-transform: uppercase; margin-bottom: 4px; }
+    .btn-nivel-card span { font-size: 0.7rem; font-weight: 700; opacity: 0.7; text-align: center; }
     .btn-nivel-card.l1 { border-color: #8cc63f; color: #8cc63f; }
-    .btn-nivel-card.l2 { border-color: #ff5a5f; color: #ff5a5f; }
+    .btn-nivel-card.l2 { border-color: #5f6388; color: #5f6388; }
     .btn-nivel-card:active { transform: scale(0.95); }
 
     #simu-container { height: 260px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-top: 5px; margin-bottom: 20px; }
@@ -141,17 +142,10 @@ style.innerHTML = `
 
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-        background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(6px); 
-        z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; 
-        border-radius: 35px; overflow: hidden;
+        background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(6px); 
+        z-index: 1000; display: none; align-items: center; justify-content: center; border-radius: 35px; 
     }
-    
-    .feedback-bottom-bar {
-        position: absolute; bottom: 20px; left: 24px; right: 24px; height: 14px;
-        background: #5f6388; border-radius: 7px;
-    }
-
-    .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 25px; width: 100%; max-width: 480px; }
+    .vitoria-card { background: white; padding: 40px 30px; border-radius: 35px; box-shadow: 0 20px 45px rgba(0,0,0,0.2); text-align: center; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); width: 85%; max-width: 380px; display: flex; flex-direction: column; align-items: center; }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
     :root { --cell-size: 50px; }
@@ -170,7 +164,7 @@ function mostrarCapa() {
         const panel = document.createElement('div');
         panel.id = 'instrucoes-panel';
         panel.innerHTML = `
-            <span class="close-x" onclick="toggleInstructions()">&times;</span>
+            <span class="close-x" onclick="toggleInstructions(); somClique.play();">&times;</span>
             <div class="inst-content">
                 <div class="inst-header">Como Jogar Avanço</div>
                 <div class="inst-section-title">Objetivo do Jogo</div>
@@ -200,8 +194,8 @@ function mostrarCapa() {
         barra.style.display = 'flex';
         barra.className = "barra-jogo-topo";
         barra.innerHTML = `
-            <div class="btn-capa-info" onclick="toggleInstructions()"><img src="${DADOS.icons.info}" alt="Info"></div>
-            <button class="btn-capa-jogar" onclick="mostrarMenuEscolha()">JOGAR</button>
+            <div class="btn-capa-info" onclick="toggleInstructions(); somClique.play();"><img src="${DADOS.icons.info}" alt="Info"></div>
+            <button class="btn-capa-jogar" onclick="mostrarMenuEscolha(); somClique.play();">JOGAR</button>
         `;
     }
 
@@ -210,15 +204,15 @@ function mostrarCapa() {
 
 function mostrarMenuEscolha() {
     clearInterval(simuInterval);
-    if (somClique.src) somClique.play().catch(()=>{});
+    somClique.play();
     const area = document.getElementById('contentor-jogo');
     if (area) {
         area.innerHTML = `
             <div class="menu-escolha-container">
                 <div class="menu-titulo">Escolhe o modo de jogo</div>
-                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU')"><i class="fas fa-robot"></i> Computador</button>
-                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP')"><i class="fas fa-users"></i> 2 Jogadores</button>
-                <button class="btn-voltar-grande" onclick="mostrarCapa()">Voltar</button>
+                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU'); somClique.play();"><i class="fas fa-robot"></i> Computador</button>
+                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP'); somClique.play();"><i class="fas fa-users"></i> 2 Jogadores</button>
+                <button class="btn-voltar-grande" onclick="mostrarCapa(); somClique.play();">Voltar</button>
             </div>
         `;
     }
@@ -228,7 +222,7 @@ function mostrarMenuEscolha() {
 
 function mostrarMenuNiveis(modo) {
     modoJogo = modo;
-    if (somClique.src) somClique.play().catch(()=>{});
+    somClique.play();
     const area = document.getElementById('contentor-jogo');
     
     let niveisHtml = '';
@@ -237,8 +231,8 @@ function mostrarMenuNiveis(modo) {
             <div class="niveis-wrapper">
                 <div class="niveis-subtitulo">Jogar com o computador:</div>
                 <div class="niveis-row">
-                    <div class="btn-nivel-card l1" onclick="setModo('CPU', 1)"><b>Nível 1</b><span>Fácil</span></div>
-                    <div class="btn-nivel-card l2" onclick="setModo('CPU', 2)"><b>Nível 2</b><span>Difícil</span></div>
+                    <div class="btn-nivel-card l1" onclick="setModo('CPU', 1)"><b>Nível 1</b><span>Aprender</span></div>
+                    <div class="btn-nivel-card l2" onclick="setModo('CPU', 2)"><b>Nível 2</b><span>Jogar</span></div>
                 </div>
             </div>`;
     } else {
@@ -246,8 +240,8 @@ function mostrarMenuNiveis(modo) {
             <div class="niveis-wrapper">
                 <div class="niveis-subtitulo">Modo 2 Jogadores:</div>
                 <div class="niveis-row">
-                    <div class="btn-nivel-card l1" onclick="setModo('PVP', 1)"><b>Nível 1</b><span>Fácil</span></div>
-                    <div class="btn-nivel-card l2" onclick="setModo('PVP', 2)"><b>Nível 2</b><span>Difícil</span></div>
+                    <div class="btn-nivel-card l1" onclick="setModo('PVP', 1)"><b>Nível 1</b><span>Aprender</span></div>
+                    <div class="btn-nivel-card l2" onclick="setModo('PVP', 2)"><b>Nível 2</b><span>Jogar</span></div>
                 </div>
             </div>`;
     }
@@ -256,17 +250,16 @@ function mostrarMenuNiveis(modo) {
         area.innerHTML = `
             <div class="menu-escolha-container">
                 <div class="menu-titulo">Escolhe o modo de jogo</div>
-                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU')" style="opacity:0.8;"><i class="fas fa-robot"></i> Computador</button>
-                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP')" style="opacity:0.8;"><i class="fas fa-users"></i> 2 Jogadores</button>
+                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU'); somClique.play();" style="opacity:0.8;"><i class="fas fa-robot"></i> Computador</button>
+                <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP'); somClique.play();" style="opacity:0.8;"><i class="fas fa-users"></i> 2 Jogadores</button>
                 ${niveisHtml}
-                <button class="btn-voltar-grande" onclick="mostrarMenuEscolha()">Voltar</button>
+                <button class="btn-voltar-grande" onclick="mostrarMenuEscolha(); somClique.play();">Voltar</button>
             </div>
         `;
     }
 }
 
 function toggleInstructions() { 
-    if (somClique.src) somClique.play().catch(()=>{});
     document.getElementById('instrucoes-panel').classList.toggle('open'); 
 }
 
@@ -276,7 +269,7 @@ function toggleInstructions() {
 // ============================================================
 function setModo(modo, nivel) {
     clearInterval(simuInterval); 
-    if (somClique.src) somClique.play().catch(()=>{});
+    somClique.play();
     modoJogo = modo; nivelJogo = nivel;
     mostrarDicas = (nivel === 1);
     matchScore = [0, 0]; turnoAtual = 0; 
@@ -366,7 +359,7 @@ function handleCellClick(r, c) {
     const p = turnoAtual === 0 ? 1 : 2;
     if (tabuleiro[r][c] === p) {
         selectedPiece = { r, c }; 
-        if (somClique.src) somClique.play().catch(()=>{}); 
+        somClique.play(); 
         atualizarUI(); 
     } else if (selectedPiece) {
         if (validarMovimento(selectedPiece.r, selectedPiece.c, r, c, p)) {
@@ -391,7 +384,7 @@ function executarMovimento(fr, fc, tr, tc) {
     tabuleiro[fr][fc] = 0; 
     tabuleiro[tr][tc] = p;
     selectedPiece = null; 
-    if (somClique.src) somClique.play().catch(()=>{});
+    somClique.play();
 
     if ((p === 1 && tr === 0) || (p === 2 && tr === 6)) { 
         finalizarRonda(turnoAtual); 
@@ -410,9 +403,24 @@ function iaControlador() {
     
     if (moves.length === 0) { finalizarRonda(0); return; }
     
-    const win = moves.find(m => m.tr === 6);
-    const cap = moves.find(m => tabuleiro[m.tr][m.tc] === 1);
-    const m = win || cap || moves[Math.floor(Math.random() * moves.length)];
+    let m;
+    if (nivelJogo === 1) {
+        m = moves[Math.floor(Math.random() * moves.length)];
+    } else {
+        // Nível 2 Reforçado (IA Avançada: Vitória imediata > Capturas > Avanço estratégico máximo)
+        const win = moves.find(m => m.tr === 6);
+        const cap = moves.find(m => tabuleiro[m.tr][m.tc] === 1);
+        
+        if (win) {
+            m = win;
+        } else if (cap) {
+            m = cap;
+        } else {
+            // Ordena pelo avanço máximo no tabuleiro (quanto mais próximo de tr = 6, melhor)
+            moves.sort((a, b) => b.tr - a.tr);
+            m = moves[0];
+        }
+    }
     
     executarMovimento(m.fr, m.fc, m.tr, m.tc);
 }
@@ -424,7 +432,7 @@ function iaControlador() {
 function finalizarRonda(vIdx) {
     jogoAtivo = false; 
     matchScore[vIdx]++; 
-    if (somAcerto.src) somAcerto.play().catch(()=>{});
+    somAcerto.play();
     
     const overlay = document.getElementById('round-feedback');
     const nomeV = vIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
@@ -435,14 +443,11 @@ function finalizarRonda(vIdx) {
         overlay.style.display = 'flex';
         overlay.innerHTML = `
             <div class="vitoria-card">
-                <img src="${iconeFeedback}" style="width:140px; height:140px; object-fit:contain;">
-                <h1 style="color:#5f6388; font-size:1.8rem; font-weight:900; margin:0; text-transform:uppercase;">GANHOU O ${nomeV}</h1>
-                <div style="display:flex; justify-content:center; gap:12px;">
-                    <div class="score-box box-v" style="padding:8px 16px; font-size:1rem;">J1: ${matchScore[0]}</div>
-                    <div class="score-box box-x" style="padding:8px 16px; font-size:1rem;">${labelBox2}: ${matchScore[1]}</div>
-                </div>
+                <img src="${iconeFeedback}" style="height:140px; width:100%; object-fit:contain; margin-bottom:15px;">
+                <h1 style="color:#5f6388; font-size:2.1rem; font-weight:900; margin:0; text-transform:uppercase;">GANHOU O ${nomeV}</h1>
+                <p style="color:#666; font-size:1.1rem; font-weight:700; margin:6px 0 0 0;">Venceu esta ronda!</p>
+                <div style="margin-top:18px; padding-top:15px; border-top:2px dashed #eee; color:#888; font-weight:800; font-size: 1.05rem;">PLACAR: J1 ${matchScore[0]} - ${matchScore[1]} ${labelBox2}</div>
             </div>
-            <div class="feedback-bottom-bar"></div>
         `;
     }
     
@@ -461,18 +466,17 @@ function finalizarMatch() {
         overlay.style.display = 'flex';
         overlay.innerHTML = `
             <div class="vitoria-card">
-                <img src="${iconeFeedback}" style="width:140px; height:140px; object-fit:contain;">
-                <h1 style="color:#5f6388; font-size:1.8rem; font-weight:900; margin:0; text-transform:uppercase;">GANHOU O ${nomeV}</h1>
-                <div style="display:flex; justify-content:center; gap:12px;">
-                    <div class="score-box box-v" style="padding:8px 16px; font-size:1rem;">J1: ${matchScore[0]}</div>
-                    <div class="score-box box-x" style="padding:8px 16px; font-size:1rem;">${lb2}: ${matchScore[1]}</div>
+                <img src="${iconeFeedback}" style="height:150px; margin-bottom:12px; object-fit:contain;">
+                <h1 style="color:#5f6388; font-size:1.5rem; font-weight:900; text-transform:uppercase; margin-bottom:15px;">GANHOU O ${nomeV}</h1>
+                <div style="display:flex; justify-content:center; gap:20px; margin-bottom: 20px;">
+                    <div class="score-box box-v" style="padding:10px 20px; font-size:1.15rem;">J1: ${matchScore[0]}</div>
+                    <div class="score-box box-x" style="padding:10px 20px; font-size:1.15rem;">${lb2}: ${matchScore[1]}</div>
                 </div>
-                <div style="display:flex; justify-content:center; gap:14px; margin-top:5px; width:100%; max-width:440px;">
-                    <button class="btn-final-roxo" onclick="location.reload()">Jogar de novo</button>
-                    <button class="btn-final-branco" onclick="window.history.back()">Outro jogo</button>
+                <div class="btn-feedback-container">
+                    <button class="btn-feedback-solid" onclick="location.reload(); somClique.play();">Jogar de novo</button>
+                    <button class="btn-feedback-outline" onclick="window.location.href='../../'; somClique.play();">Outro jogo</button>
                 </div>
-            </div>
-            <div class="feedback-bottom-bar"></div>`;
+            </div>`;
     }
     const barra = document.getElementById('barra-inferior');
     if (barra) barra.style.display = "none";
