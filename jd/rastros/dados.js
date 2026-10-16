@@ -13,7 +13,7 @@ const DADOS = {
   },
 
   icons: {
-    cabecalho: "../../icons/rastros.png",
+    cabecalho: "../../icons/jd.png",
     menu: "../../icons/menu.png",
     seta: "../../icons/seta.png",
     som: "../../icons/som.png",
