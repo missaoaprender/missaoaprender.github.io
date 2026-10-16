@@ -13,10 +13,10 @@ let tabuleiro = [];
 let posBranca = { x: 4, y: 2 }; 
 let simuInterval;         
 
-// Sons vazios por enquanto
-const somAcerto = { play: () => {} };
-const somErro = { play: () => {} };
-const somClique = { play: () => {} };
+// Ligação correta aos sons vindos de DADOS
+const somAcerto = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.certo) new Audio(DADOS.sons.certo).play(); } catch(e){} } };
+const somErro = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.errado) new Audio(DADOS.sons.errado).play(); } catch(e){} } };
+const somClique = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.clique) new Audio(DADOS.sons.clique).play(); } catch(e){} } };
 
 // ============================================================
 // 2. CONFIGURAÇÃO VISUAL (CSS INJETADO)
@@ -322,12 +322,9 @@ function iaControlador() {
     if (legalMoves.length === 0) { finalizarRonda(0); return; }
     let move;
     
-    // Nível 1: Mais aleatório/simples (Aprender)
     if (nivelJogo === 1) {
         move = legalMoves[Math.floor(Math.random() * legalMoves.length)];
-    } 
-    // Nível 2: Inteligência Avançada/Estratégica (Jogar) - Avalia o futuro para dificultar a vida ao jogador
-    else {
+    } else {
         move = legalMoves.reduce((best, current) => {
             let score = avaliarJogada(current.r, current.c);
             return (score > best.score) ? {r: current.r, c: current.c, score: score} : best;
@@ -363,7 +360,7 @@ function temJogadas(pType, tab) {
 }
 
 // ============================================================
-// 5. FINALIZAÇÃO E FEEDBACKS (1 e 4)
+// 5. FINALIZAÇÃO E FEEDBACKS (MELHOR DE 3 RONDAS)
 // ============================================================
 function finalizarRonda(vencedorIdx) {
     jogoAtivo = false;
@@ -380,7 +377,6 @@ function finalizarRonda(vencedorIdx) {
 
     if (overlay) {
         overlay.style.display = 'flex';
-        // Imagem aumentada para maior destaque no pop-up da ronda
         overlay.innerHTML = `<div class="vitoria-card">
             <img src="${imagemFeedback}" style="height:140px; width:100%; object-fit:contain; margin-bottom:15px;">
             <h1 style="color:${corVencedor}; font-size:2.1rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeVencedor}</h1>
@@ -388,14 +384,20 @@ function finalizarRonda(vencedorIdx) {
             <div style="margin-top:18px; padding-top:15px; border-top:2px dashed #eee; color:#888; font-weight:800; font-size: 1.05rem;">PLACAR: J1 ${matchScore[0]} - ${matchScore[1]}</div>
         </div>`;
     }
-    if (matchScore[0] >= 3 || matchScore[1] >= 3) setTimeout(finalizarMatch, 2800);
-    else setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2800);
+
+    // Condição para melhor de 3 (quem atingir 2 vitórias ou acabar as 3 rondas)
+    if (currentGameNum >= totalRondas || matchScore[0] >= 2 || matchScore[1] >= 2) {
+        setTimeout(finalizarMatch, 2800);
+    } else {
+        setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2800);
+    }
 }
 
 function finalizarMatch() {
     const overlay = document.getElementById('round-feedback');
     if (overlay) overlay.style.display = 'none';
-    const vencedorIdx = (matchScore[0] >= 3) ? 0 : 1;
+    
+    const vencedorIdx = (matchScore[0] > matchScore[1]) ? 0 : 1;
     const nomeVencedor = vencedorIdx === 0 ? "GATOS" : (modoJogo === 'CPU' ? "PC" : "CÃES");
     
     let imagemFeedbackFinal = DADOS.icons.feedbacks.feedback1;
@@ -405,7 +407,6 @@ function finalizarMatch() {
 
     const contentor = document.getElementById('contentor-jogo');
     if (contentor) {
-        // Imagem final maior e espaçamento otimizado
         contentor.innerHTML = `<div style="text-align:center;">
             <img src="${imagemFeedbackFinal}" style="height:150px; margin-bottom:12px; object-fit:contain;">
             <h2 style="color:#666699; font-weight:900; text-transform:uppercase; margin-bottom:15px; font-size: 1.5rem;">GANHOU O ${nomeVencedor}</h2>
@@ -420,7 +421,6 @@ function finalizarMatch() {
         </div>`;
     }
     
-    // Barra inferior limpa e idêntica à do ecrã de seleção de modo
     const barra = document.getElementById('barra-inferior');
     if (barra) {
         barra.style.display = "flex";
