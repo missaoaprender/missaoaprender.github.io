@@ -20,10 +20,20 @@ let pecasDisponiveis = { 1: 8, 2: 8, 3: 8 }; // 1: Verde, 2: Amarela, 3: Vermelh
 let corSelecionada = null;
 let simuInterval;         
 
-// Ligação aos sons de DADOS
-const somAcerto = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.certo) new Audio(DADOS.sons.certo).play(); } catch(e){} } };
-const somErro = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.errado) new Audio(DADOS.sons.errado).play(); } catch(e){} } };
-const somClique = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.clique) new Audio(DADOS.sons.clique).play(); } catch(e){} } };
+// Gestão segura de Sons (som de clique desativado)
+const reproduzirSom = (caminho) => {
+    if (caminho) {
+        try {
+            const audio = new Audio(caminho);
+            audio.currentTime = 0;
+            audio.play().catch(e => console.log("Áudio bloqueado ou ficheiro em falta:", e));
+        } catch(e) {}
+    }
+};
+
+const somAcerto = { play: () => reproduzirSom(DADOS.sons && DADOS.sons.certo) };
+const somErro = { play: () => reproduzirSom(DADOS.sons && DADOS.sons.errado) };
+const somClique = { play: () => {} }; // Desativado propositadamente
 
 
 // ============================================================
@@ -190,7 +200,7 @@ function mostrarCapa() {
         const panel = document.createElement('div');
         panel.id = 'instrucoes-panel';
         panel.innerHTML = `
-            <span class="close-x" onclick="toggleInstructions(); somClique.play();">&times;</span>
+            <span class="close-x" onclick="toggleInstructions()">&times;</span>
             <div class="inst-content">
                 <div class="inst-header">Semáforo</div>
                 <div class="inst-section-title">Objetivo</div>
@@ -219,8 +229,8 @@ function mostrarCapa() {
     barra.style.display = 'flex';
     barra.className = "barra-jogo-topo";
     barra.innerHTML = `
-        <div class="btn-capa-info" onclick="toggleInstructions(); somClique.play();"><i class="fas fa-info"></i></div>
-        <button class="btn-capa-jogar" onclick="mostrarMenuEscolha(); somClique.play();">JOGAR</button>
+        <div class="btn-capa-info" onclick="toggleInstructions()"><i class="fas fa-info"></i></div>
+        <button class="btn-capa-jogar" onclick="mostrarMenuEscolha()">JOGAR</button>
     `;
 
     iniciarSimulacao();
@@ -228,14 +238,13 @@ function mostrarCapa() {
 
 function mostrarMenuEscolha() {
     clearInterval(simuInterval);
-    somClique.play();
     const area = document.getElementById('contentor-jogo');
     area.innerHTML = `
         <div class="menu-escolha-container">
             <div class="menu-titulo">Escolhe o modo de jogo</div>
-            <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU'); somClique.play();"><i class="fas fa-robot"></i> Computador</button>
-            <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP'); somClique.play();"><i class="fas fa-users"></i> 2 Jogadores</button>
-            <button class="btn-voltar-grande" onclick="mostrarCapa(); somClique.play();">Voltar</button>
+            <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU')"><i class="fas fa-robot"></i> Computador</button>
+            <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP')"><i class="fas fa-users"></i> 2 Jogadores</button>
+            <button class="btn-voltar-grande" onclick="mostrarCapa()">Voltar</button>
         </div>
     `;
     const barra = document.getElementById('barra-inferior');
@@ -244,7 +253,6 @@ function mostrarMenuEscolha() {
 
 function mostrarMenuNiveis(modo) {
     modoJogo = modo;
-    somClique.play();
     const area = document.getElementById('contentor-jogo');
     
     let niveisHtml = '';
@@ -271,10 +279,10 @@ function mostrarMenuNiveis(modo) {
     area.innerHTML = `
         <div class="menu-escolha-container">
             <div class="menu-titulo">Escolhe o modo de jogo</div>
-            <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU'); somClique.play();" style="opacity:0.8;"><i class="fas fa-robot"></i> Computador</button>
-            <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP'); somClique.play();" style="opacity:0.8;"><i class="fas fa-users"></i> 2 Jogadores</button>
+            <button class="btn-modo-grande" onclick="mostrarMenuNiveis('CPU')" style="opacity:0.8;"><i class="fas fa-robot"></i> Computador</button>
+            <button class="btn-modo-grande" onclick="mostrarMenuNiveis('PVP')" style="opacity:0.8;"><i class="fas fa-users"></i> 2 Jogadores</button>
             ${niveisHtml}
-            <button class="btn-voltar-grande" onclick="mostrarMenuEscolha(); somClique.play();">Voltar</button>
+            <button class="btn-voltar-grande" onclick="mostrarMenuEscolha()">Voltar</button>
         </div>
     `;
 }
@@ -288,7 +296,6 @@ function toggleInstructions() {
 // 4. LÓGICA CORE DO JOGO E TURNOS
 // ============================================================
 function setModo(modo, nivel) {
-    somClique.play();
     modoJogo = modo; nivelJogo = nivel;
     mostrarDicas = (nivel === 1);
     matchScore = [0, 0]; currentGameNum = 1; turnoAtual = 0; 
@@ -333,7 +340,6 @@ function selecionarPilha(cor) {
     if (!jogoAtivo || (modoJogo === 'CPU' && turnoAtual === 1)) return;
     if (pecasDisponiveis[cor] <= 0) return;
     corSelecionada = cor;
-    somClique.play();
     renderTabuleiro();
 }
 
@@ -397,7 +403,6 @@ function jogar(r, c) {
     tabuleiro[r][c]++;
     pecasDisponiveis[corSelecionada]--;
     corSelecionada = null;
-    somClique.play();
 
     if (verificarVitoria(tabuleiro)) {
         finalizarRonda(turnoAtual);
@@ -530,8 +535,8 @@ function finalizarMatch() {
                 <div class="score-box box-x" style="padding:10px 20px; font-size:1.15rem;">${modoJogo === 'CPU' ? 'PC' : 'J2'}: ${matchScore[1]}</div>
             </div>
             <div class="btn-feedback-container">
-                <button class="btn-feedback-solid" onclick="location.reload(); somClique.play();">Jogar de novo</button>
-                <button class="btn-feedback-outline" onclick="window.location.href='../../'; somClique.play();">Outro jogo</button>
+                <button class="btn-feedback-solid" onclick="location.reload()">Jogar de novo</button>
+                <button class="btn-feedback-outline" onclick="window.location.href='../../'">Outro jogo</button>
             </div>
         </div>`;
     }
