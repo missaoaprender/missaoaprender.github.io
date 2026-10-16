@@ -15,11 +15,14 @@ let matchScore = [0, 0];
 let turnoAtual = 0;       
 let currentGameNum = 1;    
 let tabuleiro = Array(3).fill().map(() => Array(4).fill(0)); 
+let pecasDisponiveis = { 1: 8, 2: 8, 3: 8 }; // 1: Verde, 2: Amarela, 3: Vermelha
+let corSelecionada = null;
 let simuInterval;         
 
-const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
-const somErro = new Audio(DADOS.sons && DADOS.sons.errado ? DADOS.sons.errado : "");
-const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
+// Ligação correta aos sons vindos de DADOS
+const somAcerto = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.certo) new Audio(DADOS.sons.certo).play(); } catch(e){} } };
+const somErro = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.errado) new Audio(DADOS.sons.errado).play(); } catch(e){} } };
+const somClique = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.clique) new Audio(DADOS.sons.clique).play(); } catch(e){} } };
 
 
 // ============================================================
@@ -39,10 +42,10 @@ style.innerHTML = `
 
     #round-feedback {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(6px); 
+        background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(6px); 
         z-index: 1000; display: none; align-items: center; justify-content: center; border-radius: 35px;
     }
-    .vitoria-card { background: white; padding: 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); text-align: center; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
+    .vitoria-card { background: white; padding: 40px 30px; border-radius: 35px; box-shadow: 0 20px 45px rgba(0,0,0,0.2); text-align: center; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); width: 85%; max-width: 380px; display: flex; flex-direction: column; align-items: center; }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
     /* Barra da Capa com Info e Jogar */
@@ -86,20 +89,22 @@ style.innerHTML = `
     }
     .btn-voltar-grande:active { transform: scale(0.97); }
 
-    /* Estilo exato dos botões finais da imagem */
-    .btn-final-roxo {
-        background: #5f6388; color: white; border: none; padding: 14px 28px;
-        border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.15); text-transform: capitalize; transition: transform 0.1s;
+    /* Botões de feedback centralizados */
+    .btn-feedback-container { display: flex; gap: 15px; justify-content: center; margin-top: 20px; width: 100%; max-width: 400px; }
+    .btn-feedback-solid {
+        flex: 1; background-color: #5f6388; color: #FFFFFF; border: none;
+        padding: 14px 20px; border-radius: 25px; font-weight: 900; font-size: 1rem;
+        cursor: pointer; box-shadow: 0 4px 12px rgba(95,99,136,0.3); transition: transform 0.1s ease;
+        text-transform: capitalize;
     }
-    .btn-final-roxo:active { transform: scale(0.95); }
-
-    .btn-final-branco {
-        background: white; color: #5f6388; border: 2px solid #5f6388; padding: 14px 28px;
-        border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.08); text-transform: capitalize; transition: transform 0.1s;
+    .btn-feedback-solid:active { transform: scale(0.95); }
+    .btn-feedback-outline {
+        flex: 1; background-color: #FFFFFF; color: #5f6388; border: 2px solid #5f6388;
+        padding: 14px 20px; border-radius: 25px; font-weight: 900; font-size: 1rem;
+        cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: transform 0.1s ease;
+        text-transform: capitalize;
     }
-    .btn-final-branco:active { transform: scale(0.95); }
+    .btn-feedback-outline:active { transform: scale(0.95); }
 
     .niveis-wrapper {
         display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; margin-top: 5px;
@@ -127,8 +132,18 @@ style.innerHTML = `
     #instrucoes-panel.open { top: 0; }
     .close-x { position: absolute; top: 15px; right: 20px; font-size: 2.2rem; color: #ff5a5f; cursor: pointer; font-weight: 900; line-height: 1; transition: 0.2s; }
 
+    /* LAYOUT DO JOGO (TABULEIRO + PILHAS DE PEÇAS FORA) */
+    .game-area-layout { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+    .pilhas-container { display: flex; gap: 15px; justify-content: center; align-items: center; background: #eef0f6; padding: 10px 20px; border-radius: 20px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
+    .pilha-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 6px 12px; border-radius: 14px; border: 2px solid transparent; transition: 0.2s; position: relative; }
+    .pilha-item.selected { border-color: #5f6388; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transform: scale(1.05); }
+    .pilha-item:active { transform: scale(0.95); }
+    .pilha-peca-visual { width: 35px; height: 35px; border-radius: 50%; box-shadow: inset 0 -3px 4px rgba(0,0,0,0.2), 0 3px 6px rgba(0,0,0,0.15); border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+    .pilha-label { font-size: 0.75rem; font-weight: 800; color: #555; margin-top: 4px; text-transform: uppercase; }
+
     .grid-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #bbb; padding: 10px; border-radius: 15px; width: fit-content; margin: 0 auto; }
     .cell { width: var(--cell-size); height: var(--cell-size); background: white; border-radius: 12px; position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+    .cell.hint-move { background: #e8f5e9 !important; border: 2px dashed #8cc63f; }
     
     .piece { width: 88%; height: 88%; border-radius: 50%; box-shadow: inset 0 -4px 6px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.1); border: 2px solid rgba(255,255,255,0.3); }
     .piece.green { background: #8cc63f; }
@@ -136,17 +151,18 @@ style.innerHTML = `
     .piece.red { background: #ff5a5f; }
 
     @media screen and (min-width: 1025px) { 
-        :root { --cell-size: 115px; } 
+        :root { --cell-size: 95px; } 
     }
     
     @media screen and (max-width: 500px) and (orientation: portrait) { 
-        :root { --cell-size: 18vw; } 
+        :root { --cell-size: 16vw; } 
         .grid-board { gap: 6px; padding: 6px; border-radius: 10px; margin: auto !important; }
         .cell { border-radius: 8px; }
+        .pilha-peca-visual { width: 28px; height: 28px; font-size: 0.65rem; }
     }
     
     @media screen and (max-height: 500px) and (orientation: landscape) { 
-        :root { --cell-size: 24vh; } 
+        :root { --cell-size: 20vh; } 
         .grid-board { gap: 5px; padding: 5px; }
     }
 
@@ -178,10 +194,10 @@ function mostrarCapa() {
                 <p class="inst-text">Ser o primeiro a conseguir uma <b>linha de três peças da mesma cor</b> (horizontal, vertical ou diagonal).</p>
                 <div class="inst-section-title">Como Jogar</div>
                 <ul class="inst-list">
-                    <li><b>1.</b> Podes colocar uma peça <b>Verde</b> num quadrado vazio.</li>
-                    <li><b>2.</b> Podes substituir uma peça Verde por uma <b>Amarela</b>.</li>
-                    <li><b>3.</b> Podes substituir uma peça Amarela por uma <b>Vermelha</b>.</li>
-                    <li>As peças vermelhas não podem ser alteradas.</li>
+                    <li><b>1.</b> Seleciona uma cor nas pilhas de peças (Verde, Amarela ou Vermelha).</li>
+                    <li><b>2.</b> Podes colocar uma peça <b>Verde</b> num quadrado vazio.</li>
+                    <li><b>3.</b> Podes substituir uma peça Verde por uma <b>Amarela</b>.</li>
+                    <li><b>4.</b> Podes substituir uma peça Amarela por uma <b>Vermelha</b>. As peças vermelhas já não podem ser alteradas.</li>
                 </ul>
             </div>`;
         document.body.appendChild(panel);
@@ -273,6 +289,7 @@ function toggleInstructions() {
 function setModo(modo, nivel) {
     if (somClique.src) somClique.play().catch(()=>{});
     modoJogo = modo; nivelJogo = nivel;
+    mostrarDicas = (nivel === 1);
     matchScore = [0, 0]; currentGameNum = 1; turnoAtual = 0; 
     iniciarJogo();
 }
@@ -280,6 +297,8 @@ function setModo(modo, nivel) {
 function iniciarJogo() {
     jogoAtivo = true;
     tabuleiro = Array(3).fill().map(() => Array(4).fill(0));
+    pecasDisponiveis = { 1: 8, 2: 8, 3: 8 };
+    corSelecionada = null;
     document.getElementById('round-feedback').style.display = 'none';
     document.getElementById('barra-inferior').style.display = 'flex';
     atualizarUI();
@@ -309,55 +328,121 @@ function atualizarUI() {
     renderTabuleiro();
 }
 
+function selecionarPilha(cor) {
+    if (!jogoAtivo || (modoJogo === 'CPU' && turnoAtual === 1)) return;
+    if (pecasDisponiveis[cor] <= 0) return;
+    corSelecionada = cor;
+    somClique.play();
+    renderTabuleiro();
+}
+
 function renderTabuleiro() {
     const area = document.getElementById('contentor-jogo');
-    let html = `<div class="grid-board">`;
+    
+    // HTML das pilhas de peças fora do tabuleiro
+    let pilhasHtml = `<div class="game-area-layout">
+        <div class="pilhas-container">
+            <div class="pilha-item ${corSelecionada === 1 ? 'selected' : ''}" onclick="selecionarPilha(1)">
+                <div class="pilha-peca-visual green">${pecasDisponiveis[1]}</div>
+                <span class="pilha-label">Verde</span>
+            </div>
+            <div class="pilha-item ${corSelecionada === 2 ? 'selected' : ''}" onclick="selecionarPilha(2)">
+                <div class="pilha-peca-visual yellow">${pecasDisponiveis[2]}</div>
+                <span class="pilha-label">Amarela</span>
+            </div>
+            <div class="pilha-item ${corSelecionada === 3 ? 'selected' : ''}" onclick="selecionarPilha(3)">
+                <div class="pilha-peca-visual red">${pecasDisponiveis[3]}</div>
+                <span class="pilha-label">Vermelha</span>
+            </div>
+        </div>
+        <div class="grid-board">`;
+
     for (let r = 0; r < 3; r++) {
         for (let c = 0; c < 4; c++) {
             let cl = "cell";
-            html += `<div class="${cl}" onclick="jogar(${r},${c})">`;
-            if (tabuleiro[r][c] === 1) html += `<div class="piece green"></div>`;
-            if (tabuleiro[r][c] === 2) html += `<div class="piece yellow"></div>`;
-            if (tabuleiro[r][c] === 3) html += `<div class="piece red"></div>`;
-            html += `</div>`;
+            let val = tabuleiro[r][c];
+            
+            // Dicas visuais no Nível 1 se houver uma cor selecionada
+            let isHint = false;
+            if (mostrarDicas && corSelecionada !== null && val < 3 && val + 1 === corSelecionada) {
+                isHint = true;
+            }
+
+            if (isHint) cl += " hint-move";
+
+            pilhasHtml += `<div class="${cl}" onclick="jogar(${r},${c})">`;
+            if (val === 1) pilhasHtml += `<div class="piece green"></div>`;
+            if (val === 2) pilhasHtml += `<div class="piece yellow"></div>`;
+            if (val === 3) pilhasHtml += `<div class="piece red"></div>`;
+            pilhasHtml += `</div>`;
         }
     }
-    area.innerHTML = html + `</div>`;
+    pilhasHtml += `</div></div>`;
+    area.innerHTML = pilhasHtml;
 }
 
 function jogar(r, c) {
-    if (!jogoAtivo || tabuleiro[r][c] >= 3) return;
+    if (!jogoAtivo || (modoJogo === 'CPU' && turnoAtual === 1)) return;
+    if (corSelecionada === null) return;
+
+    let atual = tabuleiro[r][c];
+    // Regra do semáforo: 0 -> 1 (Verde), 1 -> 2 (Amarelo), 2 -> 3 (Vermelho)
+    if (atual + 1 !== corSelecionada || atual >= 3 || pecasDisponiveis[corSelecionada] <= 0) {
+        somErro.play();
+        return;
+    }
+
     tabuleiro[r][c]++;
-    if (somClique.src) somClique.play().catch(()=>{});
+    pecasDisponiveis[corSelecionada]--;
+    corSelecionada = null;
+    somClique.play();
 
     if (verificarVitoria(tabuleiro)) {
         finalizarRonda(turnoAtual);
         return;
     }
+
     turnoAtual = (turnoAtual === 0) ? 1 : 0;
-    if (modoJogo === 'CPU' && turnoAtual === 1) { atualizarUI(); setTimeout(iaControlador, 600); }
-    else { atualizarUI(); }
+    if (modoJogo === 'CPU' && turnoAtual === 1) { 
+        atualizarUI(); 
+        setTimeout(iaControlador, 700); 
+    } else { 
+        atualizarUI(); 
+    }
 }
 
 function iaControlador() {
     let moves = [];
-    for(let r=0; r<3; r++) for(let c=0; c<4; c++) if(tabuleiro[r][c] < 3) moves.push({r, c});
+    for(let r=0; r<3; r++) for(let c=0; c<4; c++) {
+        let atual = tabuleiro[r][c];
+        if (atual < 3) {
+            let corDesejada = atual + 1;
+            if (pecasDisponiveis[corDesejada] > 0) {
+                moves.push({r, c, cor: corDesejada});
+            }
+        }
+    }
     if (moves.length === 0) return;
+
     let move;
     if (nivelJogo >= 2) {
+        // Tenta encontrar jogada de vitória imediata para a IA
         for (let m of moves) {
             let tempTab = tabuleiro.map(row => [...row]);
             tempTab[m.r][m.c]++;
             if (verificarVitoria(tempTab)) { move = m; break; }
         }
     }
+
     if (!move && nivelJogo === 3) {
+        // Evita dar vitória direta ao jogador humano no próximo turno se possível
         moves = moves.filter(m => {
             let tempTab = tabuleiro.map(row => [...row]);
             tempTab[m.r][m.c]++;
             let winHumano = false;
             for(let r=0; r<3; r++) for(let c=0; c<4; c++) {
-                if(tempTab[r][c] < 3) {
+                let a = tempTab[r][c];
+                if(a < 3 && pecasDisponiveis[a+1] > 0) {
                     let hTab = tempTab.map(row => [...row]);
                     hTab[r][c]++;
                     if(verificarVitoria(hTab)) winHumano = true;
@@ -365,12 +450,25 @@ function iaControlador() {
             }
             return !winHumano;
         });
-        if (moves.length === 0) for(let r=0; r<3; r++) for(let c=0; c<4; c++) if(tabuleiro[r][c] < 3) moves.push({r, c});
+        if (moves.length === 0) {
+            for(let r=0; r<3; r++) for(let c=0; c<4; c++) {
+                let atual = tabuleiro[r][c];
+                if (atual < 3 && pecasDisponiveis[atual+1] > 0) moves.push({r, c, cor: atual + 1});
+            }
+        }
     }
+
     if (!move) move = moves[Math.floor(Math.random() * moves.length)];
+    
     tabuleiro[move.r][move.c]++;
-    if (verificarVitoria(tabuleiro)) { finalizarRonda(1); } 
-    else { turnoAtual = 0; atualizarUI(); }
+    pecasDisponiveis[move.cor]--;
+
+    if (verificarVitoria(tabuleiro)) { 
+        finalizarRonda(1); 
+    } else { 
+        turnoAtual = 0; 
+        atualizarUI(); 
+    }
 }
 
 function verificarVitoria(tab) {
@@ -383,13 +481,14 @@ function verificarVitoria(tab) {
     return false;
 }
 
+
 // ============================================================
 // 5. FINALIZAÇÃO (MELHOR DE 3 -> 2 VITÓRIAS)
 // ============================================================
 function finalizarRonda(vencedorIdx) {
     jogoAtivo = false;
     matchScore[vencedorIdx]++;
-    if (somAcerto.src) somAcerto.play().catch(()=>{});
+    somAcerto.play();
     
     const overlay = document.getElementById('round-feedback');
     const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
@@ -398,35 +497,41 @@ function finalizarRonda(vencedorIdx) {
 
     overlay.style.display = 'flex';
     overlay.innerHTML = `<div class="vitoria-card">
-        <img src="${iconeFeedback}" style="width:90px; height:90px; object-fit:contain; margin-bottom:10px;">
-        <h1 style="color:${corVencedor}; font-size:2.2rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeVencedor}</h1>
-        <p style="color:#666; font-size:1.1rem; font-weight:700; margin:5px 0 0 0;">Venceu esta ronda!</p>
-        <div style="margin-top:15px; padding-top:15px; border-top:2px dashed #eee; color:#aaa; font-weight:800;">PLACAR: J1 ${matchScore[0]} - ${matchScore[1]}</div>
+        <img src="${iconeFeedback}" style="height:140px; width:100%; object-fit:contain; margin-bottom:15px;">
+        <h1 style="color:${corVencedor}; font-size:2.1rem; font-weight:900; margin:0; text-transform:uppercase;">${nomeVencedor}</h1>
+        <p style="color:#666; font-size:1.1rem; font-weight:700; margin:6px 0 0 0;">Venceu esta ronda!</p>
+        <div style="margin-top:18px; padding-top:15px; border-top:2px dashed #eee; color:#888; font-weight:800; font-size: 1.05rem;">PLACAR: J1 ${matchScore[0]} - ${matchScore[1]}</div>
     </div>`;
     
-    if (matchScore[0] >= 2 || matchScore[1] >= 2) setTimeout(finalizarMatch, 2000);
-    else setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2000);
+    if (matchScore[0] >= 2 || matchScore[1] >= 2) setTimeout(finalizarMatch, 2500);
+    else setTimeout(() => { currentGameNum++; turnoAtual = 0; iniciarJogo(); }, 2500);
 }
 
 function finalizarMatch() {
-    document.getElementById('round-feedback').style.display = 'none';
+    const overlay = document.getElementById('round-feedback');
     const vencedorIdx = (matchScore[0] >= 2) ? 0 : 1;
     const nomeVencedor = vencedorIdx === 0 ? "JOGADOR 1" : (modoJogo === 'CPU' ? "PC" : "JOGADOR 2");
     const labelSegundaBox = modoJogo === 'CPU' ? "PC" : "J2";
+    const iconeFeedback = vencedorIdx === 0 ? DADOS.icons.feedbacks.feedback1 : DADOS.icons.feedbacks.feedback4;
     
-    document.getElementById('contentor-jogo').innerHTML = `
-        <div style="text-align:center; display:flex; flex-direction:column; align-items:center; gap:16px;">
-            <h2 style="color:${DADOS.cores.azulHeader}; font-weight:900; text-transform:uppercase; margin:0; font-size:1.6rem;">GANHOU O ${nomeVencedor}</h2>
-            <div style="display:flex; justify-content:center; gap:12px;">
-                <div class="score-box box-v" style="padding:10px 20px; font-size:1.1rem;">J1: ${matchScore[0]}</div>
-                <div class="score-box box-x" style="padding:10px 20px; font-size:1.1rem;">${labelSegundaBox}: ${matchScore[1]}</div>
-            </div>
-            <div style="display:flex; justify-content:center; gap:14px; margin-top:10px; width:100%; max-width:420px;">
-                <button class="btn-final-roxo" style="flex:1;" onclick="location.reload()">Jogar de novo</button>
-                <button class="btn-final-branco" style="flex:1;" onclick="window.history.back()">Outro jogo</button>
-            </div>
-        </div>`;
-    document.getElementById('barra-inferior').style.display = "none";
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.innerHTML = `
+            <div class="vitoria-card">
+                <img src="${iconeFeedback}" style="height:150px; margin-bottom:12px; object-fit:contain;">
+                <h1 style="color:${DADOS.cores.azulHeader}; font-size:1.5rem; font-weight:900; text-transform:uppercase; margin-bottom:15px;">GANHOU O ${nomeVencedor}</h1>
+                <div style="display:flex; justify-content:center; gap:20px; margin-bottom: 20px;">
+                    <div class="score-box box-v" style="padding:10px 20px; font-size:1.15rem;">J1: ${matchScore[0]}</div>
+                    <div class="score-box box-x" style="padding:10px 20px; font-size:1.15rem;">${labelSegundaBox}: ${matchScore[1]}</div>
+                </div>
+                <div class="btn-feedback-container">
+                    <button class="btn-feedback-solid" onclick="location.reload(); somClique.play();">Jogar de novo</button>
+                    <button class="btn-feedback-outline" onclick="window.location.href='../../'; somClique.play();">Outro jogo</button>
+                </div>
+            </div>`;
+    }
+    const barra = document.getElementById('barra-inferior');
+    if (barra) barra.style.display = "none";
 }
 
 function iniciarSimulacao() {
