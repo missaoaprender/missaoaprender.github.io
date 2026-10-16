@@ -13,7 +13,7 @@ const DADOS = {
   },
 
   icons: {
-    cabecalho: "../../icons/rastros.png",
+    cabecalho: "../../icons/jd.png",
     menu: "../../icons/menu.png",
     seta: "../../icons/seta.png",
     som: "../../icons/som.png",
@@ -36,8 +36,8 @@ const DADOS = {
   },
 
   sons: {
-    certo: "",
-    errado: ""
+    certo: "sons/certo.mp3",
+    errado: "sons/errado.mp3"
   },
 
   cores: {
