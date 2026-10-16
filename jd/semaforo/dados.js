@@ -36,8 +36,8 @@ const DADOS = {
   },
 
   sons: {
-    certo: "sons/certo.mp3",
-    errado: "sons/errado.mp3"
+    certo: "../../sons/certo.mp3",
+    errado: "../../sons/errado.mp3"
   },
 
   cores: {
