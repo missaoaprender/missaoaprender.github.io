@@ -22,6 +22,7 @@ const DADOS = {
   },
 
   icons: {
+    cmd: "icons/cmd.png",
     anos: {
       pre: "icons/iconpre.png",
       ano1: "icons/icon1.png",
