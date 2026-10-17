@@ -1,7 +1,7 @@
 const DADOS = {
 
   pagina: {
-    titulo: "Recursos Covão",
+    titulo: "Missão Aprender",
     subtitulo: "Jogar para aprender!",
     tituloMenu: "Escolhe o ano",
     mensagem: "Escolhe o ano e comece a aprender!",
