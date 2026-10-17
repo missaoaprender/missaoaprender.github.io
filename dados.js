@@ -2,7 +2,7 @@ const DADOS = {
 
   pagina: {
     titulo: "Recursos Covão",
-    subtitulo: "Aprender • Explorar • Descobrir",
+    subtitulo: "Jogar para aprender!",
     tituloMenu: "Escolhe o ano",
     mensagem: "Escolhe o ano e comece a aprender!",
     informacao: "Recursos educativos para o 1.º ciclo"
