@@ -122,28 +122,23 @@
     .marca{
       display:flex;
       align-items:center;
-      gap:10px;
+      gap:12px;
     }
 
-    .marca-sol{
+    .marca-icone{
       width:62px;
       height:62px;
-      position:relative;
+      display:grid;
+      place-items:center;
       flex:0 0 62px;
     }
 
-    .marca-sol::before{
-      content:"☀";
-      position:absolute;
-      inset:0;
-      display:grid;
-      place-items:center;
-      color:#FFBA16;
-      font-size:65px;
-      line-height:1;
-      filter:
-        drop-shadow(0 2px 0 rgba(255,255,255,.8))
-        drop-shadow(0 3px 2px rgba(100,80,0,.13));
+    .marca-icone img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+      filter:drop-shadow(0 3px 3px rgba(0,0,0,.14));
     }
 
     .marca-texto h1{
@@ -426,8 +421,7 @@
     /* RESPONSIVIDADE */
     @media (max-width:1100px) and (min-width:601px) and (orientation:landscape){
       .cabecalho{ height:64px; }
-      .marca-sol{ width:49px; height:49px; flex-basis:49px; }
-      .marca-sol::before{ font-size:52px; }
+      .marca-icone{ width:49px; height:49px; flex-basis:49px; }
       .marca-texto h1{ font-size:28px; }
       .marca-texto p{ font-size:12px; margin-top:4px; }
       .titulo-menu{ margin-bottom:12px; padding:7px 24px; }
@@ -450,8 +444,7 @@
     @media (max-width:600px) and (min-height:360px) and (orientation:landscape){
       .cabecalho{ height:50px; }
       .marca{ gap:6px; }
-      .marca-sol{ width:39px; height:39px; flex-basis:39px; }
-      .marca-sol::before{ font-size:42px; }
+      .marca-icone{ width:39px; height:39px; flex-basis:39px; }
       .marca-texto h1{ font-size:24px; }
       .marca-texto p{ margin-top:2px; font-size:8px; }
       .titulo-menu{ margin-bottom:8px; padding:5px 18px; border-radius:10px; }
@@ -478,8 +471,7 @@
 
     @media (max-width:900px) and (orientation:portrait){
       .cabecalho{ height:66px; }
-      .marca-sol{ width:48px; height:48px; flex-basis:48px; }
-      .marca-sol::before{ font-size:51px; }
+      .marca-icone{ width:48px; height:48px; flex-basis:48px; }
       .marca-texto h1{ font-size:25px; }
       .marca-texto p{ font-size:10px; }
       .titulo-menu{ margin-bottom:12px; padding:7px 21px; }
@@ -503,8 +495,7 @@
 
     @media (max-width:600px) and (orientation:portrait){
       .cabecalho{ height:59px; }
-      .marca-sol{ width:43px; height:43px; flex-basis:43px; }
-      .marca-sol::before{ font-size:46px; }
+      .marca-icone{ width:43px; height:43px; flex-basis:43px; }
       .marca-texto h1{ font-size:22px; }
       .marca-texto p{ font-size:9px; }
       .titulo-menu{ padding:6px 18px; border-radius:11px; }
@@ -535,7 +526,9 @@
   <!-- CABEÇALHO FORA DO APP A OCUPAR 100% DA LARGURA -->
   <header class="cabecalho">
     <div class="marca">
-      <div class="marca-sol" aria-hidden="true"></div>
+      <div class="marca-icone" aria-hidden="true">
+        <img data-marca-icone alt="" draggable="false">
+      </div>
       <div class="marca-texto">
         <h1 data-marca></h1>
         <p data-submarca></p>
@@ -664,6 +657,7 @@
     }
 
     function preencherTextos(){
+      document.querySelector("[data-marca-icone]").src = DADOS.icons.cmd;
       document.querySelector("[data-marca]").textContent = DADOS.pagina.titulo;
       document.querySelector("[data-submarca]").textContent = DADOS.pagina.subtitulo;
       document.querySelector("[data-titulo-menu]").textContent = DADOS.pagina.tituloMenu;
