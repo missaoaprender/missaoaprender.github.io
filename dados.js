@@ -4,8 +4,8 @@ const DADOS = {
     titulo: "Missão Aprender",
     subtitulo: "Jogar para aprender!",
     tituloMenu: "Escolhe o ano",
-    mensagem: "Escolhe o ano e comece a aprender!",
-    informacao: "Recursos educativos para o 1.º ciclo"
+    mensagem: "Desenvolvido por Professor Luís",
+    informacao: "Jogos educativos - 1.º ciclo"
   },
 
   nuvem: "icons/nuvem.png",
