@@ -251,15 +251,15 @@ button { font-family: inherit; }
 
 .icone-ano {
   width: 100%;
-  height: 55%;
+  height: 65%; /* Imagem maior no PC/Desktop mantendo o texto bem separado */
   display: flex; align-items: center; justify-content: center; position: relative; z-index: 1;
-  margin-top: 5px;
+  margin-top: 2px;
 }
 .icone-ano img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 5px 3px rgba(0,0,0,.16)); }
 
-.texto-ano { position: relative; z-index: 1; text-align: center; width: 100%; margin-bottom: 5px; }
-.nome-ano { font-size: clamp(19px, 1.8vw, 29px); font-weight: 800; text-shadow: 0 2px 1px rgba(0,0,0,.17); line-height: 1.2; }
-.idade-ano { margin-top: 4px; font-size: clamp(13px, 1.2vw, 18px); font-weight: 700; text-shadow: 0 1px 1px rgba(0,0,0,.12); }
+.texto-ano { position: relative; z-index: 1; text-align: center; width: 100%; margin-bottom: 4px; }
+.nome-ano { font-size: clamp(20px, 1.8vw, 29px); font-weight: 800; text-shadow: 0 2px 1px rgba(0,0,0,.17); line-height: 1.1; }
+.idade-ano { margin-top: 3px; font-size: clamp(13px, 1.2vw, 17px); font-weight: 700; text-shadow: 0 1px 1px rgba(0,0,0,.12); }
 
 .destaques {
   margin: 20px; padding: 23px 28px 25px; border-radius: ${DADOS.dimensoes.raioDestaques}px;
