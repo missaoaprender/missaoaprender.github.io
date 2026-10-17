@@ -10,7 +10,7 @@
 </head>
 <body>
 
-  <!-- CABEÇALHO A OCUPAR A LARGURA TOTAL DO ECRÃ -->
+  <!-- CABEÇALHO FIXO NO TOPO A OCUPAR A LARGURA TOTAL DO ECRÃ -->
   <header class="cabecalho">
     <button class="botao-menu" aria-label="Menu Principal" aria-expanded="false" aria-controls="menu-acordeao"></button>
     
@@ -114,18 +114,19 @@
       min-height: 100vh;
       width: min(100%, ${DADOS.dimensoes.larguraMaxima}px);
       margin: 0 auto;
-      padding: 0 0 16px;
+      padding: 98px 0 16px; /* Espaçamento superior ajustado para não ficar por baixo do cabeçalho fixo */
       position: relative;
       overflow: hidden;
       background: transparent;
     }
 
+    /* CABEÇALHO FIXO NO TOPO */
     .cabecalho {
-      position: relative; width: 100%; height: 82px;
+      position: fixed; top: 0; left: 0; width: 100%; height: 82px;
       background: linear-gradient(180deg, ${DADOS.cores.headerTopo} 0%, ${DADOS.cores.header} 100%);
       display: flex; align-items: center; justify-content: center;
       border-bottom: 2px solid rgba(255,255,255,.65);
-      box-shadow: 0 3px 10px rgba(15,139,211,.12); z-index: 20;
+      box-shadow: 0 3px 10px rgba(15,139,211,.12); z-index: 1000;
     }
 
     .botao-menu, .botao-seta {
@@ -159,20 +160,19 @@
     .marca-texto p { margin: 3px 0 0; font-size: clamp(12px, 1.1vw, 16px); line-height: 1.1; font-weight: 800; color: ${DADOS.cores.texto}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .menu-acordeao {
-      position: absolute; top: 72px; left: 18px; width: 300px; padding: 0;
+      position: absolute; top: 74px; left: 18px; width: 300px; padding: 0;
       background: rgba(255,255,255,.98); border: 2px solid ${DADOS.cores.linha};
       border-top: 4px solid ${DADOS.cores.azulHeader}; border-radius: 0 0 20px 20px;
       box-shadow: 0 10px 25px rgba(15,139,211,.24);
       opacity: 0; visibility: hidden; transform: translateY(-12px) scale(.98);
       transform-origin: top left; transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
-      z-index: 30;
+      z-index: 1001;
     }
     .menu-acordeao.aberto { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
     .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #E6F4FA, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
     .menu-acordeao-titulo { font-size: 19px; font-weight: 900; color: ${DADOS.cores.textoEscuro}; }
     .menu-acordeao-subtitulo { margin-top: 3px; font-size: 12px; font-weight: 700; color: #0F8BD3; }
     
-    /* MENU ANOS PADRÃO (COM SCROLL NORMAL PARA PC/TABLET/VERTICAL) */
     .menu-anos { display: flex; flex-direction: column; padding: 8px; gap: 5px; max-height: 60vh; overflow-y: auto; }
     .menu-ano {
       width: 100%; min-height: 54px; display: flex; align-items: center; gap: 13px; padding: 6px 11px;
@@ -184,7 +184,7 @@
     .menu-ano-icon img { width: 100%; height: 100%; object-fit: contain; }
     .menu-ano-nome { flex: 1; }
 
-    .area-menu { position: relative; width: 100%; margin-top: 20px; padding: 0 20px; }
+    .area-menu { position: relative; width: 100%; margin-top: 10px; padding: 0 20px; }
     .titulo-menu {
       width: fit-content; margin: 1px auto 19px; padding: 8px 30px;
       border: 2px solid ${DADOS.cores.linha}; border-radius: 16px;
@@ -193,7 +193,6 @@
     }
     .titulo-menu h2 { margin: 0; font-size: clamp(18px, 1.7vw, 27px); font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-align: center; }
 
-    /* ESTILOS DAS FASES E CARTÕES */
     .secao-fase { margin-bottom: 25px; }
     .titulo-fase {
       font-size: clamp(16px, 1.5vw, 22px);
@@ -203,7 +202,6 @@
       text-shadow: 0 1px 1px rgba(255,255,255,.8);
     }
 
-    /* PC: 6 colunas por defeito */
     .anos { 
       width: 100%; 
       display: grid; 
@@ -217,7 +215,6 @@
       min-width: 0;
     }
 
-    /* 1. PC (Padrão) */
     .botao-ano {
       position: relative; width: 100%; height: ${DADOS.dimensoes.pc.alturaCartao}px;
       padding: 10px 10px 8px; border: 3px solid rgba(255,255,255,.94);
@@ -284,9 +281,9 @@
       .marca-texto h1 { font-size: 20px; }
       .marca-texto p { font-size: 10px; }
       .menu-acordeao { top: 62px; left: 12px; width: calc(100vw - 24px); max-width: 280px; }
+      #app { padding-top: 86px; }
     }
 
-    /* 2. TELEMÓVEL VERTICAL (2 colunas) */
     @media (max-width: 576px) and (orientation: portrait) {
       .anos { grid-template-columns: repeat(2, 1fr); gap: 14px; width: 100%; }
       .botao-ano { 
@@ -298,7 +295,6 @@
       .idade-ano { display: none; }
     }
 
-    /* 3. TELEMÓVEL HORIZONTAL (4 colunas - Altura real reduzida + Menu sem scroll apenas aqui) */
     @media (max-height: 550px) and (max-width: 900px) {
       .anos { grid-template-columns: repeat(4, 1fr); gap: 8px; }
       .botao-ano {
@@ -316,7 +312,6 @@
       .nome-ano { font-size: 10px !important; line-height: 1 !important; }
       .idade-ano { display: none; }
 
-      /* Ajustes específicos do menu acordeão só para telemóvel horizontal */
       .menu-acordeao { width: 280px; top: 54px; }
       .menu-acordeao-topo { padding: 6px 12px 4px; }
       .menu-acordeao-titulo { font-size: 15px; }
@@ -325,7 +320,6 @@
       .menu-ano-icon { width: 28px; height: 28px; flex: 0 0 28px; border-radius: 6px; }
     }
 
-    /* 4. TABLET VERTICAL (3 colunas) */
     @media (min-width: 577px) and (max-width: 1024px) and (orientation: portrait) {
       .anos { grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; }
       .botao-ano { 
@@ -337,7 +331,6 @@
       .idade-ano { display: none; }
     }
 
-    /* 5. TABLET HORIZONTAL (5 colunas) */
     @media (min-width: 768px) and (max-width: 1200px) and (orientation: landscape) {
       .anos { grid-template-columns: repeat(5, 1fr); gap: 12px; }
       .botao-ano {
@@ -361,6 +354,7 @@
       
       .area-menu { padding: 0 16px; }
       .rodape { width: calc(100% - 32px); margin: 10px 16px 0; padding: 8px 12px; font-size: 11px; }
+      #app { padding-top: 76px; }
       
       .info {
         width: 22px !important; height: 22px !important;
