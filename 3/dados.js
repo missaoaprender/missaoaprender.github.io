@@ -2,10 +2,10 @@ const DADOS = {
   pagina: {
     browserTitulo: "3.º Ano - Recursos Educativos",
     titulo: "3.º Ano",
-    subtitulo: "Aprender • Explorar • Descobrir",
+    subtitulo: "Jogar para saber!",
     tituloMenu: "Escolhe a área",
-    mensagem: "Escolhe a área e comece a aprender!",
-    informacao: "Recursos educativos para o 3.º ano",
+    mensagem: "Começa a aprender!",
+    informacao: "Jogos para o 3.º ano",
     tituloMenuAcordeao: "Menu",
     urlVoltar: "../",
     iconeEstrela: "★",
