@@ -1,11 +1,11 @@
 const DADOS = {
   pagina: {
-    browserTitulo: "Jogos Matemáticos",
-    titulo: "Jogos Matemáticos",
+    browserTitulo: "Pré-Escolar",
+    titulo: "Pré-Escolar",
     subtitulo: "Pré-Escolar • Atividade Criativa",
     tituloMenu: "Estojo Mágico",
-    mensagem: "Diverte-te a criar!",
-    informacao: "Jogos CRJM",
+    mensagem: "Diverte-te a aprender!",
+    informacao: "Jogos Pré",
     tituloMenuAcordeao: "Menu",
     urlVoltar: "../../", 
     iconeEstrela: "★",
@@ -13,7 +13,7 @@ const DADOS = {
   },
 
   icons: {
-    cabecalho: "../../icons/dominorio.png",
+    cabecalho: "../../icons/iconpre.png",
     menu: "../../icons/menu.png",
     seta: "../../icons/seta.png",
     som: "../../icons/som.png",
