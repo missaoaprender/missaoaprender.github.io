@@ -2,7 +2,7 @@ const DADOS = {
   pagina: {
     browserTitulo: "1.º Ano - Jogos Educativos",
     titulo: "Português",
-    subtitulo: "Atividades • 1º Ano",
+    subtitulo: "",
     tituloMenu: "Grafismos - linhas retas",
     mensagem: "Escolhe um jogo e diverte-te a aprender!",
     informacao: "Jogos educativos para o 1.º ano",
