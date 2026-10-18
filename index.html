@@ -41,18 +41,20 @@
     }
 
     html{
-      min-height:100%;
-      background:var(--fundo);
+      width: 100%;
+      min-height: 100vh;
+      background: var(--fundo);
     }
 
     body{
       margin:0;
+      width: 100%;
       min-height:100vh;
       overflow-x:hidden;
       font-family:"Nunito","Quicksand","Arial Rounded MT Bold",
                   "Trebuchet MS",Arial,sans-serif;
       color:var(--texto);
-      background:var(--fundo);
+      background: var(--fundo);
     }
 
     button{
@@ -695,7 +697,6 @@
       document.querySelector("[data-marca-icone]").src = DADOS.icons.cmd;
       const marcaTitulo = document.querySelector("[data-marca]");
       const tituloMarca = DADOS.pagina.titulo || "Missão Aprender";
-      // Mantém as duas palavras editáveis e permite aplicar a cada uma o seu efeito visual.
       if (tituloMarca.trim().toLocaleLowerCase("pt-PT") === "missão aprender") {
         marcaTitulo.innerHTML = '<span class="palavra-missao">Missão</span><span class="palavra-aprender">Aprender</span>';
       } else {
