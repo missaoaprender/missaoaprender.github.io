@@ -19,10 +19,10 @@ const DADOS = {
     som: "../../../icons/som.png",
     lampada: "../../../icons/lampada.png",
     feedbacks: {
-      feedback1: "../../../icons/feedback_1.png", // 9 a 10 estrelas
-      feedback2: "../../../icons/feedback_2.png", // 7 a 8 estrelas
-      feedback3: "../../../icons/feedback_3.png", // 5 a 6 estrelas
-      feedback4: "../../../icons/feedback_4.png"  // Até 4 estrelas
+      feedback1: "../../../icons/feedback_1.png",
+      feedback2: "../../../icons/feedback_2.png",
+      feedback3: "../../../icons/feedback_3.png",
+      feedback4: "../../../icons/feedback_4.png"
     },
     menuAnos: {
       inicio: "../../../icons/inicio.png",
