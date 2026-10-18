@@ -127,7 +127,7 @@
       background: linear-gradient(180deg, ${DADOS.cores.headerTopo} 0%, ${DADOS.cores.header} 100%);
       display: flex; align-items: center; justify-content: center;
       border-bottom: 2px solid rgba(255,255,255,.65);
-      box-shadow: 0 3px 10px rgba(15,139,211,.12); z-index: 1000;
+      box-shadow: 0 3px 10px rgba(234,162,0,.15); z-index: 1000;
     }
 
     .botao-menu, .botao-seta {
@@ -158,7 +158,7 @@
     .marca-sol { width: 64px; height: 64px; flex: 0 0 64px; background-image: url("${DADOS.icons.cabecalho}"); background-size: contain; background-repeat: no-repeat; background-position: center; }
     .marca-texto { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
     
-    /* Estilo original e personalizado do título principal */
+    /* Estilo com base na cor #EAA200: 1ª palavra branca com sombra #EAA200 e 2ª palavra com degradê baseado em #EAA200 */
     .marca-texto h1 {
       margin: 0;
       display: flex;
@@ -172,26 +172,26 @@
       letter-spacing: -1.2px;
       transform: rotate(-1deg);
       transform-origin: center bottom;
-      filter: drop-shadow(0 4px 0 #0754AD) drop-shadow(0 6px 2px rgba(0,65,145,.25));
+      filter: drop-shadow(0 4px 0 #B37D00) drop-shadow(0 6px 2px rgba(234,162,0,.35));
     }
-    .marca-texto h1 .palavra-missao,
-    .marca-texto h1 .palavra-aprender {
+    .marca-texto h1 .palavra-pre,
+    .marca-texto h1 .palavra-escolar {
       display: inline-block;
       paint-order: stroke fill;
-      -webkit-text-stroke: 1.35px #1268C8;
+      -webkit-text-stroke: 1.35px #B37D00;
       text-shadow: 0 2px 0 rgba(255,255,255,.45);
     }
-    .marca-texto h1 .palavra-missao {
-      color: #fff;
-      background: linear-gradient(180deg,#FFFFFF 5%,#FFFFFF 48%,#DCEFFF 100%);
+    .marca-texto h1 .palavra-pre {
+      color: #FFFFFF;
+      background: linear-gradient(180deg, #FFFFFF 5%, #FFFFFF 48%, #FFF5D1 100%);
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       transform: rotate(-1deg) translateY(1px);
     }
-    .marca-texto h1 .palavra-aprender {
-      color: #8DEBFF;
-      background: linear-gradient(180deg,#C5F8FF 0%,#75E4FF 48%,#28BDF3 100%);
+    .marca-texto h1 .palavra-escolar {
+      color: #FFD466;
+      background: linear-gradient(180deg, #FFE899 0%, #EAA200 48%, #B37D00 100%);
       background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -204,15 +204,15 @@
       position: absolute; top: 74px; left: 18px; width: 300px; padding: 0;
       background: rgba(255,255,255,.98); border: 2px solid ${DADOS.cores.linha};
       border-top: 4px solid ${DADOS.cores.azulHeader}; border-radius: 0 0 20px 20px;
-      box-shadow: 0 10px 25px rgba(15,139,211,.24);
+      box-shadow: 0 10px 25px rgba(234,162,0,.24);
       opacity: 0; visibility: hidden; transform: translateY(-12px) scale(.98);
       transform-origin: top left; transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
       z-index: 1001;
     }
     .menu-acordeao.aberto { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
-    .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #E6F4FA, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
+    .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #FFF9E6, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
     .menu-acordeao-titulo { font-size: 19px; font-weight: 900; color: ${DADOS.cores.textoEscuro}; }
-    .menu-acordeao-subtitulo { margin-top: 3px; font-size: 12px; font-weight: 700; color: #0F8BD3; }
+    .menu-acordeao-subtitulo { margin-top: 3px; font-size: 12px; font-weight: 700; color: #EAA200; }
     
     .menu-anos { display: flex; flex-direction: column; padding: 8px; gap: 5px; max-height: 60vh; overflow-y: auto; }
     .menu-ano {
@@ -220,8 +220,8 @@
       border: 0; border-radius: 13px; background: #FFFFFF; color: ${DADOS.cores.textoEscuro};
       font-size: 15px; font-weight: 800; text-align: left; cursor: pointer; transition: background .16s ease;
     }
-    .menu-ano:hover { background: #E6F4FA; transform: translateX(3px); }
-    .menu-ano-icon { width: 45px; height: 45px; flex: 0 0 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #F0F9FC; }
+    .menu-ano:hover { background: #FFF9E6; transform: translateX(3px); }
+    .menu-ano-icon { width: 45px; height: 45px; flex: 0 0 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #FFFDF0; }
     .menu-ano-icon img { width: 100%; height: 100%; object-fit: contain; }
     .menu-ano-nome { flex: 1; }
 
@@ -422,10 +422,10 @@
       const iconeEstrela = document.querySelector("[data-icone-estrela]");
       const iconeInfo = document.querySelector("[data-icone-info]");
 
-      const tituloMarca = DADOS.pagina.titulo || "Missão Aprender";
+      const tituloMarca = DADOS.pagina.titulo || "Pré-Escolar";
       if (marca) {
-        if (tituloMarca.trim().toLocaleLowerCase("pt-PT") === "missão aprender" || tituloMarca.trim().toLocaleLowerCase("pt") === "missão aprender") {
-          marca.innerHTML = '<span class="palavra-missao">Missão</span><span class="palavra-aprender">Aprender</span>';
+        if (tituloMarca.trim().toLowerCase().includes("pré")) {
+          marca.innerHTML = '<span class="palavra-pre">Pré -</span><span class="palavra-escolar">Escolar</span>';
         } else {
           marca.textContent = tituloMarca;
         }
