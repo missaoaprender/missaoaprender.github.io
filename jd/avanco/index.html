@@ -96,16 +96,16 @@
 
         #app {
           min-height: 100vh; width: min(100%, ${DADOS.dimensoes.larguraMaxima}px);
-          margin: 0 auto; padding: 0 0 16px; position: relative;
+          margin: 0 auto; padding: 98px 0 16px; position: relative;
           display: flex; flex-direction: column; justify-content: space-between; background: transparent;
         }
 
         .cabecalho {
-          position: relative; width: 100%; height: 82px;
+          position: fixed; top: 0; left: 0; width: 100%; height: 82px;
           background: linear-gradient(180deg, ${DADOS.cores.headerTopo} 0%, ${DADOS.cores.header} 100%);
           display: flex; align-items: center; justify-content: center;
           border-bottom: 2px solid rgba(255,255,255,.65);
-          box-shadow: 0 3px 10px rgba(102,102,153,.12); z-index: 20;
+          box-shadow: 0 3px 10px rgba(102,102,153,.15); z-index: 1000;
         }
 
         .botao-menu, .botao-seta {
@@ -135,17 +135,68 @@
         .marca { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; max-width: 65%; padding: 0 50px; }
         .marca-sol { width: 64px; height: 64px; flex: 0 0 64px; background-image: url("${DADOS.icons.cabecalho}"); background-size: contain; background-repeat: no-repeat; background-position: center; }
         .marca-texto { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-        .marca-texto h1 { margin: 0; font-size: clamp(26px, 2.8vw, 42px); line-height: 1.1; font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-shadow: 0 2px 0 rgba(255,255,255,.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .marca-texto p { margin: 3px 0 0; font-size: clamp(12px, 1.1vw, 16px); line-height: 1.1; font-weight: 800; color: ${DADOS.cores.texto}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Estilo para títulos baseado na cor #666699 com a mesma formatação do index 21 */
+        .marca-texto h1 {
+          margin: 0;
+          display: flex;
+          align-items: baseline;
+          gap: .20em;
+          white-space: nowrap;
+          font-size: clamp(26px, 2.8vw, 42px);
+          line-height: 1.02;
+          font-family: "Nunito", "Trebuchet MS", sans-serif;
+          font-weight: 1000;
+          letter-spacing: -1.2px;
+          transform: rotate(-1deg);
+          transform-origin: center bottom;
+          filter: drop-shadow(0 4px 0 #33334D) drop-shadow(0 6px 2px rgba(102,102,153,.35));
+        }
+        .marca-texto h1 .palavra-1,
+        .marca-texto h1 .palavra-ano,
+        .marca-texto h1 .palavra-unica {
+          display: inline-block;
+          paint-order: stroke fill;
+          -webkit-text-stroke: 1.35px #33334D;
+          text-shadow: 0 2px 0 rgba(255,255,255,.45);
+        }
+        .marca-texto h1 .palavra-1,
+        .marca-texto h1 .palavra-unica {
+          color: #FFFFFF;
+          background: linear-gradient(180deg, #FFFFFF 5%, #FFFFFF 48%, #F3F3F8 100%);
+          background-clip: text;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          transform: rotate(-1deg) translateY(1px);
+        }
+        .marca-texto h1 .palavra-ano {
+          color: #9999CC;
+          background: linear-gradient(180deg, #B2B2D8 0%, #666699 48%, #33334D 100%);
+          background-clip: text;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          transform: rotate(.8deg) translateY(1px);
+        }
+
+        .marca-texto p { 
+          margin: 8px 0 0; 
+          font-size: clamp(13px, 1.2vw, 16px); 
+          line-height: 1.1; 
+          font-weight: 800; 
+          color: ${DADOS.cores.texto}; 
+          white-space: nowrap; 
+          overflow: hidden; 
+          text-overflow: ellipsis; 
+        }
 
         .menu-acordeao {
-          position: absolute; top: 72px; left: 18px; width: 300px; padding: 0;
+          position: absolute; top: 74px; left: 18px; width: 300px; padding: 0;
           background: rgba(255,255,255,.98); border: 2px solid ${DADOS.cores.linha};
           border-top: 4px solid ${DADOS.cores.azulHeader}; border-radius: 0 0 20px 20px;
           box-shadow: 0 10px 25px rgba(102,102,153,.24);
           opacity: 0; visibility: hidden; transform: translateY(-12px) scale(.98);
           transform-origin: top left; transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
-          z-index: 30;
+          z-index: 1001;
         }
         .menu-acordeao.aberto { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
         .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #ECECEF, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
@@ -211,6 +262,19 @@
           font-size: 12px; font-weight: 900; overflow: hidden; flex-shrink: 0;
         }
 
+        @media (max-width: 768px) {
+          .cabecalho { height: 70px; }
+          .botao-menu, .botao-seta { width: 48px; height: 48px; }
+          .botao-menu { left: 12px; }
+          .botao-seta { right: 12px; }
+          .marca { padding: 0 44px; gap: 8px; max-width: 72%; }
+          .marca-sol { width: 42px; height: 42px; flex: 0 0 42px; }
+          .marca-texto h1 { font-size: clamp(20px, 4.5vw, 26px); }
+          .marca-texto p { font-size: 11px; margin-top: 4px; }
+          .menu-acordeao { top: 62px; left: 12px; width: calc(100vw - 24px); max-width: 280px; }
+          #app { padding-top: 86px; }
+        }
+
         @media (max-width: 900px) {
           .cabecalho { height: 62px; }
           .botao-menu, .botao-seta { width: 42px; height: 42px; }
@@ -218,11 +282,12 @@
           .botao-seta { right: 10px; }
           .marca { padding: 0 38px; gap: 6px; max-width: 70%; }
           .marca-sol { width: 36px; height: 36px; flex: 0 0 36px; }
-          .marca-texto h1 { font-size: 16px; }
-          .marca-texto p { font-size: 9px; margin-top: 1px; }
+          .marca-texto h1 { font-size: clamp(18px, 4.5vw, 24px); }
+          .marca-texto p { font-size: 10px; margin-top: 3px; }
           .menu-acordeao { top: 54px; left: 10px; width: 280px; }
           .area-menu { padding: 0 16px; }
           .rodape { width: calc(100% - 32px); margin: 10px 16px 0; padding: 8px 12px; font-size: 11px; }
+          #app { padding-top: 76px; }
           .info { width: 22px !important; height: 22px !important; min-width: 22px !important; min-height: 22px !important; }
         }
       `;
@@ -240,7 +305,16 @@
       const iconeEstrela = document.querySelector("[data-icone-estrela]");
       const iconeInfo = document.querySelector("[data-icone-info]");
 
-      if (marca) marca.textContent = DADOS.pagina.titulo;
+      const tituloMarca = DADOS.pagina.titulo || "Jogos";
+      if (marca) {
+        const partes = tituloMarca.trim().split(" ");
+        if (partes.length > 1) {
+          marca.innerHTML = `<span class="palavra-1">${partes[0]}</span><span class="palavra-ano">${partes.slice(1).join(" ")}</span>`;
+        } else {
+          marca.innerHTML = `<span class="palavra-unica">${tituloMarca}</span>`;
+        }
+      }
+
       if (submarca) submarca.textContent = DADOS.pagina.subtitulo;
       if (titulo) titulo.textContent = DADOS.pagina.tituloMenu;
       if (mensagem) mensagem.textContent = DADOS.pagina.mensagem;
