@@ -97,6 +97,7 @@
       font-family: "Nunito", "Quicksand", "Arial Rounded MT Bold", sans-serif;
     }
 
+    /* O gradiente total passa a cobrir todo o ecrã de ponta a ponta sem margens */
     html {
       background: linear-gradient(180deg, ${DADOS.cores.ceu1} 0%, ${DADOS.cores.ceu2} 19%, #F2F8FC 38%, ${DADOS.cores.fundo} 100%);
       background-attachment: fixed;
@@ -112,9 +113,10 @@
 
     #app {
       min-height: 100vh;
-      width: min(100%, ${DADOS.dimensoes.larguraMaxima}px);
+      width: 100%;
+      max-width: ${DADOS.dimensoes.larguraMaxima}px;
       margin: 0 auto;
-      padding: 98px 0 16px; /* Espaçamento superior ajustado para não ficar por baixo do cabeçalho fixo */
+      padding: 98px 20px 16px; /* Espaçamento superior adaptado para o cabeçalho fixo */
       position: relative;
       overflow: hidden;
       background: transparent;
@@ -184,7 +186,7 @@
     .menu-ano-icon img { width: 100%; height: 100%; object-fit: contain; }
     .menu-ano-nome { flex: 1; }
 
-    .area-menu { position: relative; width: 100%; margin-top: 10px; padding: 0 20px; }
+    .area-menu { position: relative; width: 100%; margin-top: 10px; padding: 0; }
     .titulo-menu {
       width: fit-content; margin: 1px auto 19px; padding: 8px 30px;
       border: 2px solid ${DADOS.cores.linha}; border-radius: 16px;
@@ -256,7 +258,7 @@
     .idade-ano { margin-top: 2px; font-size: clamp(11px, 1vw, 14px); font-weight: 800; text-shadow: 0 1px 1px rgba(0,0,0,.12); opacity: 0.95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .rodape {
-      width: calc(100% - 40px); min-height: 53px; margin: 15px 20px 0; padding: 8px 17px;
+      width: 100%; min-height: 53px; margin: 15px 0 0; padding: 8px 17px;
       display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;
       border: 2px solid ${DADOS.cores.linha}; border-radius: 14px; background: rgba(255,255,255,.78);
       font-size: clamp(11px, 1vw, 14px); font-weight: 800;
@@ -352,9 +354,9 @@
       .marca-texto h1 { font-size: 16px; }
       .marca-texto p { font-size: 9px; margin-top: 1px; }
       
-      .area-menu { padding: 0 16px; }
-      .rodape { width: calc(100% - 32px); margin: 10px 16px 0; padding: 8px 12px; font-size: 11px; }
-      #app { padding-top: 76px; }
+      .area-menu { padding: 0; }
+      .rodape { width: 100%; margin: 10px 0 0; padding: 8px 12px; font-size: 11px; }
+      #app { padding-top: 76px; padding-left: 16px; padding-right: 16px; }
       
       .info {
         width: 22px !important; height: 22px !important;
