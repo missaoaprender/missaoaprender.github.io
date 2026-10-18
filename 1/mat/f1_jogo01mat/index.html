@@ -58,12 +58,11 @@
       </div>
     </main>
 
-    <!-- RODAPÉ CENTRADO -->
+    <!-- RODAPÉ -->
     <footer class="rodape">
       <div class="rodape-centro">
-        <span class="estrela" data-icone-estrela></span>
+        <img src="" alt="" class="icone-cmd" data-icone-cmd>
         <span data-informacao></span>
-        <div class="info" data-icone-info></div>
       </div>
     </footer>
   </div>
@@ -207,13 +206,7 @@
           font-size: clamp(11px, 1.1vw, 14px); font-weight: 800;
         }
         .rodape-centro { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
-        .estrela { color: #FFB400; font-size: 25px; }
-        .info { 
-          width: 25px; height: 25px; min-width: 25px; min-height: 25px;
-          display: inline-flex; align-items: center; justify-content: center; 
-          border-radius: 50% !important; color: #fff; background: ${DADOS.cores.azulHeader}; 
-          font-size: 12px; font-weight: 900; overflow: hidden; flex-shrink: 0;
-        }
+        .icone-cmd { width: 28px; height: 28px; object-fit: contain; }
 
         @media (max-width: 900px) {
           .cabecalho { height: 62px; }
@@ -228,10 +221,6 @@
           
           .area-menu { padding: 0 16px; }
           .rodape { width: calc(100% - 32px); margin: 10px 16px 0; padding: 8px 12px; font-size: 11px; }
-          .info {
-            width: 22px !important; height: 22px !important;
-            min-width: 22px !important; min-height: 22px !important;
-          }
         }
       `;
       document.head.appendChild(estilo);
@@ -245,16 +234,19 @@
       const mensagem = document.querySelector("[data-mensagem]");
       const informacoes = document.querySelectorAll("[data-informacao]");
       const tituloMenuAcordeao = document.querySelector("[data-titulo-menu-acordeao]");
-      const iconeEstrela = document.querySelector("[data-icone-estrela]");
-      const iconeInfo = document.querySelector("[data-icone-info]");
+      const iconeCmd = document.querySelector("[data-icone-cmd]");
 
       if (marca) marca.textContent = DADOS.pagina.titulo;
       if (submarca) submarca.textContent = DADOS.pagina.subtitulo;
       if (titulo) titulo.textContent = DADOS.pagina.tituloMenu;
       if (mensagem) mensagem.textContent = DADOS.pagina.mensagem;
       if (tituloMenuAcordeao) tituloMenuAcordeao.textContent = DADOS.pagina.tituloMenuAcordeao;
-      if (iconeEstrela) iconeEstrela.textContent = DADOS.pagina.iconeEstrela;
-      if (iconeInfo) iconeInfo.textContent = DADOS.pagina.iconeInfo;
+      
+      if (iconeCmd) {
+        iconeCmd.src = DADOS.icons.cmd;
+        iconeCmd.alt = "";
+      }
+      
       informacoes.forEach(el => { el.textContent = DADOS.pagina.informacao; });
     }
 
