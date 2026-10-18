@@ -136,7 +136,7 @@
         .marca-sol { width: 64px; height: 64px; flex: 0 0 64px; background-image: url("${DADOS.icons.cabecalho}"); background-size: contain; background-repeat: no-repeat; background-position: center; }
         .marca-texto { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
         
-        /* Estilo para títulos baseado na cor #ECA607 com a mesma formatação do index 21 */
+        /* Estilo para títulos baseado na cor #ECA607 (Pré-Escolar com palavras distintas) */
         .marca-texto h1 {
           margin: 0;
           display: flex;
@@ -307,11 +307,16 @@
 
       const tituloMarca = DADOS.pagina.titulo || "Pré-Escolar";
       if (marca) {
-        const partes = tituloMarca.trim().split(" ");
+        const partes = tituloMarca.trim().split("-");
         if (partes.length > 1) {
-          marca.innerHTML = `<span class="palavra-1">${partes[0]}</span><span class="palavra-ano">${partes.slice(1).join(" ")}</span>`;
+          marca.innerHTML = `<span class="palavra-1">${partes[0].trim()}-</span><span class="palavra-ano">${partes.slice(1).join("-").trim()}</span>`;
         } else {
-          marca.innerHTML = `<span class="palavra-unica">${tituloMarca}</span>`;
+          const espacos = tituloMarca.trim().split(" ");
+          if (espacos.length > 1) {
+            marca.innerHTML = `<span class="palavra-1">${espacos[0]}</span><span class="palavra-ano">${espacos.slice(1).join(" ")}</span>`;
+          } else {
+            marca.innerHTML = `<span class="palavra-unica">${tituloMarca}</span>`;
+          }
         }
       }
 
