@@ -2,7 +2,7 @@ const DADOS = {
 
   pagina: {
     titulo: "Missão Aprender",
-    subtitulo: "Jogar para aprender!",
+    subtitulo: "Jogar para Saber!",
     tituloMenu: "Escolhe o ano",
     mensagem: "Desenvolvido por Professor Luís",
     informacao: "Jogos educativos - 1.º ciclo"
