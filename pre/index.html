@@ -158,7 +158,6 @@
     .marca-sol { width: 64px; height: 64px; flex: 0 0 64px; background-image: url("${DADOS.icons.cabecalho}"); background-size: contain; background-repeat: no-repeat; background-position: center; }
     .marca-texto { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
     
-    /* Estilo com base na cor #EAA200: 1ª palavra branca com sombra #EAA200 e 2ª palavra com degradê baseado em #EAA200 */
     .marca-texto h1 {
       margin: 0;
       display: flex;
@@ -198,7 +197,17 @@
       transform: rotate(.8deg) translateY(1px);
     }
 
-    .marca-texto p { margin: 3px 0 0; font-size: clamp(12px, 1.1vw, 16px); line-height: 1.1; font-weight: 800; color: ${DADOS.cores.texto}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* Espaçamento (padding/margem) adequado entre o título e a subtitulação */
+    .marca-texto p { 
+      margin: 6px 0 0; 
+      font-size: clamp(12px, 1.1vw, 16px); 
+      line-height: 1.1; 
+      font-weight: 800; 
+      color: ${DADOS.cores.texto}; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+    }
 
     .menu-acordeao {
       position: absolute; top: 74px; left: 18px; width: 300px; padding: 0;
@@ -320,7 +329,7 @@
       .marca { padding: 0 44px; gap: 8px; max-width: 72%; }
       .marca-sol { width: 42px; height: 42px; flex: 0 0 42px; }
       .marca-texto h1 { font-size: 20px; }
-      .marca-texto p { font-size: 10px; }
+      .marca-texto p { font-size: 10px; margin-top: 4px; }
       .menu-acordeao { top: 62px; left: 12px; width: calc(100vw - 24px); max-width: 280px; }
       #app { padding-top: 86px; }
     }
@@ -391,7 +400,7 @@
       .marca { padding: 0 38px; gap: 6px; max-width: 70%; }
       .marca-sol { width: 36px; height: 36px; flex: 0 0 36px; }
       .marca-texto h1 { font-size: 16px; }
-      .marca-texto p { font-size: 9px; margin-top: 1px; }
+      .marca-texto p { font-size: 9px; margin-top: 3px; }
       
       .area-menu { padding: 0; }
       .rodape { width: 100%; margin: 10px 0 0; padding: 8px 12px; font-size: 11px; }
