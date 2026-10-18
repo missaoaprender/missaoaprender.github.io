@@ -40,21 +40,20 @@
       box-sizing:border-box;
     }
 
-    html{
-      width: 100%;
+    html, body{
+      width: 100vw;
+      max-width: 100%;
       min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
       background: var(--fundo);
     }
 
     body{
-      margin:0;
-      width: 100%;
-      min-height:100vh;
-      overflow-x:hidden;
       font-family:"Nunito","Quicksand","Arial Rounded MT Bold",
                   "Trebuchet MS",Arial,sans-serif;
       color:var(--texto);
-      background: var(--fundo);
     }
 
     button{
@@ -131,7 +130,6 @@
     }
 
     .marca-icone{
-      /* O comando acompanha a altura total do título e subtítulo */
       width:clamp(68px,6.2vw,88px);
       height:78px;
       display:grid;
