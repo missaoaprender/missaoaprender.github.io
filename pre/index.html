@@ -97,7 +97,6 @@
       font-family: "Nunito", "Quicksand", "Arial Rounded MT Bold", sans-serif;
     }
 
-    /* O gradiente total passa a cobrir todo o ecrã de ponta a ponta sem margens */
     html {
       background: linear-gradient(180deg, ${DADOS.cores.ceu1} 0%, ${DADOS.cores.ceu2} 19%, #F2F8FC 38%, ${DADOS.cores.fundo} 100%);
       background-attachment: fixed;
@@ -116,7 +115,7 @@
       width: 100%;
       max-width: ${DADOS.dimensoes.larguraMaxima}px;
       margin: 0 auto;
-      padding: 98px 20px 16px; /* Espaçamento superior adaptado para o cabeçalho fixo */
+      padding: 98px 20px 16px;
       position: relative;
       overflow: hidden;
       background: transparent;
@@ -158,7 +157,47 @@
     .marca { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; max-width: 65%; padding: 0 50px; }
     .marca-sol { width: 64px; height: 64px; flex: 0 0 64px; background-image: url("${DADOS.icons.cabecalho}"); background-size: contain; background-repeat: no-repeat; background-position: center; }
     .marca-texto { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-    .marca-texto h1 { margin: 0; font-size: clamp(26px, 2.8vw, 42px); line-height: 1.1; font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-shadow: 0 2px 0 rgba(255,255,255,.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    /* Estilo original e personalizado do título principal */
+    .marca-texto h1 {
+      margin: 0;
+      display: flex;
+      align-items: baseline;
+      gap: .20em;
+      white-space: nowrap;
+      font-size: clamp(26px, 2.8vw, 42px);
+      line-height: 1.02;
+      font-family: "Nunito", "Trebuchet MS", sans-serif;
+      font-weight: 1000;
+      letter-spacing: -1.2px;
+      transform: rotate(-1deg);
+      transform-origin: center bottom;
+      filter: drop-shadow(0 4px 0 #0754AD) drop-shadow(0 6px 2px rgba(0,65,145,.25));
+    }
+    .marca-texto h1 .palavra-missao,
+    .marca-texto h1 .palavra-aprender {
+      display: inline-block;
+      paint-order: stroke fill;
+      -webkit-text-stroke: 1.35px #1268C8;
+      text-shadow: 0 2px 0 rgba(255,255,255,.45);
+    }
+    .marca-texto h1 .palavra-missao {
+      color: #fff;
+      background: linear-gradient(180deg,#FFFFFF 5%,#FFFFFF 48%,#DCEFFF 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transform: rotate(-1deg) translateY(1px);
+    }
+    .marca-texto h1 .palavra-aprender {
+      color: #8DEBFF;
+      background: linear-gradient(180deg,#C5F8FF 0%,#75E4FF 48%,#28BDF3 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transform: rotate(.8deg) translateY(1px);
+    }
+
     .marca-texto p { margin: 3px 0 0; font-size: clamp(12px, 1.1vw, 16px); line-height: 1.1; font-weight: 800; color: ${DADOS.cores.texto}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .menu-acordeao {
@@ -383,7 +422,15 @@
       const iconeEstrela = document.querySelector("[data-icone-estrela]");
       const iconeInfo = document.querySelector("[data-icone-info]");
 
-      if (marca) marca.textContent = DADOS.pagina.titulo;
+      const tituloMarca = DADOS.pagina.titulo || "Missão Aprender";
+      if (marca) {
+        if (tituloMarca.trim().toLocaleLowerCase("pt-PT") === "missão aprender" || tituloMarca.trim().toLocaleLowerCase("pt") === "missão aprender") {
+          marca.innerHTML = '<span class="palavra-missao">Missão</span><span class="palavra-aprender">Aprender</span>';
+        } else {
+          marca.textContent = tituloMarca;
+        }
+      }
+
       if (submarca) submarca.textContent = DADOS.pagina.subtitulo;
       if (titulo) titulo.textContent = DADOS.pagina.tituloMenu;
       if (mensagem) mensagem.textContent = DADOS.pagina.mensagem;
