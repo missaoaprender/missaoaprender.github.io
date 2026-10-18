@@ -1,11 +1,11 @@
 const DADOS = {
   pagina: {
-    browserTitulo: "1.º Ano - Matemática",
+    browserTitulo: "1.º Ano - Jogos Educativos",
     titulo: "Matemática",
     subtitulo: "Atividades • 1º Ano",
-    tituloMenu: "Contagem e Números",
+    tituloMenu: "Escolhe o Jogo",
     mensagem: "Escolhe um jogo e diverte-te a aprender!",
-    informacao: "Missão Aprender",
+    informacao: "Jogos educativos para o 1.º ano",
     tituloMenuAcordeao: "Menu",
     urlVoltar: "../",
     iconeEstrela: "★",
@@ -13,68 +13,123 @@ const DADOS = {
   },
 
   icons: {
-    cabecalho: "../../../icons/icon1.png",
-    menu: "../../../icons/menu.png",
-    seta: "../../../icons/seta.png",
-    som: "../../../icons/som.png",
-    lampada: "../../../icons/lampada.png",
-    feedbacks: {
-      feedback1: "../../../icons/feedback_1.png", // 9 a 10 estrelas
-      feedback2: "../../../icons/feedback_2.png", // 7 a 8 estrelas
-      feedback3: "../../../icons/feedback_3.png", // 5 a 6 estrelas
-      feedback4: "../../../icons/feedback_4.png"  // Até 4 estrelas
-    },
+    cabecalho: "../../icons/icon1.png",
+    menu: "../../icons/menu.png",
+    seta: "../../icons/seta.png",
     menuAnos: {
-      inicio: "../../../icons/inicio.png",
-      pre: "../../../icons/iconpre.png",
-      ano1: "../../../icons/icon1.png",
-      ano2: "../../../icons/icon2.png",
-      ano3: "../../../icons/icon3.png",
-      ano4: "../../../icons/icon4.png"
+      inicio: "../../icons/inicio.png",
+      pre: "../../icons/iconpre.png",
+      ano1: "../../icons/icon1.png",
+      ano2: "../../icons/icon2.png",
+      ano3: "../../icons/icon3.png",
+      ano4: "../../icons/icon4.png"
     }
   },
 
-  sons: {
-    certo: "../../../sons/certo.mp3",
-    errado: "../../../sons/errado.mp3"
-  },
-
-  cores: {
-    fundo: "#FFF7F5",
-    ceu1: "#FFDCD5",
-    ceu2: "#FFEDE9",
-    header: "#FFEDE9",
-    headerTopo: "#FFDCD5",
-    azulHeader: "#DF492D", // Cor principal solicitada
-    texto: "#7A2211",
-    textoEscuro: "#4A130A",
+   cores: {
+    fundo: "#FCF4F2",
+    ceu1: "#F8CBC3",
+    ceu2: "#FCE4E0",
+    header: "#FCE4E0",
+    headerTopo: "#F8CBC3",
+    azulHeader: "#E34D30",
+    texto: "#681D0F",
+    textoEscuro: "#391008",
     branco: "#FFFFFF",
-    creme: "#FFE7E2",
-    linha: "#F5C6BC",
-    sombra: "rgba(223,73,45,.18)",
-    sombraForte: "rgba(223,73,45,.28)"
+    creme: "#FAD8D2",
+    linha: "#F4B5A8",
+    sombra: "rgba(227,77,48,.18)",
+    sombraForte: "rgba(227,77,48,.28)"
   },
 
   dimensoes: {
     larguraMaxima: 1200,
     raioAno: 23,
-    pc: { alturaCartao: 450, tamanhoIcone: 220 },
-    telemovelVertical: { alturaCartao: 320, tamanhoIcone: 160 },
-    telemovelHorizontal: { alturaCartao: 220, tamanhoIcone: 100 },
-    tabletVertical: { alturaCartao: 400, tamanhoIcone: 190 },
-    tabletHorizontal: { alturaCartao: 380, tamanhoIcone: 180 }
+    
+    // 1. PC
+    pc: {
+      alturaCartao: 209,
+      tamanhoIcone: 125
+    },
+
+    // 2. Telemóvel Vertical
+    telemovelVertical: {
+      alturaCartao: 200,
+      tamanhoIcone: 110
+    },
+
+    // 3. Telemóvel Horizontal
+    telemovelHorizontal: {
+      alturaCartao: 140,
+      tamanhoIcone: 75
+    },
+
+    // 4. Tablet Vertical (3 colunas)
+    tabletVertical: {
+      alturaCartao: 240,
+      tamanhoIcone: 110
+    },
+
+    // 5. Tablet Horizontal (5 colunas)
+    tabletHorizontal: {
+      alturaCartao: 220,
+      tamanhoIcone: 130
+    }
   },
 
-  jogos: [
-    { nome: "Contar", idade: "Até 10", imagem: "../../../icons/gatos&caes.png", cor: "#DF492D", cor2: "#B5331B", pagina: "jogo.js" }
+  fases: [
+    {
+      tituloFase: "Fase 1",
+      jogos: [
+        { nome: "Grafismos", idade: "Linhas Retas", imagem: "iconjogos/f1_jogo01pt.png", cor: "#FD6746", cor2: "#D94328", pagina: "f1_jogo01mat/" },
+        { nome: "Grafismos", idade: "Linhas curvas", imagem: "iconjogos/f1_jogo02pt.png", cor: "#FD6746", cor2: "#D94328", pagina: "f1_jogo02pt/" },
+        { nome: "Grafismos", idade: "Letras", imagem: "iconjogos/f1_jogo03pt.png", cor: "#FD6746", cor2: "#D94328", pagina: "f1_jogo03pt/" },
+        { nome: "Jogo 4", idade: "Subtítulo 4", imagem: "iconjogos/jogo4.png", cor: "#FD6746", cor2: "#D94328", pagina: "jogo4/" },
+        { nome: "Jogo 5", idade: "Subtítulo 5", imagem: "iconjogos/jogo5.png", cor: "#FD6746", cor2: "#D94328", pagina: "jogo5/" },
+        { nome: "Jogo 6", idade: "Subtítulo 6", imagem: "iconjogos/jogo6.png", cor: "#FD6746", cor2: "#D94328", pagina: "jogo6/" }
+      ]
+    },
+    {
+      tituloFase: "Fase 2",
+      jogos: [
+        { nome: "Grafismos", idade: "Linhas Retas", imagem: "iconjogos/f1_jogo01pt.png", cor: "#FD6746", cor2: "#D94328", pagina: "f1_jogo01pt/" },
+        { nome: "Grafismos", idade: "Linhas curvas", imagem: "iconjogos/f1_jogo02pt.png", cor: "#FD6746", cor2: "#D94328", pagina: "f1_jogo02pt/" },
+        { nome: "Grafismos", idade: "Letras", imagem: "iconjogos/f1_jogo03pt.png", cor: "#FD6746", cor2: "#D94328", pagina: "f1_jogo03pt/" },
+        { nome: "Jogo 4", idade: "Subtítulo 4", imagem: "iconjogos/jogo4.png", cor: "#FD6746", cor2: "#D94328", pagina: "jogo4/" },
+        { nome: "Jogo 5", idade: "Subtítulo 5", imagem: "iconjogos/jogo5.png", cor: "#FD6746", cor2: "#D94328", pagina: "jogo5/" },
+        { nome: "Jogo 6", idade: "Subtítulo 6", imagem: "iconjogos/jogo6.png", cor: "#FD6746", cor2: "#D94328", pagina: "jogo6/" }
+      ]
+    },
+    {
+      tituloFase: "Fase 3",
+      jogos: [
+        { nome: "Grafismos", idade: "Linhas Retas", imagem: "iconjogos/f1_jogo01pt.png", cor: "#FD6746", cor2: "#D94328", pagina: "f1_jogo01pt/" },
+        { nome: "Grafismos", idade: "Linhas curvas", imagem: "iconjogos/f1_jogo02pt.png", cor: "#FD6746", cor2: "#D94328", pagina: "f1_jogo02pt/" },
+        { nome: "Grafismos", idade: "Letras", imagem: "iconjogos/f1_jogo03pt.png", cor: "#FD6746", cor2: "#D94328", pagina: "f1_jogo03pt/" },
+        { nome: "Jogo 4", idade: "Subtítulo 4", imagem: "iconjogos/jogo4.png", cor: "#FD6746", cor2: "#D94328", pagina: "jogo4/" },
+        { nome: "Jogo 5", idade: "Subtítulo 5", imagem: "iconjogos/jogo5.png", cor: "#FD6746", cor2: "#D94328", pagina: "jogo5/" },
+        { nome: "Jogo 6", idade: "Subtítulo 6", imagem: "iconjogos/jogo6.png", cor: "#FD6746", cor2: "#D94328", pagina: "jogo6/" }
+      ]
+    },
+    {
+      tituloFase: "Fase 4",
+      jogos: [
+        { nome: "Grafismos", idade: "Linhas Retas", imagem: "iconjogos/f1_jogo01pt.png", cor: "#FD6746", cor2: "#D94328", pagina: "f1_jogo01pt/" },
+        { nome: "Grafismos", idade: "Linhas curvas", imagem: "iconjogos/f1_jogo02pt.png", cor: "#FD6746", cor2: "#D94328", pagina: "f1_jogo02pt/" },
+        { nome: "Grafismos", idade: "Letras", imagem: "iconjogos/f1_jogo03pt.png", cor: "#FD6746", cor2: "#D94328", pagina: "f1_jogo03pt/" },
+        { nome: "Jogo 4", idade: "Subtítulo 4", imagem: "iconjogos/jogo4.png", cor: "#FD6746", cor2: "#D94328", pagina: "jogo4/" },
+        { nome: "Jogo 5", idade: "Subtítulo 5", imagem: "iconjogos/jogo5.png", cor: "#FD6746", cor2: "#D94328", pagina: "jogo5/" },
+        { nome: "Jogo 6", idade: "Subtítulo 6", imagem: "iconjogos/jogo6.png", cor: "#FD6746", cor2: "#D94328", pagina: "jogo6/" }
+      ]
+    }
   ],
 
   menuAnos: [
-    { id: "inicio", nome: "Início", icon: "inicio", pagina: "../../../" },
-    { id: "pre", nome: "Pré-Escolar", icon: "pre", pagina: "../../../pre/" },
-    { id: "ano1", nome: "1.º Ano", icon: "ano1", pagina: "../../../1/" },
-    { id: "ano2", nome: "2.º Ano", icon: "ano2", pagina: "../../../2/" },
-    { id: "ano3", nome: "3.º Ano", icon: "ano3", pagina: "../../../3/" },
-    { id: "ano4", nome: "4.º Ano", icon: "ano4", pagina: "../../../4/" }
+    { id: "inicio", nome: "Início", icon: "inicio", pagina: "../../" },
+    { id: "pre", nome: "Pré-Escolar", icon: "pre", pagina: "../../pre/" },
+    { id: "ano1", nome: "1.º Ano", icon: "ano1", pagina: "../../1/" },
+    { id: "ano2", nome: "2.º Ano", icon: "ano2", pagina: "../../2/" },
+    { id: "ano3", nome: "3.º Ano", icon: "ano3", pagina: "../../3/" },
+    { id: "ano4", nome: "4.º Ano", icon: "ano4", pagina: "../../4/" }
   ]
 };
