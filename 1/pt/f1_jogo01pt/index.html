@@ -138,14 +138,14 @@
         .marca-sol { width: 64px; height: 64px; flex: 0 0 64px; background-image: url("${DADOS.icons.cabecalho}"); background-size: contain; background-repeat: no-repeat; background-position: center; }
         .marca-texto { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
         
-        /* Estilo do título baseado em #2684F7 */
+        /* Título aumentado (clamp ajustado para tamanhos maiores) */
         .marca-texto h1 {
           margin: 0;
           display: flex;
           align-items: baseline;
           gap: .20em;
           white-space: nowrap;
-          font-size: clamp(26px, 2.8vw, 42px);
+          font-size: clamp(32px, 3.8vw, 50px);
           line-height: 1.02;
           font-family: "Nunito", "Trebuchet MS", sans-serif;
           font-weight: 1000;
@@ -157,7 +157,7 @@
         .marca-texto h1 .palavra-unica {
           display: inline-block;
           paint-order: stroke fill;
-          -webkit-text-stroke: 1.35px #104A9E;
+          -webkit-text-stroke: 1.5px #104A9E;
           text-shadow: 0 2px 0 rgba(255,255,255,.45);
           color: #FFFFFF;
           background: linear-gradient(180deg, #FFFFFF 5%, #FFFFFF 48%, #EBF3FF 100%);
@@ -256,7 +256,7 @@
           .botao-seta { right: 12px; }
           .marca { padding: 0 44px; gap: 8px; max-width: 72%; }
           .marca-sol { width: 42px; height: 42px; flex: 0 0 42px; }
-          .marca-texto h1 { font-size: clamp(22px, 5vw, 28px); }
+          .marca-texto h1 { font-size: clamp(26px, 6vw, 36px); }
           .menu-acordeao { top: 62px; left: 12px; width: calc(100vw - 24px); max-width: 280px; }
           #app { padding-top: 86px; }
         }
@@ -268,7 +268,7 @@
           .botao-seta { right: 10px; }
           .marca { padding: 0 38px; gap: 6px; max-width: 70%; }
           .marca-sol { width: 36px; height: 36px; flex: 0 0 36px; }
-          .marca-texto h1 { font-size: clamp(18px, 4.5vw, 22px); }
+          .marca-texto h1 { font-size: clamp(22px, 5.5vw, 30px); }
           .menu-acordeao { top: 54px; left: 10px; width: 280px; }
           
           .area-menu { padding: 0 16px; }
