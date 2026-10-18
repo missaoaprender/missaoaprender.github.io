@@ -10,7 +10,7 @@
 </head>
 <body>
 
-  <!-- CABEÇALHO -->
+  <!-- CABEÇALHO FIXO NO TOPO -->
   <header class="cabecalho">
     <button class="botao-menu" aria-label="Menu Principal" aria-expanded="false" aria-controls="menu-acordeao"></button>
     
@@ -98,16 +98,16 @@
 
         #app {
           min-height: 100vh; width: min(100%, ${DADOS.dimensoes.larguraMaxima}px);
-          margin: 0 auto; padding: 0 0 16px; position: relative;
+          margin: 0 auto; padding: 98px 0 16px; position: relative;
           display: flex; flex-direction: column; justify-content: space-between; background: transparent;
         }
 
         .cabecalho {
-          position: relative; width: 100%; height: 82px;
+          position: fixed; top: 0; left: 0; width: 100%; height: 82px;
           background: linear-gradient(180deg, ${DADOS.cores.headerTopo} 0%, ${DADOS.cores.header} 100%);
           display: flex; align-items: center; justify-content: center;
           border-bottom: 2px solid rgba(255,255,255,.65);
-          box-shadow: 0 3px 10px rgba(15,139,211,.12); z-index: 20;
+          box-shadow: 0 3px 10px rgba(38,132,247,.15); z-index: 1000;
         }
 
         .botao-menu, .botao-seta {
@@ -137,22 +137,53 @@
         .marca { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; max-width: 65%; padding: 0 50px; }
         .marca-sol { width: 64px; height: 64px; flex: 0 0 64px; background-image: url("${DADOS.icons.cabecalho}"); background-size: contain; background-repeat: no-repeat; background-position: center; }
         .marca-texto { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-        .marca-texto h1 { margin: 0; font-size: clamp(26px, 2.8vw, 42px); line-height: 1.1; font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-shadow: 0 2px 0 rgba(255,255,255,.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .marca-texto p { margin: 3px 0 0; font-size: clamp(12px, 1.1vw, 16px); line-height: 1.1; font-weight: 800; color: ${DADOS.cores.texto}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Estilo do título baseado em #2684F7 */
+        .marca-texto h1 {
+          margin: 0;
+          display: flex;
+          align-items: baseline;
+          gap: .20em;
+          white-space: nowrap;
+          font-size: clamp(26px, 2.8vw, 42px);
+          line-height: 1.02;
+          font-family: "Nunito", "Trebuchet MS", sans-serif;
+          font-weight: 1000;
+          letter-spacing: -1.2px;
+          transform: rotate(-1deg);
+          transform-origin: center bottom;
+          filter: drop-shadow(0 4px 0 #104A9E) drop-shadow(0 6px 2px rgba(38,132,247,.35));
+        }
+        .marca-texto h1 .palavra-unica {
+          display: inline-block;
+          paint-order: stroke fill;
+          -webkit-text-stroke: 1.35px #104A9E;
+          text-shadow: 0 2px 0 rgba(255,255,255,.45);
+          color: #FFFFFF;
+          background: linear-gradient(180deg, #FFFFFF 5%, #FFFFFF 48%, #EBF3FF 100%);
+          background-clip: text;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          transform: rotate(-1deg) translateY(1px);
+        }
+
+        .marca-texto p { 
+          margin: 0; display: none; 
+        }
 
         .menu-acordeao {
-          position: absolute; top: 72px; left: 18px; width: 300px; padding: 0;
+          position: absolute; top: 74px; left: 18px; width: 300px; padding: 0;
           background: rgba(255,255,255,.98); border: 2px solid ${DADOS.cores.linha};
           border-top: 4px solid ${DADOS.cores.azulHeader}; border-radius: 0 0 20px 20px;
-          box-shadow: 0 10px 25px rgba(15,139,211,.24);
+          box-shadow: 0 10px 25px rgba(38,132,247,.24);
           opacity: 0; visibility: hidden; transform: translateY(-12px) scale(.98);
           transform-origin: top left; transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
-          z-index: 30;
+          z-index: 1001;
         }
         .menu-acordeao.aberto { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
-        .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #E6F4FA, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
+        .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #EBF3FF, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
         .menu-acordeao-titulo { font-size: 19px; font-weight: 900; color: ${DADOS.cores.textoEscuro}; }
-        .menu-acordeao-subtitulo { margin-top: 3px; font-size: 12px; font-weight: 700; color: #0F8BD3; }
+        .menu-acordeao-subtitulo { margin-top: 3px; font-size: 12px; font-weight: 700; color: #2684F7; }
         
         .menu-anos { display: flex; flex-direction: column; padding: 8px; gap: 5px; max-height: 60vh; overflow-y: auto; }
         .menu-ano {
@@ -160,8 +191,8 @@
           border: 0; border-radius: 13px; background: #FFFFFF; color: ${DADOS.cores.textoEscuro};
           font-size: 15px; font-weight: 800; text-align: left; cursor: pointer; transition: background .16s ease;
         }
-        .menu-ano:hover { background: #E6F4FA; transform: translateX(3px); }
-        .menu-ano-icon { width: 45px; height: 45px; flex: 0 0 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #F0F9FC; }
+        .menu-ano:hover { background: #EBF3FF; transform: translateX(3px); }
+        .menu-ano-icon { width: 45px; height: 45px; flex: 0 0 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #F4F8FF; }
         .menu-ano-icon img { width: 100%; height: 100%; object-fit: contain; }
         .menu-ano-nome { flex: 1; }
 
@@ -171,9 +202,9 @@
         }
         .titulo-menu {
           width: fit-content; margin: 0 auto 10px; padding: 6px 24px;
-          border: 2px solid rgba(15,139,211,.32); border-radius: 14px;
+          border: 2px solid rgba(38,132,247,.32); border-radius: 14px;
           background: linear-gradient(180deg, #FFFFFF, ${DADOS.cores.creme});
-          box-shadow: 0 3px 7px rgba(15,139,211,.12);
+          box-shadow: 0 3px 7px rgba(38,132,247,.12);
         }
         .titulo-menu h2 { margin: 0; font-size: clamp(16px, 1.5vw, 22px); font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-align: center; }
 
@@ -218,7 +249,18 @@
           font-size: 12px; font-weight: 900; overflow: hidden; flex-shrink: 0;
         }
 
-        /* Media Queries do Header idênticas ao modelo partilhado */
+        @media (max-width: 768px) {
+          .cabecalho { height: 70px; }
+          .botao-menu, .botao-seta { width: 48px; height: 48px; }
+          .botao-menu { left: 12px; }
+          .botao-seta { right: 12px; }
+          .marca { padding: 0 44px; gap: 8px; max-width: 72%; }
+          .marca-sol { width: 42px; height: 42px; flex: 0 0 42px; }
+          .marca-texto h1 { font-size: clamp(22px, 5vw, 28px); }
+          .menu-acordeao { top: 62px; left: 12px; width: calc(100vw - 24px); max-width: 280px; }
+          #app { padding-top: 86px; }
+        }
+
         @media (max-width: 900px) {
           .cabecalho { height: 62px; }
           .botao-menu, .botao-seta { width: 42px; height: 42px; }
@@ -226,12 +268,12 @@
           .botao-seta { right: 10px; }
           .marca { padding: 0 38px; gap: 6px; max-width: 70%; }
           .marca-sol { width: 36px; height: 36px; flex: 0 0 36px; }
-          .marca-texto h1 { font-size: 16px; }
-          .marca-texto p { font-size: 9px; margin-top: 1px; }
+          .marca-texto h1 { font-size: clamp(18px, 4.5vw, 22px); }
           .menu-acordeao { top: 54px; left: 10px; width: 280px; }
           
           .area-menu { padding: 0 16px; }
           .rodape { width: calc(100% - 32px); margin: 10px 16px 0; padding: 8px 12px; font-size: 11px; }
+          #app { padding-top: 76px; }
           .info {
             width: 22px !important; height: 22px !important;
             min-width: 22px !important; min-height: 22px !important;
@@ -244,7 +286,6 @@
     function preencherTextos() {
       if (DADOS.pagina.browserTitulo) document.title = DADOS.pagina.browserTitulo;
       const marca = document.querySelector("[data-marca]");
-      const submarca = document.querySelector("[data-submarca]");
       const titulo = document.querySelector("[data-titulo-menu]");
       const mensagem = document.querySelector("[data-mensagem]");
       const informacoes = document.querySelectorAll("[data-informacao]");
@@ -252,8 +293,11 @@
       const iconeEstrela = document.querySelector("[data-icone-estrela]");
       const iconeInfo = document.querySelector("[data-icone-info]");
 
-      if (marca) marca.textContent = DADOS.pagina.titulo;
-      if (submarca) submarca.textContent = DADOS.pagina.subtitulo;
+      const tituloMarca = DADOS.pagina.titulo || "Português";
+      if (marca) {
+        marca.innerHTML = `<span class="palavra-unica">${tituloMarca}</span>`;
+      }
+
       if (titulo) titulo.textContent = DADOS.pagina.tituloMenu;
       if (mensagem) mensagem.textContent = DADOS.pagina.mensagem;
       if (tituloMenuAcordeao) tituloMenuAcordeao.textContent = DADOS.pagina.tituloMenuAcordeao;
