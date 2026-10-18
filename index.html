@@ -129,11 +129,12 @@
     }
 
     .marca-icone{
-      width:62px;
-      height:62px;
+      /* O comando acompanha a altura total do título e subtítulo */
+      width:clamp(68px,6.2vw,88px);
+      height:78px;
       display:grid;
       place-items:center;
-      flex:0 0 62px;
+      flex:0 0 clamp(68px,6.2vw,88px);
     }
 
     .marca-icone img{
@@ -146,18 +147,41 @@
 
     .marca-texto h1{
       margin:0;
+      display:flex;
+      align-items:baseline;
+      gap:.20em;
+      white-space:nowrap;
+      font-size:clamp(28px,3vw,45px);
+      line-height:1.02;
+      font-family:"Nunito","Trebuchet MS",sans-serif;
+      font-weight:1000;
+      letter-spacing:-1.2px;
+      transform:rotate(-1deg);
+      transform-origin:center bottom;
+      filter:drop-shadow(0 4px 0 #0754AD) drop-shadow(0 6px 2px rgba(0,65,145,.25));
+    }
+    .marca-texto h1 .palavra-missao,
+    .marca-texto h1 .palavra-aprender{
+      display:inline-block;
+      paint-order:stroke fill;
+      -webkit-text-stroke:1.35px #1268C8;
+      text-shadow:0 2px 0 rgba(255,255,255,.45);
+    }
+    .marca-texto h1 .palavra-missao{
       color:#fff;
-      background:linear-gradient(180deg,#FFFFFF 5%,#F5FBFF 42%,#BDEBFF 100%);
+      background:linear-gradient(180deg,#FFFFFF 5%,#FFFFFF 48%,#DCEFFF 100%);
       background-clip:text;
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
-      font-size:clamp(28px,3vw,45px);
-      line-height:1.02;
-      font-weight:1000;
-      letter-spacing:-1.1px;
-      paint-order:stroke fill;
-      -webkit-text-stroke:1.15px #1268C8;
-      filter:drop-shadow(0 3px 0 #0754AD) drop-shadow(0 5px 2px rgba(0,65,145,.24));
+      transform:rotate(-1deg) translateY(1px);
+    }
+    .marca-texto h1 .palavra-aprender{
+      color:#8DEBFF;
+      background:linear-gradient(180deg,#C5F8FF 0%,#75E4FF 48%,#28BDF3 100%);
+      background-clip:text;
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      transform:rotate(.8deg) translateY(1px);
     }
 
     .marca-texto p{
@@ -432,7 +456,7 @@
     /* RESPONSIVIDADE */
     @media (max-width:1100px) and (min-width:601px) and (orientation:landscape){
       .cabecalho{ height:64px; }
-      .marca-icone{ width:49px; height:49px; flex-basis:49px; }
+      .marca-icone{ width:58px; height:58px; flex-basis:58px; }
       .marca-texto h1{ font-size:28px; }
       .marca-texto p{ font-size:12px; margin-top:4px; }
       .titulo-menu{ margin-bottom:12px; padding:7px 24px; }
@@ -455,7 +479,7 @@
     @media (max-width:600px) and (min-height:360px) and (orientation:landscape){
       .cabecalho{ height:50px; }
       .marca{ gap:6px; }
-      .marca-icone{ width:39px; height:39px; flex-basis:39px; }
+      .marca-icone{ width:46px; height:46px; flex-basis:46px; }
       .marca-texto h1{ font-size:24px; }
       .marca-texto p{ margin-top:2px; font-size:8px; }
       .titulo-menu{ margin-bottom:8px; padding:5px 18px; border-radius:10px; }
@@ -482,7 +506,7 @@
 
     @media (max-width:900px) and (orientation:portrait){
       .cabecalho{ height:66px; }
-      .marca-icone{ width:48px; height:48px; flex-basis:48px; }
+      .marca-icone{ width:52px; height:52px; flex-basis:52px; }
       .marca-texto h1{ font-size:25px; }
       .marca-texto p{ font-size:10px; }
       .titulo-menu{ margin-bottom:12px; padding:7px 21px; }
@@ -506,7 +530,7 @@
 
     @media (max-width:600px) and (orientation:portrait){
       .cabecalho{ height:59px; }
-      .marca-icone{ width:43px; height:43px; flex-basis:43px; }
+      .marca-icone{ width:46px; height:46px; flex-basis:46px; }
       .marca-texto h1{ font-size:22px; }
       .marca-texto p{ font-size:9px; }
       .titulo-menu{ padding:6px 18px; border-radius:11px; }
@@ -669,7 +693,14 @@
 
     function preencherTextos(){
       document.querySelector("[data-marca-icone]").src = DADOS.icons.cmd;
-      document.querySelector("[data-marca]").textContent = DADOS.pagina.titulo;
+      const marcaTitulo = document.querySelector("[data-marca]");
+      const tituloMarca = DADOS.pagina.titulo || "Missão Aprender";
+      // Mantém as duas palavras editáveis e permite aplicar a cada uma o seu efeito visual.
+      if (tituloMarca.trim().toLocaleLowerCase("pt-PT") === "missão aprender") {
+        marcaTitulo.innerHTML = '<span class="palavra-missao">Missão</span><span class="palavra-aprender">Aprender</span>';
+      } else {
+        marcaTitulo.textContent = tituloMarca;
+      }
       document.querySelector("[data-submarca]").textContent = DADOS.pagina.subtitulo;
       document.querySelector("[data-titulo-menu]").textContent = DADOS.pagina.tituloMenu;
       document.querySelector("[data-mensagem]").textContent = DADOS.pagina.mensagem;
