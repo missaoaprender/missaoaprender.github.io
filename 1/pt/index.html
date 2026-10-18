@@ -114,7 +114,7 @@
       min-height: 100vh;
       width: min(100%, ${DADOS.dimensoes.larguraMaxima}px);
       margin: 0 auto;
-      padding: 98px 0 16px; /* Espaçamento superior adaptado para o cabeçalho fixo */
+      padding: 98px 0 16px;
       position: relative;
       overflow: hidden;
       background: transparent;
@@ -126,7 +126,7 @@
       background: linear-gradient(180deg, ${DADOS.cores.headerTopo} 0%, ${DADOS.cores.header} 100%);
       display: flex; align-items: center; justify-content: center;
       border-bottom: 2px solid rgba(255,255,255,.65);
-      box-shadow: 0 3px 10px rgba(15,139,211,.12); z-index: 1000;
+      box-shadow: 0 3px 10px rgba(38,132,247,.15); z-index: 1000;
     }
 
     .botao-menu, .botao-seta {
@@ -156,22 +156,73 @@
     .marca { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; max-width: 65%; padding: 0 50px; }
     .marca-sol { width: 64px; height: 64px; flex: 0 0 64px; background-image: url("${DADOS.icons.cabecalho}"); background-size: contain; background-repeat: no-repeat; background-position: center; }
     .marca-texto { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-    .marca-texto h1 { margin: 0; font-size: clamp(26px, 2.8vw, 42px); line-height: 1.1; font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-shadow: 0 2px 0 rgba(255,255,255,.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .marca-texto p { margin: 3px 0 0; font-size: clamp(12px, 1.1vw, 16px); line-height: 1.1; font-weight: 800; color: ${DADOS.cores.texto}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+    /* Estilo para titulos de una o dos palabras baseado en #2684F7 */
+    .marca-texto h1 {
+      margin: 0;
+      display: flex;
+      align-items: baseline;
+      gap: .20em;
+      white-space: nowrap;
+      font-size: clamp(26px, 2.8vw, 42px);
+      line-height: 1.02;
+      font-family: "Nunito", "Trebuchet MS", sans-serif;
+      font-weight: 1000;
+      letter-spacing: -1.2px;
+      transform: rotate(-1deg);
+      transform-origin: center bottom;
+      filter: drop-shadow(0 4px 0 #104A9E) drop-shadow(0 6px 2px rgba(38,132,247,.35));
+    }
+    .marca-texto h1 .palavra-1,
+    .marca-texto h1 .palavra-ano,
+    .marca-texto h1 .palavra-unica {
+      display: inline-block;
+      paint-order: stroke fill;
+      -webkit-text-stroke: 1.35px #104A9E;
+      text-shadow: 0 2px 0 rgba(255,255,255,.45);
+    }
+    .marca-texto h1 .palavra-1,
+    .marca-texto h1 .palavra-unica {
+      color: #FFFFFF;
+      background: linear-gradient(180deg, #FFFFFF 5%, #FFFFFF 48%, #EBF3FF 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transform: rotate(-1deg) translateY(1px);
+    }
+    .marca-texto h1 .palavra-ano {
+      color: #80B6FC;
+      background: linear-gradient(180deg, #9FC8FD 0%, #2684F7 48%, #104A9E 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transform: rotate(.8deg) translateY(1px);
+    }
+
+    .marca-texto p { 
+      margin: 8px 0 0; 
+      font-size: clamp(13px, 1.2vw, 16px); 
+      line-height: 1.1; 
+      font-weight: 800; 
+      color: ${DADOS.cores.texto}; 
+      white-space: nowrap; 
+      overflow: hidden; 
+      text-overflow: ellipsis; 
+    }
 
     .menu-acordeao {
       position: absolute; top: 74px; left: 18px; width: 300px; padding: 0;
       background: rgba(255,255,255,.98); border: 2px solid ${DADOS.cores.linha};
       border-top: 4px solid ${DADOS.cores.azulHeader}; border-radius: 0 0 20px 20px;
-      box-shadow: 0 10px 25px rgba(15,139,211,.24);
+      box-shadow: 0 10px 25px rgba(38,132,247,.24);
       opacity: 0; visibility: hidden; transform: translateY(-12px) scale(.98);
       transform-origin: top left; transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
       z-index: 1001;
     }
     .menu-acordeao.aberto { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
-    .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #E6F4FA, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
+    .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #EBF3FF, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
     .menu-acordeao-titulo { font-size: 19px; font-weight: 900; color: ${DADOS.cores.textoEscuro}; }
-    .menu-acordeao-subtitulo { margin-top: 3px; font-size: 12px; font-weight: 700; color: #0F8BD3; }
+    .menu-acordeao-subtitulo { margin-top: 3px; font-size: 12px; font-weight: 700; color: #2684F7; }
     
     .menu-anos { display: flex; flex-direction: column; padding: 8px; gap: 5px; max-height: 60vh; overflow-y: auto; }
     .menu-ano {
@@ -179,17 +230,17 @@
       border: 0; border-radius: 13px; background: #FFFFFF; color: ${DADOS.cores.textoEscuro};
       font-size: 15px; font-weight: 800; text-align: left; cursor: pointer; transition: background .16s ease;
     }
-    .menu-ano:hover { background: #E6F4FA; transform: translateX(3px); }
-    .menu-ano-icon { width: 45px; height: 45px; flex: 0 0 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #F0F9FC; }
+    .menu-ano:hover { background: #EBF3FF; transform: translateX(3px); }
+    .menu-ano-icon { width: 45px; height: 45px; flex: 0 0 45px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: #F4F8FF; }
     .menu-ano-icon img { width: 100%; height: 100%; object-fit: contain; }
     .menu-ano-nome { flex: 1; }
 
     .area-menu { position: relative; width: 100%; margin-top: 10px; padding: 0 20px; }
     .titulo-menu {
       width: fit-content; margin: 1px auto 19px; padding: 8px 30px;
-      border: 2px solid rgba(15,139,211,.32); border-radius: 16px;
+      border: 2px solid rgba(38,132,247,.32); border-radius: 16px;
       background: linear-gradient(180deg, #FFFFFF, ${DADOS.cores.creme});
-      box-shadow: 0 3px 7px rgba(15,139,211,.12);
+      box-shadow: 0 3px 7px rgba(38,132,247,.12);
     }
     .titulo-menu h2 { margin: 0; font-size: clamp(18px, 1.7vw, 27px); font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-align: center; }
 
@@ -278,8 +329,8 @@
       .botao-seta { right: 12px; }
       .marca { padding: 0 44px; gap: 8px; max-width: 72%; }
       .marca-sol { width: 42px; height: 42px; flex: 0 0 42px; }
-      .marca-texto h1 { font-size: 20px; }
-      .marca-texto p { font-size: 10px; }
+      .marca-texto h1 { font-size: clamp(22px, 5vw, 28px); }
+      .marca-texto p { font-size: 11px; margin-top: 5px; }
       .menu-acordeao { top: 62px; left: 12px; width: calc(100vw - 24px); max-width: 280px; }
       #app { padding-top: 86px; }
     }
@@ -349,8 +400,8 @@
       .botao-seta { right: 10px; }
       .marca { padding: 0 38px; gap: 6px; max-width: 70%; }
       .marca-sol { width: 36px; height: 36px; flex: 0 0 36px; }
-      .marca-texto h1 { font-size: 16px; }
-      .marca-texto p { font-size: 9px; margin-top: 1px; }
+      .marca-texto h1 { font-size: clamp(18px, 4.5vw, 22px); }
+      .marca-texto p { font-size: 10px; margin-top: 4px; }
       
       .area-menu { padding: 0 16px; }
       .rodape { width: calc(100% - 32px); margin: 10px 16px 0; padding: 8px 12px; font-size: 11px; }
@@ -381,7 +432,24 @@
       const iconeEstrela = document.querySelector("[data-icone-estrela]");
       const iconeInfo = document.querySelector("[data-icone-info]");
 
-      if (marca) marca.textContent = DADOS.pagina.titulo;
+      const tituloMarca = DADOS.pagina.titulo || "1.º Ano";
+      if (marca) {
+        if (tituloMarca.includes("1.º")) {
+          marca.innerHTML = '<span class="palavra-1">1.º</span><span class="palavra-ano">Ano</span>';
+        } else if (tituloMarca.toLowerCase().includes("ano")) {
+          const partes = tituloMarca.split(" ");
+          marca.innerHTML = `<span class="palavra-1">${partes[0]}</span><span class="palavra-ano">${partes.slice(1).join(" ") || "Ano"}</span>`;
+        } else {
+          // Suporta perfeitamente títulos com uma única palavra ou personalizados
+          const partes = tituloMarca.trim().split(" ");
+          if (partes.length > 1) {
+            marca.innerHTML = `<span class="palavra-1">${partes[0]}</span><span class="palavra-ano">${partes.slice(1).join(" ")}</span>`;
+          } else {
+            marca.innerHTML = `<span class="palavra-unica">${tituloMarca}</span>`;
+          }
+        }
+      }
+
       if (submarca) submarca.textContent = DADOS.pagina.subtitulo;
       if (titulo) titulo.textContent = DADOS.pagina.tituloMenu;
       if (mensagem) mensagem.textContent = DADOS.pagina.mensagem;
