@@ -5,7 +5,7 @@ const DADOS = {
     subtitulo: "Jogar para saber!",
     tituloMenu: "Escolhe a área",
     mensagem: "Começa a aprender!",
-    informacao: "Jogos para o 1.º ano",
+    informacao: "Jogos para o 2.º ano",
     tituloMenuAcordeao: "Menu",
     urlVoltar: "../",
     iconeEstrela: "★",
