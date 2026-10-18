@@ -5,7 +5,7 @@ const DADOS = {
     subtitulo: "Atividades • 1º Ano",
     tituloMenu: "Contagem e Números",
     mensagem: "Escolhe um jogo e diverte-te a aprender!",
-    informacao: "Jogos educativos para o 1.º ano",
+    informacao: "Missão Aprender",
     tituloMenuAcordeao: "Menu",
     urlVoltar: "../",
     iconeEstrela: "★",
