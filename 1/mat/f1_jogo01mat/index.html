@@ -58,13 +58,10 @@
       </div>
     </main>
 
-    <!-- RODAPÉ -->
+    <!-- RODAPÉ CENTRADO -->
     <footer class="rodape">
-      <div class="rodape-item">
+      <div class="rodape-centro">
         <span class="estrela" data-icone-estrela></span>
-        <span data-mensagem></span>
-      </div>
-      <div class="rodape-item rodape-info">
         <span data-informacao></span>
         <div class="info" data-icone-info></div>
       </div>
@@ -202,14 +199,14 @@
           padding: 5px 12px; border-radius: 20px; color: #FFFFFF; font-weight: 900; font-size: 16px;
         }
 
+        /* RODAPÉ CENTRADO */
         .rodape {
           width: calc(100% - 40px); min-height: 53px; margin: 10px 20px 0; padding: 8px 17px;
-          display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;
+          display: flex; align-items: center; justify-content: center;
           border: 2px solid ${DADOS.cores.linha}; border-radius: 14px; background: rgba(255,255,255,.78);
-          font-size: clamp(11px, 1vw, 14px); font-weight: 800;
+          font-size: clamp(11px, 1.1vw, 14px); font-weight: 800;
         }
-        .rodape-item { display: flex; align-items: center; gap: 8px; }
-        .rodape-info { justify-content: flex-end; }
+        .rodape-centro { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
         .estrela { color: #FFB400; font-size: 25px; }
         .info { 
           width: 25px; height: 25px; min-width: 25px; min-height: 25px;
