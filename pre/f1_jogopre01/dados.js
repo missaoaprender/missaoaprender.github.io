@@ -46,14 +46,14 @@ const DADOS = {
     ceu2: "#FBF0CC",
     header: "#FBF0CC",
     headerTopo: "#FDF7E5",
-    azulHeader: "#EFAA0F",
+    azulHeader: "#ECA607",
     texto: "#3E3E59",
     textoEscuro: "#262638",
     branco: "#FFFFFF",
     creme: "#ECECEF",
     linha: "#E2D3AB",
-    sombra: "rgba(239,170,15,.18)",
-    sombraForte: "rgba(239,170,15,.28)"
+    sombra: "rgba(236,166,7,.18)",
+    sombraForte: "rgba(236,166,7,.28)"
   },
 
   dimensoes: {
@@ -67,7 +67,7 @@ const DADOS = {
   },
 
   jogos: [
-    { nome: "Estojo Mágico", idade: "Pré-Escolar", imagem: "../../icons/gatos&caes.png", cor: "#EFAA0F", cor2: "#3E3E59", pagina: "jogo.js" }
+    { nome: "Estojo Mágico", idade: "Pré-Escolar", imagem: "../../icons/gatos&caes.png", cor: "#ECA607", cor2: "#3E3E59", pagina: "jogo.js" }
   ],
 
   menuAnos: [
