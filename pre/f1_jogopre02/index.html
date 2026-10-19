@@ -136,7 +136,6 @@
         .marca-sol { width: 64px; height: 64px; flex: 0 0 64px; background-image: url("${DADOS.icons.cabecalho}"); background-size: contain; background-repeat: no-repeat; background-position: center; }
         .marca-texto { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
         
-        /* Estilo para títulos baseado na cor #ECA607 (Pré-Escolar com palavras distintas) */
         .marca-texto h1 {
           margin: 0;
           display: flex;
@@ -226,11 +225,12 @@
         }
         .titulo-menu h2 { margin: 0; font-size: clamp(16px, 1.5vw, 22px); font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-align: center; }
 
-        .cartao-unico-container { width: 100%; max-width: 850px; flex: 1; display: flex; flex-direction: column; }
+        /* Aumentado para acomodar perfeitamente o layout lado a lado */
+        .cartao-unico-container { width: 100%; max-width: 1000px; flex: 1; display: flex; flex-direction: column; }
         .ano { width: 100%; height: 100%; display: flex; flex-direction: column; flex: 1; }
 
         .botao-ano {
-          position: relative; width: 100%; flex: 1; min-height: 65vh;
+          position: relative; width: 100%; flex: 1; min-height: 70vh;
           padding: 16px; border: 3px solid rgba(255,255,255,.94);
           border-radius: ${DADOS.dimensoes.raioAno}px;
           background: linear-gradient(145deg, #FFFFFF 0%, ${DADOS.cores.creme} 100%);
