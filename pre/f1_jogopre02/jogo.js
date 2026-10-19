@@ -32,7 +32,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (MAIS CORES E MOLDURA MAIS ALTA SEM NOME)
+// 2. CONFIGURAÇÃO VISUAL
 // ============================================================
 const styleJogo = document.createElement('style');
 styleJogo.innerHTML = `
@@ -43,14 +43,14 @@ styleJogo.innerHTML = `
     }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* Lado Esquerdo: Área de Desenho/Pintura */
+    /* Lado Esquerdo: Área de Desenho sem margens internas */
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
         flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;
-        padding: 10px; box-sizing: border-box;
+        padding: 0; box-sizing: border-box;
     }
-    canvas { display: block; cursor: crosshair; width: 100%; height: 100%; object-fit: contain; }
+    canvas { display: block; cursor: crosshair; width: 100%; height: 100%; object-fit: fill; }
 
     /* Lado Direito: Estojo com Ferramentas e Seletor */
     .painel-estojo-vertical {
@@ -63,7 +63,6 @@ styleJogo.innerHTML = `
         display: flex; flex-direction: column; align-items: center; width: 100%; gap: 4px;
         background: #FFF7E3; padding: 6px; border-radius: 12px; border: 1.5px solid #F3E0B5; box-sizing: border-box;
     }
-    /* Grelha de cores expandida (mais cores) */
     .grid-cores {
         display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 100%; justify-items: center;
     }
@@ -97,7 +96,7 @@ styleJogo.innerHTML = `
     }
     .btn-ferramenta-texto:active { transform: scale(0.95); }
 
-    /* Moldura Seletora ao dobro da altura e sem texto de nome */
+    /* Moldura Seletora ao dobro da altura e sem nome */
     .moldura-selecao-desenho {
         display: flex; align-items: center; justify-content: space-between; width: 100%; height: 75px;
         background: white; border: 2.5px solid #ECA607; border-radius: 14px; padding: 6px;
@@ -244,13 +243,7 @@ function iniciarAnimacaoCapa() {
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.onload = () => {
-            const hRatio = cCanvas.width / img.width;
-            const vRatio = cCanvas.height / img.height;
-            const ratio = Math.min(hRatio, vRatio) * 0.9;
-            const shiftX = (cCanvas.width - img.width * ratio) / 2;
-            const shiftY = (cCanvas.height - img.height * ratio) / 2;
-            cCtx.drawImage(img, shiftX, shiftY, img.width * ratio, img.height * ratio);
-            
+            cCtx.drawImage(img, 0, 0, cCanvas.width, cCanvas.height);
             executarTrilhoPinturaAnimada(cCtx, cMao, cCanvas.width, cCanvas.height);
         };
         img.src = atual.arquivo;
@@ -311,7 +304,7 @@ function mudarDesenhoCapa(direcao) {
 
 
 // ============================================================
-// 4. LÓGICA DO ECRÃ DE JOGO DE COLORIR (COM MAIS CORES)
+// 4. LÓGICA DO ECRÃ DE JOGO DE COLORIR
 // ============================================================
 function iniciarJogoDesenho() {
     clearTimeout(timerAnimacaoCapa);
@@ -414,7 +407,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS E DESENHO INICIAL
+// 5. CONFIGURAÇÃO DO CANVAS E DESENHO PREENCHENDO A TELA A 100%
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
@@ -472,13 +465,8 @@ function desenharCenarioInicial() {
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const hRatio = canvas.width / imgDesenho.width;
-    const vRatio = canvas.height / imgDesenho.height;
-    const ratio = Math.min(hRatio, vRatio) * 0.85; 
-    const centerShiftX = (canvas.width - imgDesenho.width * ratio) / 2;
-    const centerShiftY = (canvas.height - imgDesenho.height * ratio) / 2;
-
-    ctx.drawImage(imgDesenho, 0, 0, imgDesenho.width, imgDesenho.height, centerShiftX, centerShiftY, imgDesenho.width * ratio, imgDesenho.height * ratio);
+    // Estica a imagem preenchendo exatamente todo o espaço do canvas (sem margens ou padding)
+    ctx.drawImage(imgDesenho, 0, 0, canvas.width, canvas.height);
 }
 
 function salvarEstadoHistorico() {
