@@ -20,7 +20,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL DO JOGO (ALTURA AJUSTADA E MAIS CORES)
+// 2. CONFIGURAÇÃO VISUAL DO JOGO (ALTURA REDUZIDA EM 10%)
 // ============================================================
 const styleJogo = document.createElement('style');
 styleJogo.innerHTML = `
@@ -33,13 +33,13 @@ styleJogo.innerHTML = `
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
-        flex: 1; height: 95%; min-height: 390px; display: flex; align-items: center; justify-content: center; position: relative;
+        flex: 1; height: 90%; min-height: 360px; display: flex; align-items: center; justify-content: center; position: relative;
     }
     canvas { display: block; cursor: crosshair; width: 100%; height: 100%; object-fit: contain; }
 
     .painel-estojo-vertical {
         display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        width: 270px; height: 95%; min-height: 390px; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 16px; 
+        width: 270px; height: 90%; min-height: 360px; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 16px; 
         border: 2px solid #E2D3AB; flex-shrink: 0; gap: 6px;
     }
 
@@ -154,7 +154,7 @@ styleJogo.innerHTML = `
     @media (max-width: 768px) {
         .jogo-layout-principal { flex-direction: column; }
         .painel-estojo-vertical { width: 100%; height: auto; min-height: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; }
-        .canvas-wrapper { min-height: 290px; }
+        .canvas-wrapper { min-height: 270px; }
         .seccao-cores { width: auto; flex: 1; }
         .seccao-ferramentas { width: auto; flex: 2; }
     }
@@ -229,7 +229,7 @@ function mudarDesenhoCapa(direcao) {
 
 
 // ============================================================
-// 4. LÓGICA DO JOGO DE COLORIR (COM MAIS CORES)
+// 4. LÓGICA DO JOGO DE COLORIR
 // ============================================================
 function iniciarJogoDesenho() {
     if (somClique.src) somClique.play().catch(()=>{});
