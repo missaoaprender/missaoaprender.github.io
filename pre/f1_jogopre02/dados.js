@@ -35,6 +35,12 @@ const DADOS = {
     }
   },
 
+  // Lista de desenhos para colorir (a apontar para a pasta imagens/colorir/)
+  desenhosParaColorir: [
+    { id: 1, nome: "Desenho 1", arquivo: "../../imagens/colorir/desenho1.png" },
+    { id: 2, nome: "Desenho 2", arquivo: "../../imagens/colorir/desenho2.png" }
+  ],
+
   sons: {
     certo: "",
     errado: ""
@@ -67,7 +73,7 @@ const DADOS = {
   },
 
   jogos: [
-    { nome: "Estojo Mágico", idade: "Pré-Escolar", imagem: "../../icons/gatos&caes.png", cor: "#ECA607", cor2: "#3E3E59", pagina: "jogo.js" }
+    { nome: "Estojo Mágico", idade: "Pré-Escolar", imagem: "../../icons/gatos&caes.png", cor: "#ECA607", cor2: "#3E3E59", pagina: "index.html" }
   ],
 
   menuAnos: [
