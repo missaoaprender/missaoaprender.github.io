@@ -8,7 +8,7 @@ const JOGO_CONFIG = {
 };
 
 let corAtual = "#ECA607";
-let tipoLapis = "normal"; 
+let ferramentaAtual = "lapis"; // "lapis", "borracha", "balde"
 let tamanhoPincel = 10;
 let isDrawing = false;
 let ctx = null;
@@ -65,10 +65,12 @@ style.innerHTML = `
     }
     .btn-ferramenta:active { transform: scale(0.95); }
     .btn-ferramenta.destaque { background: #ECA607; color: white; }
-    .btn-ferramenta.brilho-estilo { background: linear-gradient(135deg, #ff9aef 0%, #fecfef 99%, #feada6 100%); border-color: #ff6b97; color: #7a1c38; }
-    .btn-ferramenta.brilho-estilo.ativo { border-color: #262638; transform: scale(1.05); }
+    .btn-ferramenta.ativo { background: #ECA607; color: white; border-color: #262638; transform: scale(1.05); }
 
-    /* Botão de Som na Capa */
+    .icone-ferramenta-img {
+        width: 22px; height: 22px; object-fit: contain; pointer-events: none;
+    }
+
     .btn-capa-som {
         width: 48px; height: 48px; background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.8);
         border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
@@ -186,8 +188,8 @@ function iniciarJogoDesenho() {
                         <button class="grossura-btn ativo" onclick="mudarGrossura(10, this)">M</button>
                         <button class="grossura-btn" onclick="mudarGrossura(18, this)">G</button>
                         
-                        <button class="btn-ferramenta brilho-estilo" id="btnBrilho" onclick="ativarLapisBrilhante(this)"><i class="fas fa-magic"></i> Brilhantes ✨</button>
-                        <button class="btn-ferramenta" onclick="limparTela()"><i class="fas fa-trash-alt"></i> Limpar</button>
+                        <button class="btn-ferramenta" id="btnBorracha" onclick="ativarBorracha(this)"><img src="borracha.png" class="icone-ferramenta-img" alt="Borracha"> Borracha</button>
+                        <button class="btn-ferramenta" id="btnBalde" onclick="ativarBalde(this)"><img src="balde_tinta.png" class="icone-ferramenta-img" alt="Balde"> Preencher</button>
                         <button class="btn-ferramenta destaque" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                     </div>
                 </div>
@@ -211,10 +213,23 @@ function configurarCanvas() {
     const wrapper = document.getElementById('canvasWrapper');
     if (!canvas || !wrapper) return;
 
+    // Preservar o desenho atual se já existir ao redimensionar ou recriar
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width || wrapper.clientWidth;
+    tempCanvas.height = canvas.height || wrapper.clientHeight;
+    const tempCtx = tempCanvas.getContext('2d');
+    if (ctx) {
+        tempCtx.drawImage(canvas, 0, 0);
+    }
+
     canvas.width = wrapper.clientWidth;
     canvas.height = wrapper.clientHeight;
 
     ctx = canvas.getContext('2d');
+    if (ctx && canvas.width > 0 && tempCanvas.width > 0) {
+        ctx.drawImage(tempCanvas, 0, 0);
+    }
+
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = tamanhoPincel;
@@ -228,6 +243,12 @@ function configurarCanvas() {
     };
 
     const startDraw = (e) => {
+        if (ferramentaAtual === 'balde') {
+            preencherTelaComCor();
+            e.preventDefault();
+            return;
+        }
+
         isDrawing = true;
         const pos = getPos(e);
         ctx.beginPath();
@@ -236,23 +257,17 @@ function configurarCanvas() {
     };
 
     const draw = (e) => {
-        if (!isDrawing) return;
+        if (!isDrawing || ferramentaAtual === 'balde') return;
         const pos = getPos(e);
         
-        if (tipoLapis === 'brilhante') {
-            ctx.fillStyle = corAtual;
-            ctx.beginPath();
-            ctx.arc(pos.x + (Math.random()*10 - 5), pos.y + (Math.random()*10 - 5), Math.random() * 6 + 2, 0, Math.PI * 2);
-            ctx.fill();
-            
-            if (Math.random() > 0.5) {
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(pos.x + (Math.random()*14 - 7), pos.y + (Math.random()*14 - 7), 4, 4);
-            }
+        if (ferramentaAtual === 'borracha') {
+            ctx.strokeStyle = '#FFFFFF';
         } else {
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke();
+            ctx.strokeStyle = corAtual;
         }
+
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
         e.preventDefault();
     };
 
@@ -271,12 +286,12 @@ function configurarCanvas() {
 function mudarCor(novaCor, el) {
     if (somClique.src) somClique.play().catch(()=>{});
     corAtual = novaCor;
-    tipoLapis = 'normal';
+    ferramentaAtual = 'lapis';
     if (ctx) ctx.strokeStyle = corAtual;
     
     document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
-    const btnBrilho = document.getElementById('btnBrilho');
-    if (btnBrilho) btnBrilho.classList.remove('ativo');
+    document.getElementById('btnBorracha').classList.remove('ativo');
+    document.getElementById('btnBalde').classList.remove('ativo');
     
     if (el) el.classList.add('ativo');
 }
@@ -290,16 +305,27 @@ function mudarGrossura(tamanho, el) {
     if (el) el.classList.add('ativo');
 }
 
-function ativarLapisBrilhante(el) {
+function ativarBorracha(el) {
     if (somClique.src) somClique.play().catch(()=>{});
-    tipoLapis = 'brilhante';
+    ferramentaAtual = 'borracha';
     document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
+    document.getElementById('btnBalde').classList.remove('ativo');
     if (el) el.classList.add('ativo');
 }
 
-function limparTela() {
+function ativarBalde(el) {
     if (somClique.src) somClique.play().catch(()=>{});
-    if (ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ferramentaAtual = 'balde';
+    document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
+    document.getElementById('btnBorracha').classList.remove('ativo');
+    if (el) el.classList.add('ativo');
+}
+
+function preencherTelaComCor() {
+    if (!ctx || !canvas) return;
+    if (somClique.src) somClique.play().catch(()=>{});
+    ctx.fillStyle = corAtual;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function concluirDesenho() {
@@ -313,7 +339,7 @@ function concluirDesenho() {
             <div class="vitoria-card">
                 <img src="${iconeFeedback}" style="width:130px; height:130px; object-fit:contain;">
                 <h1 style="color:#C2890B; font-size:1.6rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
-                <p style="color:#555; font-weight:800; margin:0; font-size:0.9rem;">Fizeste um desenho maravilhoso com brilhantes!</p>
+                <p style="color:#555; font-weight:800; margin:0; font-size:0.9rem;">Fizeste um desenho maravilhoso!</p>
                 <div style="display:flex; justify-content:center; gap:14px; margin-top:8px; width:100%; max-width:440px;">
                     <button class="btn-final-roxo" onclick="iniciarJogoDesenho()">Desenhar Outro</button>
                     <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
