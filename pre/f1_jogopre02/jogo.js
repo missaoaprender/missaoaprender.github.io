@@ -32,7 +32,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL
+// 2. CONFIGURAÇÃO VISUAL (MOLDURA SELETORA MAIS QUADRADA E ALTA)
 // ============================================================
 const styleJogo = document.createElement('style');
 styleJogo.innerHTML = `
@@ -43,7 +43,7 @@ styleJogo.innerHTML = `
     }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* Lado Esquerdo: Área de Desenho sem margens internas */
+    /* Lado Esquerdo: Área de Desenho */
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
@@ -96,15 +96,15 @@ styleJogo.innerHTML = `
     }
     .btn-ferramenta-texto:active { transform: scale(0.95); }
 
-    /* Moldura Seletora ao dobro da altura e sem nome */
+    /* Moldura Seletora mais alta e com formato quadrado (100px de altura) */
     .moldura-selecao-desenho {
-        display: flex; align-items: center; justify-content: space-between; width: 100%; height: 75px;
-        background: white; border: 2.5px solid #ECA607; border-radius: 14px; padding: 6px;
+        display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100px;
+        background: white; border: 2.5px solid #ECA607; border-radius: 14px; padding: 8px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.08); gap: 6px; box-sizing: border-box;
     }
     .seta-desenho-btn {
-        background: #ECA607; color: white; border: none; width: 30px; height: 30px;
-        border-radius: 50%; font-size: 0.85rem; font-weight: 900; cursor: pointer;
+        background: #ECA607; color: white; border: none; width: 32px; height: 32px;
+        border-radius: 50%; font-size: 0.9rem; font-weight: 900; cursor: pointer;
         display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         transition: transform 0.1s; flex-shrink: 0;
     }
@@ -112,7 +112,7 @@ styleJogo.innerHTML = `
     .visor-desenho {
         display: flex; align-items: center; justify-content: center; flex: 1; height: 100%;
     }
-    .visor-desenho img { width: 60px; height: 60px; object-fit: contain; pointer-events: none; }
+    .visor-desenho img { width: 80px; height: 80px; object-fit: contain; pointer-events: none; }
 
     /* Estilos da Capa */
     .capa-container {
@@ -120,7 +120,7 @@ styleJogo.innerHTML = `
         flex: 1; width: 100%; height: 100%; gap: 10px; text-align: center;
     }
     .animacao-capa-area {
-        position: relative; width: 220px; height: 160px; background: white;
+        position: relative; width: 240px; height: 180px; background: white;
         border: 3px solid #ECA607; border-radius: 16px; overflow: hidden;
         box-shadow: 0 8px 20px rgba(236,166,7,0.25); display: flex; align-items: center; justify-content: center;
     }
@@ -175,7 +175,7 @@ document.head.appendChild(styleJogo);
 
 
 // ============================================================
-// 3. CAPA COM ANIMAÇÃO REAL DO JOGO
+// 3. CAPA COM ANIMAÇÃO REAL DE PINTURA POR PARTES
 // ============================================================
 function mostrarCapa() {
     clearTimeout(timerAnimacaoCapa);
@@ -197,13 +197,13 @@ function mostrarCapa() {
                 <div style="font-size: 1.3rem; font-weight: 900; color: #C2890B; text-transform: uppercase;">Estojo Mágico - Livro de Colorir</div>
                 
                 <div class="animacao-capa-area" onclick="tocarSomInstrucao()" title="Clica para ouvir a instrução!">
-                    <canvas id="capaCanvas" width="220" height="160"></canvas>
-                    <div id="capaMao" style="position:absolute; font-size:2.2rem; pointer-events:none; transition: all 0.1s linear;">✏️</div>
+                    <canvas id="capaCanvas" width="240" height="180"></canvas>
+                    <div id="capaMao" style="position:absolute; font-size:2.2rem; pointer-events:none; transition: all 0.2s ease;">🖌️</div>
                 </div>
 
                 <div style="font-size: 0.85rem; font-weight: 800; color: #555;">Escolhe o teu desenho e clica em começar!</div>
 
-                <div class="moldura-selecao-desenho" style="max-width: 240px; width: 100%;">
+                <div class="moldura-selecao-desenho" style="max-width: 260px; width: 100%;">
                     <button class="seta-desenho-btn" onclick="mudarDesenhoCapa(-1)">❮</button>
                     <div class="visor-desenho">
                         <img src="${atual.arquivo}" alt="Desenho">
@@ -224,14 +224,14 @@ function mostrarCapa() {
         `;
     }
 
-    setTimeout(iniciarAnimacaoCapa, 100);
+    setTimeout(iniciarAnimacaoCapaRealista, 100);
 }
 
-function iniciarAnimacaoCapa() {
+function iniciarAnimacaoCapaRealista() {
     const cCanvas = document.getElementById('capaCanvas');
     const cMao = document.getElementById('capaMao');
     if (!cCanvas || !cMao) return;
-    const cCtx = cCanvas.getContext('2d');
+    const cCtx = cCanvas.getContext('2d', { willReadFrequently: true });
 
     cCtx.fillStyle = "#FFFFFF";
     cCtx.fillRect(0, 0, cCanvas.width, cCanvas.height);
@@ -244,44 +244,110 @@ function iniciarAnimacaoCapa() {
         img.crossOrigin = "anonymous";
         img.onload = () => {
             cCtx.drawImage(img, 0, 0, cCanvas.width, cCanvas.height);
-            executarTrilhoPinturaAnimada(cCtx, cMao, cCanvas.width, cCanvas.height);
+            executarSimulacaoPintura(cCtx, cMao, cCanvas.width, cCanvas.height);
         };
         img.src = atual.arquivo;
     } else {
-        executarTrilhoPinturaAnimada(cCtx, cMao, cCanvas.width, cCanvas.height);
+        executarSimulacaoPintura(cCtx, cMao, cCanvas.width, cCanvas.height);
     }
 }
 
-function executarTrilhoPinturaAnimada(cCtx, cMao, w, h) {
-    const cores = ["#ECA607", "#ff5a5f", "#8cc63f", "#3a86ff", "#9b5de5"];
-    let passo = 0;
-    const pontos = [
-        { x: w * 0.2, y: h * 0.3 },
-        { x: w * 0.5, y: h * 0.2 },
-        { x: w * 0.8, y: h * 0.4 },
-        { x: w * 0.6, y: h * 0.7 },
-        { x: w * 0.3, y: h * 0.6 }
+function executarSimulacaoPintura(cCtx, cMao, w, h) {
+    const coresSimulacao = ["#ff5a5f", "#3a86ff", "#8cc63f", "#ff9f1c", "#9b5de5"];
+    // Pontos estratégicos simulados para pintar áreas do desenho passo a passo
+    const passosPintura = [
+        { x: w * 0.45, y: h * 0.35, cor: coresSimulacao[0] }, // cabeça/corpo
+        { x: w * 0.55, y: h * 0.70, cor: coresSimulacao[1] }, // parte inferior
+        { x: w * 0.30, y: h * 0.50, cor: coresSimulacao[2] }, // lado esquerdo
+        { x: w * 0.70, y: h * 0.50, cor: coresSimulacao[3] }  // lado direito
     ];
 
-    function animarStep() {
+    let indexPasso = 0;
+
+    function proximoPassoAnimacao() {
         if (!document.getElementById('capaCanvas')) return;
 
-        const pt = pontos[passo % pontos.length];
-        const cor = cores[passo % cores.length];
+        if (indexPasso < passosPintura.length) {
+            const p = passosPintura[indexPasso];
+            
+            // Move a mãozinha virtual para a zona a pintar
+            cMao.style.left = (p.x - 12) + "px";
+            cMao.style.top = (p.y - 28) + "px";
 
-        cMao.style.left = (pt.x - 10) + "px";
-        cMao.style.top = (pt.y - 25) + "px";
+            // Simula o preenchimento real (Flood Fill simulado no canvas da capa)
+            simularPreenchimentoCapa(cCtx, Math.floor(p.x), Math.floor(p.y), p.cor, w, h);
 
-        cCtx.beginPath();
-        cCtx.arc(pt.x, pt.y, 14, 0, Math.PI * 2);
-        cCtx.fillStyle = cor;
-        cCtx.fill();
-
-        passo++;
-        timerAnimacaoCapa = setTimeout(animarStep, 600);
+            indexPasso++;
+            timerAnimacaoCapa = setTimeout(proximoPassoAnimacao, 800);
+        } else {
+            // Reinicia a animação ao terminar os passos para ficar contínua
+            indexPasso = 0;
+            timerAnimacaoCapa = setTimeout(proximoPassoAnimacao, 1000);
+        }
     }
 
-    animarStep();
+    proximoPassoAnimacao();
+}
+
+function simularPreenchimentoCapa(ctx, startX, startY, hexCor, width, height) {
+    const imgData = ctx.getImageData(0, 0, width, height);
+    const data = imgData.data;
+
+    function hexToRgba(hex) {
+        let c = hex.replace('#', '');
+        if (c.length === 3) c = c.split('').map(x => x + x).join('');
+        const num = parseInt(c, 16);
+        return [(num >> 16) & 255, (num >> 8) & 255, num & 255, 255];
+    }
+
+    const fillColor = hexToRgba(hexCor);
+    const pos = (startY * width + startX) * 4;
+    const targetColor = [data[pos], data[pos + 1], data[pos + 2], data[pos + 3]];
+
+    if (targetColor[0] === fillColor[0] && targetColor[1] === fillColor[1] && targetColor[2] === fillColor[2]) return;
+
+    function colorMatch(idx) {
+        const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+        if (r < 70 && g < 70 && b < 70) return false; // Respeita as linhas pretas
+        const diff = Math.abs(r - targetColor[0]) + Math.abs(g - targetColor[1]) + Math.abs(b - targetColor[2]);
+        return diff < 80;
+    }
+
+    const pixelStack = [[startX, startY]];
+    while (pixelStack.length > 0) {
+        const [x, yCoord] = pixelStack.pop();
+        let y = yCoord;
+        let pixelPos = (y * width + x) * 4;
+
+        while (y >= 0 && colorMatch(pixelPos)) {
+            y--;
+            pixelPos -= width * 4;
+        }
+        pixelPos += width * 4;
+        y++;
+
+        let reachLeft = false, reachRight = false;
+        while (y < height && colorMatch(pixelPos)) {
+            data[pixelPos] = fillColor[0];
+            data[pixelPos + 1] = fillColor[1];
+            data[pixelPos + 2] = fillColor[2];
+            data[pixelPos + 3] = fillColor[3];
+
+            if (x > 0) {
+                if (colorMatch(pixelPos - 4)) {
+                    if (!reachLeft) { pixelStack.push([x - 1, y]); reachLeft = true; }
+                } else if (reachLeft) { reachLeft = false; }
+            }
+            if (x < width - 1) {
+                if (colorMatch(pixelPos + 4)) {
+                    if (!reachRight) { pixelStack.push([x + 1, y]); reachRight = true; }
+                } else if (reachRight) { reachRight = false; }
+            }
+            y++;
+            pixelPos += width * 4;
+        }
+    }
+    ctx.putImageData(imgData, 0, 0);
 }
 
 function tocarSomInstrucao() {
@@ -356,7 +422,7 @@ function iniciarJogoDesenho() {
                             </div>
                         </div>
 
-                        <!-- Moldura Seletora ao dobro da altura e sem nome -->
+                        <!-- Moldura Seletora mais alta e quadrada -->
                         <div class="moldura-selecao-desenho">
                             <button class="seta-desenho-btn" onclick="mudarDesenhoJogo(-1)">❮</button>
                             <div class="visor-desenho" id="visorDesenhoJogo"></div>
@@ -407,7 +473,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS E DESENHO PREENCHENDO A TELA A 100%
+// 5. CONFIGURAÇÃO DO CANVAS E DESENHO A 100%
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
@@ -464,8 +530,6 @@ function desenharCenarioInicial() {
     if (!ctx || !imgDesenho) return;
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Estica a imagem preenchendo exatamente todo o espaço do canvas (sem margens ou padding)
     ctx.drawImage(imgDesenho, 0, 0, canvas.width, canvas.height);
 }
 
