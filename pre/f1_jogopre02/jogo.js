@@ -8,12 +8,10 @@ const JOGO_CONFIG = {
 };
 
 let corAtual = "#ECA607";
-let ferramentaAtual = "lapis"; 
-let tamanhoPincel = 10;
-let isDrawing = false;
+let ferramentaAtual = "cor"; // "cor" ou "borracha"
 let ctx = null;
 let canvas = null;
-let ctxBuffer = null; // Buffer para preservar as linhas pretas originais
+let ctxBuffer = null; 
 let bufferCanvas = null;
 let historicoCanvas = []; 
 let indiceDesenhoAtual = 0;
@@ -24,7 +22,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL DO JOGO (LAYOUT LADO A LADO)
+// 2. CONFIGURAÇÃO VISUAL DO JOGO (LAYOUT LADO A LADO EXPANDIDO)
 // ============================================================
 const styleJogo = document.createElement('style');
 styleJogo.innerHTML = `
@@ -39,7 +37,7 @@ styleJogo.innerHTML = `
         box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
         flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;
     }
-    canvas { display: block; cursor: crosshair; width: 100%; height: 100%; }
+    canvas { display: block; cursor: crosshair; width: 100%; height: 100%; object-fit: contain; }
 
     .painel-estojo-vertical {
         display: flex; flex-direction: column; align-items: center; justify-content: space-between;
@@ -65,18 +63,11 @@ styleJogo.innerHTML = `
         display: flex; flex-direction: column; align-items: center; width: 100%; gap: 8px; flex: 1; justify-content: center;
     }
     .linha-ferramentas {
-        display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; width: 100%;
+        display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; width: 100%;
     }
-
-    .grossura-btn {
-        background: white; color: #C2890B; border: 2px solid #ECA607; width: 30px; height: 30px;
-        border-radius: 50%; font-weight: 900; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.1s;
-    }
-    .grossura-btn.ativo { background: #ECA607; color: white; transform: scale(1.1); }
 
     .btn-ferramenta-img {
-        background: white; border: 2px solid #ECA607; width: 38px; height: 38px;
+        background: white; border: 2px solid #ECA607; width: 42px; height: 42px;
         border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; padding: 4px;
     }
@@ -91,7 +82,6 @@ styleJogo.innerHTML = `
     }
     .btn-ferramenta-texto:active { transform: scale(0.95); }
 
-    /* Moldura de Seleção de Desenhos com Setas */
     .moldura-selecao-desenho {
         display: flex; align-items: center; justify-content: space-between; width: 100%;
         background: white; border: 2px solid #ECA607; border-radius: 14px; padding: 6px;
@@ -110,7 +100,6 @@ styleJogo.innerHTML = `
     .visor-desenho img { width: 65px; height: 65px; object-fit: contain; pointer-events: none; }
     .visor-desenho span { font-size: 0.75rem; font-weight: 900; color: #262638; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
 
-    /* Animação na Capa */
     .capa-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         flex: 1; width: 100%; gap: 15px; text-align: center;
@@ -241,7 +230,7 @@ function mudarDesenhoCapa(direcao) {
 
 
 // ============================================================
-// 4. LÓGICA DO JOGO DE COLORIR
+// 4. LÓGICA DO JOGO DE COLORIR (CLIQUE PARA PREENCHER)
 // ============================================================
 function iniciarJogoDesenho() {
     if (somClique.src) somClique.play().catch(()=>{});
@@ -274,18 +263,8 @@ function iniciarJogoDesenho() {
 
                     <div class="seccao-ferramentas">
                         <div class="linha-ferramentas">
-                            <span style="font-size:0.75rem; font-weight:800; color:#555;">Traço:</span>
-                            <button class="grossura-btn" onclick="mudarGrossura(4, this)">F</button>
-                            <button class="grossura-btn ativo" onclick="mudarGrossura(10, this)">M</button>
-                            <button class="grossura-btn" onclick="mudarGrossura(18, this)">G</button>
-                        </div>
-
-                        <div class="linha-ferramentas">
                             <div class="btn-ferramenta-img" id="btnBorracha" onclick="ativarBorracha(this)" title="Borracha">
                                 <img src="../../icons/borracha.png" alt="Borracha">
-                            </div>
-                            <div class="btn-ferramenta-img" id="btnBalde" onclick="ativarBalde(this)" title="Balde de Tinta">
-                                <img src="../../icons/balde_tinta.png" alt="Balde de Tinta">
                             </div>
                             <div class="btn-ferramenta-img" id="btnAnular" onclick="anularUltimaAcao()" title="Anular">
                                 <img src="../../icons/anular.png" alt="Anular">
@@ -308,7 +287,7 @@ function iniciarJogoDesenho() {
     const barra = document.getElementById('barra-inferior');
     if (barra) {
         barra.innerHTML = `
-            <div style="color:white; font-weight:800; font-size:0.95rem;">🎨 Pinta com as cores mágicas!</div>
+            <div style="color:white; font-weight:800; font-size:0.95rem;">🎨 Clica numa zona para preencher com a cor!</div>
             <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 12px; font-size:0.8rem; width:auto;">Voltar</button>
         `;
     }
@@ -343,21 +322,18 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS COM BUFFER (BORRACHA SEGURA)
+// 5. CONFIGURAÇÃO DO CANVAS E PREENCHIMENTO AUTOMÁTICO
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
     const wrapper = document.getElementById('canvasWrapper');
     if (!canvas || !wrapper) return;
 
-    canvas.width = wrapper.clientWidth;
-    canvas.height = wrapper.clientHeight;
+    // Resolução interna fixa de alta qualidade para preenchimento perfeito
+    canvas.width = 800;
+    canvas.height = 600;
 
     ctx = canvas.getContext('2d');
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = tamanhoPincel;
-    ctx.strokeStyle = corAtual;
 
     bufferCanvas = document.createElement('canvas');
     bufferCanvas.width = canvas.width;
@@ -377,9 +353,10 @@ function configurarCanvas() {
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.onload = () => {
+            // Ocupar o espaço máximo disponível mantendo a proporção
             const hRatio = canvas.width / img.width;
             const vRatio = canvas.height / img.height;
-            const ratio = Math.min(hRatio, vRatio) * 0.8;
+            const ratio = Math.min(hRatio, vRatio) * 0.95; 
             const centerShiftX = (canvas.width - img.width * ratio) / 2;
             const centerShiftY = (canvas.height - img.height * ratio) / 2;
 
@@ -397,58 +374,25 @@ function configurarCanvas() {
         const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        // Conversão exata de coordenadas do ecrã para a resolução interna do canvas
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+
         return { 
-            x: Math.floor(clientX - rect.left), 
-            y: Math.floor(clientY - rect.top) 
+            x: Math.floor((clientX - rect.left) * scaleX), 
+            y: Math.floor((clientY - rect.top) * scaleY) 
         };
     };
 
-    const startDraw = (e) => {
+    const lidarComClique = (e) => {
         const pos = getPos(e);
-        if (ferramentaAtual === 'balde') {
-            preencherAreaComCor(pos.x, pos.y);
-            e.preventDefault();
-            return;
-        }
-
-        isDrawing = true;
-        ctx.beginPath();
-        ctx.moveTo(pos.x, pos.y);
+        preencherAreaComCor(pos.x, pos.y);
         e.preventDefault();
     };
 
-    const draw = (e) => {
-        if (!isDrawing || ferramentaAtual === 'balde') return;
-        const pos = getPos(e);
-        
-        if (ferramentaAtual === 'borracha') {
-            ctx.strokeStyle = '#FFFFFF';
-        } else {
-            ctx.strokeStyle = corAtual;
-        }
-
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
-
-        ctx.drawImage(bufferCanvas, 0, 0);
-        e.preventDefault();
-    };
-
-    const endDraw = () => {
-        if (isDrawing) {
-            isDrawing = false;
-            salvarEstadoHistorico();
-        }
-    };
-
-    canvas.onmousedown = startDraw;
-    canvas.onmousemove = draw;
-    canvas.onmouseup = endDraw;
-    canvas.onmouseleave = endDraw;
-
-    canvas.ontouchstart = startDraw;
-    canvas.ontouchmove = draw;
-    canvas.ontouchend = endDraw;
+    canvas.onmousedown = lidarComClique;
+    canvas.ontouchstart = lidarComClique;
 }
 
 function redesenharTudo() {
@@ -476,44 +420,26 @@ function anularUltimaAcao() {
 function mudarCor(novaCor, el) {
     if (somClique.src) somClique.play().catch(()=>{});
     corAtual = novaCor;
-    ferramentaAtual = 'lapis';
-    if (ctx) ctx.strokeStyle = corAtual;
+    ferramentaAtual = 'cor';
     
     document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
-    document.getElementById('btnBorracha').classList.remove('ativo');
-    document.getElementById('btnBalde').classList.remove('ativo');
+    const btnBorracha = document.getElementById('btnBorracha');
+    if (btnBorracha) btnBorracha.classList.remove('ativo');
     
-    if (el) el.classList.add('ativo');
-}
-
-function mudarGrossura(tamanho, el) {
-    if (somClique.src) somClique.play().catch(()=>{});
-    tamanhoPincel = tamanho;
-    if (ctx) ctx.lineWidth = tamanhoPincel;
-    
-    document.querySelectorAll('.grossura-btn').forEach(b => b.classList.remove('ativo'));
     if (el) el.classList.add('ativo');
 }
 
 function ativarBorracha(el) {
     if (somClique.src) somClique.play().catch(()=>{});
+    corAtual = "#FFFFFF"; // Borracha pinta com branco a zona colorida
     ferramentaAtual = 'borracha';
     document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
-    document.getElementById('btnBalde').classList.remove('ativo');
-    if (el) el.classList.add('ativo');
-}
-
-function ativarBalde(el) {
-    if (somClique.src) somClique.play().catch(()=>{});
-    ferramentaAtual = 'balde';
-    document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
-    document.getElementById('btnBorracha').classList.remove('ativo');
     if (el) el.classList.add('ativo');
 }
 
 
 // ============================================================
-// 6. ALGORITMO DE PREENCHIMENTO (FLOOD FILL)
+// 6. ALGORITMO DE PREENCHIMENTO POR INUNDAÇÃO (FLOOD FILL)
 // ============================================================
 function hexToRgba(hex) {
     let c = hex.replace('#', '');
@@ -561,6 +487,7 @@ function preencherAreaComCor(startX, startY) {
         const gBuf = bufferData[idx + 1];
         const bBuf = bufferData[idx + 2];
         
+        // Protege as linhas pretas originais do desenho para nunca serem pintadas
         if (rBuf < 50 && gBuf < 50 && bBuf < 50) return false;
 
         const r = data[idx];
@@ -627,7 +554,7 @@ function preencherAreaComCor(startX, startY) {
     }
 
     ctx.putImageData(imgData, 0, 0);
-    redesenharTudo();
+    redesenharTudo(); // Assegura que os contornos pretos ficam sempre por cima perfeitamente nítidos
     salvarEstadoHistorico();
 }
 
