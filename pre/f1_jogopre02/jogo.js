@@ -32,7 +32,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (IMAGEM/CANVAS MAIS PEQUENA)
+// 2. CONFIGURAÇÃO VISUAL (MAIS CORES E MOLDURA MAIS ALTA SEM NOME)
 // ============================================================
 const styleJogo = document.createElement('style');
 styleJogo.innerHTML = `
@@ -43,7 +43,7 @@ styleJogo.innerHTML = `
     }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* Lado Esquerdo: Área de Desenho/Pintura (Ajustada para o canvas ficar mais pequeno) */
+    /* Lado Esquerdo: Área de Desenho/Pintura */
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
@@ -55,7 +55,7 @@ styleJogo.innerHTML = `
     /* Lado Direito: Estojo com Ferramentas e Seletor */
     .painel-estojo-vertical {
         display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        width: 220px; height: 100%; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 16px; 
+        width: 230px; height: 100%; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 16px; 
         border: 2px solid #E2D3AB; flex-shrink: 0; gap: 6px; box-sizing: border-box;
     }
 
@@ -63,12 +63,13 @@ styleJogo.innerHTML = `
         display: flex; flex-direction: column; align-items: center; width: 100%; gap: 4px;
         background: #FFF7E3; padding: 6px; border-radius: 12px; border: 1.5px solid #F3E0B5; box-sizing: border-box;
     }
+    /* Grelha de cores expandida (mais cores) */
     .grid-cores {
-        display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%; justify-items: center;
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 100%; justify-items: center;
     }
     
     .lapis-btn {
-        width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid white; cursor: pointer;
+        width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid white; cursor: pointer;
         box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: transform 0.1s;
     }
     .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.15); border-color: #262638; }
@@ -96,24 +97,23 @@ styleJogo.innerHTML = `
     }
     .btn-ferramenta-texto:active { transform: scale(0.95); }
 
-    /* Moldura Seletora de Desenho */
+    /* Moldura Seletora ao dobro da altura e sem texto de nome */
     .moldura-selecao-desenho {
-        display: flex; align-items: center; justify-content: space-between; width: 100%;
-        background: white; border: 2px solid #ECA607; border-radius: 12px; padding: 4px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08); gap: 4px; box-sizing: border-box;
+        display: flex; align-items: center; justify-content: space-between; width: 100%; height: 75px;
+        background: white; border: 2.5px solid #ECA607; border-radius: 14px; padding: 6px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08); gap: 6px; box-sizing: border-box;
     }
     .seta-desenho-btn {
-        background: #ECA607; color: white; border: none; width: 26px; height: 26px;
-        border-radius: 50%; font-size: 0.8rem; font-weight: 900; cursor: pointer;
+        background: #ECA607; color: white; border: none; width: 30px; height: 30px;
+        border-radius: 50%; font-size: 0.85rem; font-weight: 900; cursor: pointer;
         display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         transition: transform 0.1s; flex-shrink: 0;
     }
     .seta-desenho-btn:active { transform: scale(0.9); }
     .visor-desenho {
-        display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; text-align: center;
+        display: flex; align-items: center; justify-content: center; flex: 1; height: 100%;
     }
-    .visor-desenho img { width: 42px; height: 42px; object-fit: contain; pointer-events: none; }
-    .visor-desenho span { font-size: 0.65rem; font-weight: 900; color: #262638; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; }
+    .visor-desenho img { width: 60px; height: 60px; object-fit: contain; pointer-events: none; }
 
     /* Estilos da Capa */
     .capa-container {
@@ -191,7 +191,7 @@ function mostrarCapa() {
     const area = document.getElementById('contentor-jogo');
     if (area) {
         const desenhos = obterListaDesenhos();
-        const atual = desenhos[indiceDesenhoAtual] || { nome: "Desenho", arquivo: "" };
+        const atual = desenhos[indiceDesenhoAtual] || { arquivo: "" };
 
         area.innerHTML = `
             <div class="capa-container">
@@ -207,8 +207,7 @@ function mostrarCapa() {
                 <div class="moldura-selecao-desenho" style="max-width: 240px; width: 100%;">
                     <button class="seta-desenho-btn" onclick="mudarDesenhoCapa(-1)">❮</button>
                     <div class="visor-desenho">
-                        <img src="${atual.arquivo}" alt="${atual.nome}">
-                        <span>${atual.nome}</span>
+                        <img src="${atual.arquivo}" alt="Desenho">
                     </div>
                     <button class="seta-desenho-btn" onclick="mudarDesenhoCapa(1)">❯</button>
                 </div>
@@ -312,7 +311,7 @@ function mudarDesenhoCapa(direcao) {
 
 
 // ============================================================
-// 4. LÓGICA DO ECRÃ DE JOGO DE COLORIR
+// 4. LÓGICA DO ECRÃ DE JOGO DE COLORIR (COM MAIS CORES)
 // ============================================================
 function iniciarJogoDesenho() {
     clearTimeout(timerAnimacaoCapa);
@@ -335,16 +334,20 @@ function iniciarJogoDesenho() {
                     <div class="seccao-cores">
                         <span style="font-size:0.6rem; font-weight:900; color:#C2890B; text-transform:uppercase;">Cores</span>
                         <div class="grid-cores">
-                            <div class="lapis-btn ativo" style="background:#ECA607;" onclick="mudarCor('#ECA607', this)" title="Amarelo"></div>
+                            <div class="lapis-btn ativo" style="background:#ECA607;" onclick="mudarCor('#ECA607', this)" title="Amarelo Ouro"></div>
+                            <div class="lapis-btn" style="background:#ffd166;" onclick="mudarCor('#ffd166', this)" title="Amarelo Claro"></div>
                             <div class="lapis-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)" title="Vermelho"></div>
                             <div class="lapis-btn" style="background:#ff9f1c;" onclick="mudarCor('#ff9f1c', this)" title="Laranja"></div>
-                            <div class="lapis-btn" style="background:#8cc63f;" onclick="mudarCor('#8cc63f', this)" title="Verde"></div>
+                            <div class="lapis-btn" style="background:#8cc63f;" onclick="mudarCor('#8cc63f', this)" title="Verde Claro"></div>
+                            <div class="lapis-btn" style="background:#06d6a0;" onclick="mudarCor('#06d6a0', this)" title="Verde Menta"></div>
                             <div class="lapis-btn" style="background:#2ec4b6;" onclick="mudarCor('#2ec4b6', this)" title="Verde Água"></div>
                             <div class="lapis-btn" style="background:#3a86ff;" onclick="mudarCor('#3a86ff', this)" title="Azul"></div>
+                            <div class="lapis-btn" style="background:#4361ee;" onclick="mudarCor('#4361ee', this)" title="Azul Escuro"></div>
                             <div class="lapis-btn" style="background:#7209b7;" onclick="mudarCor('#7209b7', this)" title="Roxo"></div>
                             <div class="lapis-btn" style="background:#9b5de5;" onclick="mudarCor('#9b5de5', this)" title="Lilás"></div>
-                            <div class="lapis-btn" style="background:#ff007f;" onclick="mudarCor('#ff007f', this)" title="Rosa"></div>
+                            <div class="lapis-btn" style="background:#ff007f;" onclick="mudarCor('#ff007f', this)" title="Rosa Choque"></div>
                             <div class="lapis-btn" style="background:#ff70a6;" onclick="mudarCor('#ff70a6', this)" title="Rosa Pastel"></div>
+                            <div class="lapis-btn" style="background:#8d5524;" onclick="mudarCor('#8d5524', this)" title="Castanho"></div>
                             <div class="lapis-btn" style="background:#262638;" onclick="mudarCor('#262638', this)" title="Preto"></div>
                             <div class="lapis-btn" style="background:#FFFFFF; border:2px solid #E2D3AB;" onclick="mudarCor('#FFFFFF', this)" title="Branco"></div>
                         </div>
@@ -360,7 +363,7 @@ function iniciarJogoDesenho() {
                             </div>
                         </div>
 
-                        <!-- Moldura Seletora no Fundo do Painel -->
+                        <!-- Moldura Seletora ao dobro da altura e sem nome -->
                         <div class="moldura-selecao-desenho">
                             <button class="seta-desenho-btn" onclick="mudarDesenhoJogo(-1)">❮</button>
                             <div class="visor-desenho" id="visorDesenhoJogo"></div>
@@ -390,10 +393,9 @@ function atualizarVisorJogo() {
     const visor = document.getElementById('visorDesenhoJogo');
     if (!visor) return;
     const lista = obterListaDesenhos();
-    const atual = lista[indiceDesenhoAtual] || { nome: "", arquivo: "" };
+    const atual = lista[indiceDesenhoAtual] || { arquivo: "" };
     visor.innerHTML = `
-        <img src="${atual.arquivo}" alt="${atual.nome}">
-        <span>${atual.nome}</span>
+        <img src="${atual.arquivo}" alt="Desenho">
     `;
 }
 
@@ -472,8 +474,6 @@ function desenharCenarioInicial() {
 
     const hRatio = canvas.width / imgDesenho.width;
     const vRatio = canvas.height / imgDesenho.height;
-    
-    // Proporção reduzida para 0.85 para a imagem ficar mais pequena e contida no ecrã de jogo
     const ratio = Math.min(hRatio, vRatio) * 0.85; 
     const centerShiftX = (canvas.width - imgDesenho.width * ratio) / 2;
     const centerShiftY = (canvas.height - imgDesenho.height * ratio) / 2;
@@ -563,7 +563,6 @@ function preencherAreaComCor(startX, startY) {
         const g = data[idx + 1];
         const b = data[idx + 2];
         
-        // Linhas pretas/escuras do desenho não devem ser pintadas
         if (r < 70 && g < 70 && b < 70) return false;
 
         const diff = Math.abs(r - targetColor[0]) +
