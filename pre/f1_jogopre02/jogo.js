@@ -8,11 +8,9 @@ const JOGO_CONFIG = {
 };
 
 let corAtual = "#ECA607";
-let ferramentaAtual = "cor"; // "cor" ou "borracha"
 let ctx = null;
 let canvas = null;
-let ctxBuffer = null; 
-let bufferCanvas = null;
+let imgDesenho = null;
 let historicoCanvas = []; 
 let indiceDesenhoAtual = 0;
 
@@ -230,7 +228,7 @@ function mudarDesenhoCapa(direcao) {
 
 
 // ============================================================
-// 4. LÓGICA DO JOGO DE COLORIR (CLIQUE PARA PREENCHER)
+// 4. LÓGICA DO JOGO DE COLORIR
 // ============================================================
 function iniciarJogoDesenho() {
     if (somClique.src) somClique.play().catch(()=>{});
@@ -322,51 +320,31 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS E PREENCHIMENTO AUTOMÁTICO
+// 5. CONFIGURAÇÃO DO CANVAS E PREENCHIMENTO INTELIGENTE
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
     const wrapper = document.getElementById('canvasWrapper');
     if (!canvas || !wrapper) return;
 
-    // Resolução interna fixa de alta qualidade para preenchimento perfeito
-    canvas.width = 800;
-    canvas.height = 600;
-
+    canvas.width = 900;
+    canvas.height = 700;
     ctx = canvas.getContext('2d');
-
-    bufferCanvas = document.createElement('canvas');
-    bufferCanvas.width = canvas.width;
-    bufferCanvas.height = canvas.height;
-    ctxBuffer = bufferCanvas.getContext('2d');
-
-    ctxBuffer.fillStyle = "#FFFFFF";
-    ctxBuffer.fillRect(0, 0, canvas.width, canvas.height);
-
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     const lista = DADOS.desenhosParaColorir || [];
     const atual = lista[indiceDesenhoAtual];
 
     if (atual && atual.arquivo) {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => {
-            // Ocupar o espaço máximo disponível mantendo a proporção
-            const hRatio = canvas.width / img.width;
-            const vRatio = canvas.height / img.height;
-            const ratio = Math.min(hRatio, vRatio) * 0.95; 
-            const centerShiftX = (canvas.width - img.width * ratio) / 2;
-            const centerShiftY = (canvas.height - img.height * ratio) / 2;
-
-            ctxBuffer.drawImage(img, 0, 0, img.width, img.height, centerShiftX, centerShiftY, img.width * ratio, img.height * ratio);
-            
-            redesenharTudo();
+        imgDesenho = new Image();
+        imgDesenho.crossOrigin = "anonymous";
+        imgDesenho.onload = () => {
+            desenharCenarioInicial();
             salvarEstadoHistorico();
         };
-        img.src = atual.arquivo;
+        imgDesenho.src = atual.arquivo;
     } else {
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         salvarEstadoHistorico();
     }
 
@@ -375,7 +353,6 @@ function configurarCanvas() {
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         
-        // Conversão exata de coordenadas do ecrã para a resolução interna do canvas
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
 
@@ -395,9 +372,18 @@ function configurarCanvas() {
     canvas.ontouchstart = lidarComClique;
 }
 
-function redesenharTudo() {
-    if (!ctx || !bufferCanvas) return;
-    ctx.drawImage(bufferCanvas, 0, 0);
+function desenharCenarioInicial() {
+    if (!ctx || !imgDesenho) return;
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const hRatio = canvas.width / imgDesenho.width;
+    const vRatio = canvas.height / imgDesenho.height;
+    const ratio = Math.min(hRatio, vRatio) * 0.95; 
+    const centerShiftX = (canvas.width - imgDesenho.width * ratio) / 2;
+    const centerShiftY = (canvas.height - imgDesenho.height * ratio) / 2;
+
+    ctx.drawImage(imgDesenho, 0, 0, imgDesenho.width, imgDesenho.height, centerShiftX, centerShiftY, imgDesenho.width * ratio, imgDesenho.height * ratio);
 }
 
 function salvarEstadoHistorico() {
@@ -420,7 +406,6 @@ function anularUltimaAcao() {
 function mudarCor(novaCor, el) {
     if (somClique.src) somClique.play().catch(()=>{});
     corAtual = novaCor;
-    ferramentaAtual = 'cor';
     
     document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
     const btnBorracha = document.getElementById('btnBorracha');
@@ -431,15 +416,14 @@ function mudarCor(novaCor, el) {
 
 function ativarBorracha(el) {
     if (somClique.src) somClique.play().catch(()=>{});
-    corAtual = "#FFFFFF"; // Borracha pinta com branco a zona colorida
-    ferramentaAtual = 'borracha';
+    corAtual = "#FFFFFF"; 
     document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
     if (el) el.classList.add('ativo');
 }
 
 
 // ============================================================
-// 6. ALGORITMO DE PREENCHIMENTO POR INUNDAÇÃO (FLOOD FILL)
+// 6. ALGORITMO DE PREENCHIMENTO RÁPIDO (FLOOD FILL)
 // ============================================================
 function hexToRgba(hex) {
     let c = hex.replace('#', '');
@@ -456,7 +440,7 @@ function hexToRgba(hex) {
 }
 
 function preencherAreaComCor(startX, startY) {
-    if (!ctx || !canvas || !bufferCanvas) return;
+    if (!ctx || !canvas) return;
     if (somClique.src) somClique.play().catch(()=>{});
 
     const width = canvas.width;
@@ -465,9 +449,6 @@ function preencherAreaComCor(startX, startY) {
 
     const imgData = ctx.getImageData(0, 0, width, height);
     const data = imgData.data;
-
-    const bufferCtx = bufferCanvas.getContext('2d');
-    const bufferData = bufferCtx.getImageData(0, 0, width, height).data;
 
     const fillColor = hexToRgba(corAtual);
     const pos = (startY * width + startX) * 4;
@@ -483,21 +464,17 @@ function preencherAreaComCor(startX, startY) {
     }
 
     function colorMatch(idx) {
-        const rBuf = bufferData[idx];
-        const gBuf = bufferData[idx + 1];
-        const bBuf = bufferData[idx + 2];
-        
-        // Protege as linhas pretas originais do desenho para nunca serem pintadas
-        if (rBuf < 50 && gBuf < 50 && bBuf < 50) return false;
-
         const r = data[idx];
         const g = data[idx + 1];
         const b = data[idx + 2];
+        
+        // Se detetar linha preta de contorno, para o preenchimento para não estragar o desenho
+        if (r < 60 && g < 60 && b < 60) return false;
 
         const diff = Math.abs(r - targetColor[0]) +
                      Math.abs(g - targetColor[1]) +
                      Math.abs(b - targetColor[2]);
-        return diff < 60;
+        return diff < 65;
     }
 
     const pixelStack = [[startX, startY]];
@@ -554,7 +531,6 @@ function preencherAreaComCor(startX, startY) {
     }
 
     ctx.putImageData(imgData, 0, 0);
-    redesenharTudo(); // Assegura que os contornos pretos ficam sempre por cima perfeitamente nítidos
     salvarEstadoHistorico();
 }
 
