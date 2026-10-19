@@ -468,7 +468,6 @@ function preencherAreaComCor(startX, startY) {
         const g = data[idx + 1];
         const b = data[idx + 2];
         
-        // Se detetar linha preta de contorno, para o preenchimento para não estragar o desenho
         if (r < 60 && g < 60 && b < 60) return false;
 
         const diff = Math.abs(r - targetColor[0]) +
