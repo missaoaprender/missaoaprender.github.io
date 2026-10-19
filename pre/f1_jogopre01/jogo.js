@@ -7,7 +7,7 @@ const JOGO_CONFIG = {
     caminhoIconsMenu: "../../icons/"
 };
 
-let corAtual = "#EFAA0F";
+let corAtual = "#ECA607";
 let tipoLapis = "normal"; 
 let tamanhoPincel = 10;
 let isDrawing = false;
@@ -16,6 +16,7 @@ let canvas = null;
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
+const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
@@ -51,30 +52,30 @@ style.innerHTML = `
     .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.15); border-color: #262638; }
 
     .grossura-btn {
-        background: white; color: #C2890B; border: 2px solid #EFAA0F; width: 32px; height: 32px;
+        background: white; color: #C2890B; border: 2px solid #ECA607; width: 32px; height: 32px;
         border-radius: 50%; font-weight: 900; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
         box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.1s;
     }
-    .grossura-btn.ativo { background: #EFAA0F; color: white; transform: scale(1.1); }
+    .grossura-btn.ativo { background: #ECA607; color: white; transform: scale(1.1); }
 
     .btn-ferramenta {
-        background: white; color: #C2890B; border: 2px solid #EFAA0F; padding: 6px 14px;
+        background: white; color: #C2890B; border: 2px solid #ECA607; padding: 6px 14px;
         border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; display: flex; align-items: center; gap: 5px;
     }
     .btn-ferramenta:active { transform: scale(0.95); }
-    .btn-ferramenta.destaque { background: #EFAA0F; color: white; }
+    .btn-ferramenta.destaque { background: #ECA607; color: white; }
     .btn-ferramenta.brilho-estilo { background: linear-gradient(135deg, #ff9aef 0%, #fecfef 99%, #feada6 100%); border-color: #ff6b97; color: #7a1c38; }
     .btn-ferramenta.brilho-estilo.ativo { border-color: #262638; transform: scale(1.05); }
 
-    /* Barra da Capa com Info e Jogar */
-    .btn-capa-info {
-        width: 44px; height: 44px; background: rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.6);
-        border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white;
-        font-size: 1.2rem; font-weight: 900; transition: transform 0.1s;
+    /* Botão de Som na Capa */
+    .btn-capa-som {
+        width: 48px; height: 48px; background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.8);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
+        transition: transform 0.1s; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     }
-    .btn-capa-info:active { transform: scale(0.92); }
-    .btn-capa-info img { width: 24px; height: 24px; object-fit: contain; }
+    .btn-capa-som:active { transform: scale(0.92); }
+    .btn-capa-som img { width: 26px; height: 26px; object-fit: contain; }
 
     .btn-capa-jogar {
         background: white; color: #C2890B; border: none;
@@ -83,17 +84,6 @@ style.innerHTML = `
         text-transform: uppercase;
     }
     .btn-capa-jogar:active { transform: scale(0.95); }
-
-    #instrucoes-panel { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10000; transition: transform 0.5s ease; transform: translateY(100%); visibility: hidden; padding: 40px 25px; overflow-y: auto; border-radius: 35px 35px 0 0; }
-    #instrucoes-panel.open { transform: translateY(0); visibility: visible; }
-    .close-x { position: absolute; top: 15px; right: 20px; font-size: 2.5rem; color: #EFAA0F; cursor: pointer; font-weight: 900; line-height: 1; transition: 0.2s; }
-    .close-x:hover { transform: scale(1.2); }
-
-    .inst-content { max-width: 600px; margin: 0 auto; text-align: left; }
-    .inst-header { color: #C2890B; text-align: center; font-size: 1.8rem; font-weight: 900; margin-bottom: 25px; text-transform: uppercase; border-bottom: 3px solid ${DADOS.cores.fundo}; padding-bottom: 10px; }
-    .inst-section-title { color: #444; font-size: 1.2rem; font-weight: 800; margin: 20px 0 12px; display: flex; align-items: center; gap: 10px; }
-    .inst-section-title::before { content: ''; width: 6px; height: 22px; background: #EFAA0F; border-radius: 3px; display: inline-block; }
-    .inst-text { color: #555; font-size: 1rem; line-height: 1.5; background: #f9f9f9; padding: 15px; border-radius: 15px; border-left: 5px solid #EFAA0F; }
 
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
@@ -104,21 +94,21 @@ style.innerHTML = `
     
     .feedback-bottom-bar {
         position: absolute; bottom: 20px; left: 24px; right: 24px; height: 14px;
-        background: #EFAA0F; border-radius: 7px;
+        background: #ECA607; border-radius: 7px;
     }
 
     .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 25px; width: 100%; max-width: 480px; }
     
     .btn-final-roxo {
-        background: #EFAA0F; color: white; border: none; padding: 14px 20px;
+        background: #ECA607; color: white; border: none; padding: 14px 20px;
         border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(239,170,15,0.3); text-transform: capitalize; transition: transform 0.1s;
+        box-shadow: 0 6px 15px rgba(236,166,7,0.3); text-transform: capitalize; transition: transform 0.1s;
         white-space: nowrap; flex: 1; text-align: center;
     }
     .btn-final-roxo:active { transform: scale(0.95); }
 
     .btn-final-branco {
-        background: white; color: #C2890B; border: 2px solid #EFAA0F; padding: 14px 20px;
+        background: white; color: #C2890B; border: 2px solid #ECA607; padding: 14px 20px;
         border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
         box-shadow: 0 6px 15px rgba(0,0,0,0.08); text-transform: capitalize; transition: transform 0.1s;
         white-space: nowrap; flex: 1; text-align: center;
@@ -129,21 +119,10 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA E INSTRUÇÕES
+// 3. CAPA E REPRODUÇÃO DE SOM
 // ============================================================
 function mostrarCapa() {
-    if(!document.getElementById('instrucoes-panel')) {
-        const panel = document.createElement('div');
-        panel.id = 'instrucoes-panel';
-        panel.innerHTML = `
-            <span class="close-x" onclick="toggleInstructions()">&times;</span>
-            <div class="inst-content">
-                <div class="inst-header">Como Usar o Estojo Mágico</div>
-                <div class="inst-section-title">Lápis, Grossuras e Brilhantes!</div>
-                <p class="inst-text">Escolhe a cor do teu lápis, seleciona a grossura do traço e experimenta o <b>Lápis com Brilhantes</b> para criações mágicas com estrelinhas. Podes limpar o desenho quando quiseres ou concluí-lo para receberes os parabéns!</p>
-            </div>`;
-        document.body.appendChild(panel);
-        
+    if(!document.getElementById('round-feedback')) {
         const feedback = document.createElement('div');
         feedback.id = 'round-feedback';
         document.querySelector('.botao-ano').appendChild(feedback);
@@ -153,7 +132,7 @@ function mostrarCapa() {
     if (area) {
         area.innerHTML = `
             <div style="font-size: 1.5rem; font-weight: 900; color: #C2890B; margin-bottom: 10px; text-transform: uppercase;">Estojo de Desenho Mágico</div>
-            <div style="background: rgba(239,170,15,0.15); width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(239,170,15,0.2);">✏️✨</div>
+            <div style="background: rgba(236,166,7,0.15); width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(236,166,7,0.2);">✏️✨</div>
         `;
     }
 
@@ -162,15 +141,16 @@ function mostrarCapa() {
         barra.style.display = 'flex';
         barra.className = "barra-jogo-topo";
         barra.innerHTML = `
-            <div class="btn-capa-info" onclick="toggleInstructions()"><img src="${DADOS.icons.info}" alt="Info"></div>
+            <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
             <button class="btn-capa-jogar" onclick="iniciarJogoDesenho()">COMEÇAR</button>
         `;
     }
 }
 
-function toggleInstructions() { 
+function tocarSomInstrucao() {
     if (somClique.src) somClique.play().catch(()=>{});
-    document.getElementById('instrucoes-panel').classList.toggle('open'); 
+    somInstrucao.currentTime = 0;
+    somInstrucao.play().catch(()=>{});
 }
 
 
@@ -191,7 +171,7 @@ function iniciarJogoDesenho() {
                 </div>
                 <div class="painel-estojo">
                     <div class="linha-lapis">
-                        <div class="lapis-btn ativo" style="background:#EFAA0F;" onclick="mudarCor('#EFAA0F', this)"></div>
+                        <div class="lapis-btn ativo" style="background:#ECA607;" onclick="mudarCor('#ECA607', this)"></div>
                         <div class="lapis-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)"></div>
                         <div class="lapis-btn" style="background:#8cc63f;" onclick="mudarCor('#8cc63f', this)"></div>
                         <div class="lapis-btn" style="background:#3a86ff;" onclick="mudarCor('#3a86ff', this)"></div>
@@ -231,7 +211,6 @@ function configurarCanvas() {
     const wrapper = document.getElementById('canvasWrapper');
     if (!canvas || !wrapper) return;
 
-    // Ajustar o tamanho interno do canvas para corresponder ao espaço real do container em qualquer dispositivo
     canvas.width = wrapper.clientWidth;
     canvas.height = wrapper.clientHeight;
 
