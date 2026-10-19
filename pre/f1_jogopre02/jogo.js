@@ -20,7 +20,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL DO JOGO (LAYOUT LADO A LADO EQUILIBRADO)
+// 2. CONFIGURAÇÃO VISUAL DO JOGO (ALTURA AJUSTADA E MAIS CORES)
 // ============================================================
 const styleJogo = document.createElement('style');
 styleJogo.innerHTML = `
@@ -33,39 +33,39 @@ styleJogo.innerHTML = `
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
-        flex: 1; height: 100%; min-height: 420px; display: flex; align-items: center; justify-content: center; position: relative;
+        flex: 1; height: 95%; min-height: 390px; display: flex; align-items: center; justify-content: center; position: relative;
     }
     canvas { display: block; cursor: crosshair; width: 100%; height: 100%; object-fit: contain; }
 
     .painel-estojo-vertical {
         display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        width: 260px; height: 100%; min-height: 420px; background: rgba(255,255,255,0.9); padding: 10px; border-radius: 16px; 
-        border: 2px solid #E2D3AB; flex-shrink: 0; gap: 8px;
+        width: 270px; height: 95%; min-height: 390px; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 16px; 
+        border: 2px solid #E2D3AB; flex-shrink: 0; gap: 6px;
     }
 
     .seccao-cores {
-        display: flex; flex-direction: column; align-items: center; width: 100%; gap: 6px;
-        background: #FFF7E3; padding: 8px; border-radius: 12px; border: 1.5px solid #F3E0B5;
+        display: flex; flex-direction: column; align-items: center; width: 100%; gap: 4px;
+        background: #FFF7E3; padding: 6px; border-radius: 12px; border: 1.5px solid #F3E0B5;
     }
     .grid-cores {
-        display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; width: 100%; justify-items: center;
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 100%; justify-items: center;
     }
     
     .lapis-btn {
-        width: 34px; height: 34px; border-radius: 50%; border: 3px solid white; cursor: pointer;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.15); transition: transform 0.1s;
+        width: 30px; height: 30px; border-radius: 50%; border: 2.5px solid white; cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: transform 0.1s;
     }
     .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.15); border-color: #262638; }
 
     .seccao-ferramentas {
-        display: flex; flex-direction: column; align-items: center; width: 100%; gap: 8px; flex: 1; justify-content: center;
+        display: flex; flex-direction: column; align-items: center; width: 100%; gap: 6px; flex: 1; justify-content: center;
     }
     .linha-ferramentas {
         display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; width: 100%;
     }
 
     .btn-ferramenta-img {
-        background: white; border: 2px solid #ECA607; width: 42px; height: 42px;
+        background: white; border: 2px solid #ECA607; width: 38px; height: 38px;
         border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; padding: 4px;
     }
@@ -74,7 +74,7 @@ styleJogo.innerHTML = `
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
     .btn-ferramenta-texto {
-        background: #ECA607; color: white; border: none; padding: 8px 16px; width: 100%;
+        background: #ECA607; color: white; border: none; padding: 7px 14px; width: 100%;
         border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
         box-shadow: 0 3px 8px rgba(236,166,7,0.3); transition: transform 0.1s; text-align: center;
     }
@@ -82,21 +82,21 @@ styleJogo.innerHTML = `
 
     .moldura-selecao-desenho {
         display: flex; align-items: center; justify-content: space-between; width: 100%;
-        background: white; border: 2px solid #ECA607; border-radius: 14px; padding: 6px;
+        background: white; border: 2px solid #ECA607; border-radius: 14px; padding: 5px;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08); gap: 6px;
     }
     .seta-desenho-btn {
-        background: #ECA607; color: white; border: none; width: 32px; height: 32px;
-        border-radius: 50%; font-size: 1rem; font-weight: 900; cursor: pointer;
+        background: #ECA607; color: white; border: none; width: 30px; height: 30px;
+        border-radius: 50%; font-size: 0.9rem; font-weight: 900; cursor: pointer;
         display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         transition: transform 0.1s; flex-shrink: 0;
     }
     .seta-desenho-btn:active { transform: scale(0.9); }
     .visor-desenho {
-        display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; text-align: center;
+        display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; text-align: center;
     }
-    .visor-desenho img { width: 65px; height: 65px; object-fit: contain; pointer-events: none; }
-    .visor-desenho span { font-size: 0.75rem; font-weight: 900; color: #262638; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+    .visor-desenho img { width: 55px; height: 55px; object-fit: contain; pointer-events: none; }
+    .visor-desenho span { font-size: 0.7rem; font-weight: 900; color: #262638; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
 
     .capa-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -153,8 +153,8 @@ styleJogo.innerHTML = `
 
     @media (max-width: 768px) {
         .jogo-layout-principal { flex-direction: column; }
-        .painel-estojo-vertical { width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; }
-        .canvas-wrapper { min-height: 320px; }
+        .painel-estojo-vertical { width: 100%; height: auto; min-height: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+        .canvas-wrapper { min-height: 290px; }
         .seccao-cores { width: auto; flex: 1; }
         .seccao-ferramentas { width: auto; flex: 2; }
     }
@@ -229,7 +229,7 @@ function mudarDesenhoCapa(direcao) {
 
 
 // ============================================================
-// 4. LÓGICA DO JOGO DE COLORIR
+// 4. LÓGICA DO JOGO DE COLORIR (COM MAIS CORES)
 // ============================================================
 function iniciarJogoDesenho() {
     if (somClique.src) somClique.play().catch(()=>{});
@@ -246,16 +246,19 @@ function iniciarJogoDesenho() {
 
                 <div class="painel-estojo-vertical">
                     <div class="seccao-cores">
-                        <span style="font-size:0.75rem; font-weight:900; color:#C2890B; text-transform:uppercase;">Cores</span>
+                        <span style="font-size:0.7rem; font-weight:900; color:#C2890B; text-transform:uppercase;">Cores</span>
                         <div class="grid-cores">
-                            <div class="lapis-btn ativo" style="background:#ECA607;" onclick="mudarCor('#ECA607', this)"></div>
-                            <div class="lapis-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)"></div>
-                            <div class="lapis-btn" style="background:#8cc63f;" onclick="mudarCor('#8cc63f', this)"></div>
-                            <div class="lapis-btn" style="background:#3a86ff;" onclick="mudarCor('#3a86ff', this)"></div>
-                            <div class="lapis-btn" style="background:#9b5de5;" onclick="mudarCor('#9b5de5', this)"></div>
-                            <div class="lapis-btn" style="background:#ff007f;" onclick="mudarCor('#ff007f', this)"></div>
-                            <div class="lapis-btn" style="background:#00f5d4;" onclick="mudarCor('#00f5d4', this)"></div>
-                            <div class="lapis-btn" style="background:#262638;" onclick="mudarCor('#262638', this)"></div>
+                            <div class="lapis-btn ativo" style="background:#ECA607;" onclick="mudarCor('#ECA607', this)" title="Amarelo Ouro"></div>
+                            <div class="lapis-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)" title="Vermelho Coral"></div>
+                            <div class="lapis-btn" style="background:#ff9f1c;" onclick="mudarCor('#ff9f1c', this)" title="Laranja"></div>
+                            <div class="lapis-btn" style="background:#8cc63f;" onclick="mudarCor('#8cc63f', this)" title="Verde Claro"></div>
+                            <div class="lapis-btn" style="background:#2ec4b6;" onclick="mudarCor('#2ec4b6', this)" title="Verde Água"></div>
+                            <div class="lapis-btn" style="background:#3a86ff;" onclick="mudarCor('#3a86ff', this)" title="Azul"></div>
+                            <div class="lapis-btn" style="background:#7209b7;" onclick="mudarCor('#7209b7', this)" title="Roxo Escuro"></div>
+                            <div class="lapis-btn" style="background:#9b5de5;" onclick="mudarCor('#9b5de5', this)" title="Lilás"></div>
+                            <div class="lapis-btn" style="background:#ff007f;" onclick="mudarCor('#ff007f', this)" title="Rosa Choque"></div>
+                            <div class="lapis-btn" style="background:#ff70a6;" onclick="mudarCor('#ff70a6', this)" title="Rosa Pastel"></div>
+                            <div class="lapis-btn" style="background:#262638;" onclick="mudarCor('#262638', this)" title="Preto"></div>
                             <div class="lapis-btn" style="background:#FFFFFF; border:2px solid #E2D3AB;" onclick="mudarCor('#FFFFFF', this)" title="Branco"></div>
                         </div>
                     </div>
@@ -375,7 +378,6 @@ function configurarCanvas() {
 
 function desenharCenarioInicial() {
     if (!ctx || !imgDesenho) return;
-    // Fundo branco sólido base
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -470,7 +472,6 @@ function preencherAreaComCor(startX, startY) {
         const g = data[idx + 1];
         const b = data[idx + 2];
         
-        // Contornos escuros (linhas pretas) bloqueiam a tinta
         if (r < 70 && g < 70 && b < 70) return false;
 
         const diff = Math.abs(r - targetColor[0]) +
