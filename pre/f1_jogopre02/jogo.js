@@ -20,7 +20,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL DO JOGO (ALTURA REDUZIDA EM 10% ADICIONAIS)
+// 2. CONFIGURAÇÃO VISUAL DO JOGO (ALTURA DO DESENHO REDUZIDA EM 10%)
 // ============================================================
 const styleJogo = document.createElement('style');
 styleJogo.innerHTML = `
@@ -33,7 +33,7 @@ styleJogo.innerHTML = `
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
-        flex: 1; height: 81%; min-height: 320px; display: flex; align-items: center; justify-content: center; position: relative;
+        flex: 1; height: 72%; min-height: 280px; display: flex; align-items: center; justify-content: center; position: relative;
     }
     canvas { display: block; cursor: crosshair; width: 100%; height: 100%; object-fit: contain; }
 
@@ -154,7 +154,7 @@ styleJogo.innerHTML = `
     @media (max-width: 768px) {
         .jogo-layout-principal { flex-direction: column; }
         .painel-estojo-vertical { width: 100%; height: auto; min-height: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; }
-        .canvas-wrapper { min-height: 240px; }
+        .canvas-wrapper { min-height: 220px; }
         .seccao-cores { width: auto; flex: 1; }
         .seccao-ferramentas { width: auto; flex: 2; }
     }
