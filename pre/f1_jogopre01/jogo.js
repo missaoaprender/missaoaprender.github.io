@@ -161,7 +161,7 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO ESTOJO MÁGICO (REDIMENSIONAMENTO AUTOMÁTICO)
+// 4. LÓGICA DO ESTOJO MÁGICO
 // ============================================================
 function iniciarJogoDesenho() {
     if (somClique.src) somClique.play().catch(()=>{});
@@ -193,10 +193,10 @@ function iniciarJogoDesenho() {
                         <button class="grossura-btn" onclick="mudarGrossura(18, this)">G</button>
                         
                         <div class="btn-ferramenta-img" id="btnBorracha" onclick="ativarBorracha(this)" title="Borracha">
-                            <img src="borracha.png" alt="Borracha">
+                            <img src="../../icons/borracha.png" alt="Borracha">
                         </div>
                         <div class="btn-ferramenta-img" id="btnBalde" onclick="ativarBalde(this)" title="Balde de Tinta">
-                            <img src="balde_tinta.png" alt="Balde de Tinta">
+                            <img src="../../icons/balde_tinta.png" alt="Balde de Tinta">
                         </div>
                         <button class="btn-ferramenta-texto destaque" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                     </div>
@@ -246,18 +246,21 @@ function configurarCanvas() {
         const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - rect.top };
+        return { 
+            x: Math.floor(clientX - rect.left), 
+            y: Math.floor(clientY - rect.top) 
+        };
     };
 
     const startDraw = (e) => {
+        const pos = getPos(e);
         if (ferramentaAtual === 'balde') {
-            preencherTelaComCor();
+            preencherAreaComCor(pos.x, pos.y);
             e.preventDefault();
             return;
         }
 
         isDrawing = true;
-        const pos = getPos(e);
         ctx.beginPath();
         ctx.moveTo(pos.x, pos.y);
         e.preventDefault();
@@ -328,11 +331,111 @@ function ativarBalde(el) {
     if (el) el.classList.add('ativo');
 }
 
-function preencherTelaComCor() {
+// ============================================================
+// ALGORITMO DE PREENCHIMENTO POR INUNDAÇÃO (FLOOD FILL)
+// ============================================================
+function hexToRgba(hex) {
+    let c = hex.replace('#', '');
+    if (c.length === 3) {
+        c = c.split('').map(x => x + x).join('');
+    }
+    const num = parseInt(c, 16);
+    return [
+        (num >> 16) & 255,
+        (num >> 8) & 255,
+        num & 255,
+        255
+    ];
+}
+
+function preencherAreaComCor(startX, startY) {
     if (!ctx || !canvas) return;
     if (somClique.src) somClique.play().catch(()=>{});
-    ctx.fillStyle = corAtual;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const width = canvas.width;
+    const height = canvas.height;
+    if (startX < 0 || startX >= width || startY < 0 || startY >= height) return;
+
+    const imgData = ctx.getImageData(0, 0, width, height);
+    const data = imgData.data;
+
+    const fillColor = hexToRgba(corAtual);
+    const pos = (startY * width + startX) * 4;
+    const targetColor = [data[pos], data[pos + 1], data[pos + 2], data[pos + 3]];
+
+    // Se a cor do clique for idêntica à cor selecionada, cancela para evitar loop
+    if (
+        targetColor[0] === fillColor[0] &&
+        targetColor[1] === fillColor[1] &&
+        targetColor[2] === fillColor[2] &&
+        targetColor[3] === fillColor[3]
+    ) {
+        return;
+    }
+
+    function colorMatch(idx) {
+        // Tolerância pequena para lidar com suavização do traço (anti-aliasing)
+        const diff = Math.abs(data[idx] - targetColor[0]) +
+                     Math.abs(data[idx + 1] - targetColor[1]) +
+                     Math.abs(data[idx + 2] - targetColor[2]) +
+                     Math.abs(data[idx + 3] - targetColor[3]);
+        return diff < 60;
+    }
+
+    const pixelStack = [[startX, startY]];
+
+    while (pixelStack.length > 0) {
+        const newPos = pixelStack.pop();
+        const x = newPos[0];
+        let y = newPos[1];
+
+        let pixelPos = (y * width + x) * 4;
+
+        while (y >= 0 && colorMatch(pixelPos)) {
+            y--;
+            pixelPos -= width * 4;
+        }
+
+        pixelPos += width * 4;
+        y++;
+
+        let reachLeft = false;
+        let reachRight = false;
+
+        while (y < height && colorMatch(pixelPos)) {
+            data[pixelPos] = fillColor[0];
+            data[pixelPos + 1] = fillColor[1];
+            data[pixelPos + 2] = fillColor[2];
+            data[pixelPos + 3] = fillColor[3];
+
+            if (x > 0) {
+                if (colorMatch(pixelPos - 4)) {
+                    if (!reachLeft) {
+                        pixelStack.push([x - 1, y]);
+                        reachLeft = true;
+                    }
+                } else if (reachLeft) {
+                    reachLeft = false;
+                }
+            }
+
+            if (x < width - 1) {
+                if (colorMatch(pixelPos + 4)) {
+                    if (!reachRight) {
+                        pixelStack.push([x + 1, y]);
+                        reachRight = true;
+                    }
+                } else if (reachRight) {
+                    reachRight = false;
+                }
+            }
+
+            y++;
+            pixelPos += width * 4;
+        }
+    }
+
+    ctx.putImageData(imgData, 0, 0);
 }
 
 function concluirDesenho() {
