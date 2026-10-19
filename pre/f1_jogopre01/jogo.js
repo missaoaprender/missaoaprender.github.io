@@ -58,18 +58,22 @@ style.innerHTML = `
     }
     .grossura-btn.ativo { background: #ECA607; color: white; transform: scale(1.1); }
 
-    .btn-ferramenta {
+    .btn-ferramenta-img {
+        background: white; border: 2px solid #ECA607; width: 40px; height: 40px;
+        border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; padding: 4px;
+    }
+    .btn-ferramenta-img:active { transform: scale(0.92); }
+    .btn-ferramenta-img.ativo { background: #ECA607; border-color: #262638; transform: scale(1.08); }
+    .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+
+    .btn-ferramenta-texto {
         background: white; color: #C2890B; border: 2px solid #ECA607; padding: 6px 14px;
         border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; display: flex; align-items: center; gap: 5px;
     }
-    .btn-ferramenta:active { transform: scale(0.95); }
-    .btn-ferramenta.destaque { background: #ECA607; color: white; }
-    .btn-ferramenta.ativo { background: #ECA607; color: white; border-color: #262638; transform: scale(1.05); }
-
-    .icone-ferramenta-img {
-        width: 22px; height: 22px; object-fit: contain; pointer-events: none;
-    }
+    .btn-ferramenta-texto:active { transform: scale(0.95); }
+    .btn-ferramenta-texto.destaque { background: #ECA607; color: white; }
 
     .btn-capa-som {
         width: 48px; height: 48px; background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.8);
@@ -188,9 +192,13 @@ function iniciarJogoDesenho() {
                         <button class="grossura-btn ativo" onclick="mudarGrossura(10, this)">M</button>
                         <button class="grossura-btn" onclick="mudarGrossura(18, this)">G</button>
                         
-                        <button class="btn-ferramenta" id="btnBorracha" onclick="ativarBorracha(this)"><img src="borracha.png" class="icone-ferramenta-img" alt="Borracha"> Borracha</button>
-                        <button class="btn-ferramenta" id="btnBalde" onclick="ativarBalde(this)"><img src="balde_tinta.png" class="icone-ferramenta-img" alt="Balde"> Preencher</button>
-                        <button class="btn-ferramenta destaque" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
+                        <div class="btn-ferramenta-img" id="btnBorracha" onclick="ativarBorracha(this)" title="Borracha">
+                            <img src="borracha.png" alt="Borracha">
+                        </div>
+                        <div class="btn-ferramenta-img" id="btnBalde" onclick="ativarBalde(this)" title="Balde de Tinta">
+                            <img src="balde_tinta.png" alt="Balde de Tinta">
+                        </div>
+                        <button class="btn-ferramenta-texto destaque" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                     </div>
                 </div>
             </div>
@@ -201,7 +209,7 @@ function iniciarJogoDesenho() {
     if (barra) {
         barra.innerHTML = `
             <div style="color:white; font-weight:800; font-size:0.95rem;">✏️ Escolhe os teus lápis e cria magia!</div>
-            <button class="btn-ferramenta" onclick="mostrarCapa()" style="padding:4px 12px; font-size:0.8rem;">Voltar</button>
+            <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 12px; font-size:0.8rem;">Voltar</button>
         `;
     }
 
@@ -213,7 +221,6 @@ function configurarCanvas() {
     const wrapper = document.getElementById('canvasWrapper');
     if (!canvas || !wrapper) return;
 
-    // Preservar o desenho atual se já existir ao redimensionar ou recriar
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = canvas.width || wrapper.clientWidth;
     tempCanvas.height = canvas.height || wrapper.clientHeight;
