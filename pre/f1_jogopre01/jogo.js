@@ -13,6 +13,7 @@ let tamanhoPincel = 10;
 let isDrawing = false;
 let ctx = null;
 let canvas = null;
+let historicoCanvas = []; // Histórico para o botão anular
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
@@ -198,6 +199,9 @@ function iniciarJogoDesenho() {
                         <div class="btn-ferramenta-img" id="btnBalde" onclick="ativarBalde(this)" title="Balde de Tinta">
                             <img src="../../icons/balde_tinta.png" alt="Balde de Tinta">
                         </div>
+                        <div class="btn-ferramenta-img" id="btnAnular" onclick="anularUltimaAcao()" title="Anular">
+                            <img src="../../icons/anular.png" alt="Anular">
+                        </div>
                         <button class="btn-ferramenta-texto destaque" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                     </div>
                 </div>
@@ -235,12 +239,18 @@ function configurarCanvas() {
     ctx = canvas.getContext('2d');
     if (ctx && canvas.width > 0 && tempCanvas.width > 0) {
         ctx.drawImage(tempCanvas, 0, 0);
+    } else if (ctx) {
+        // Fundo branco inicial
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.lineWidth = tamanhoPincel;
     ctx.strokeStyle = corAtual;
+
+    salvarEstadoHistorico();
 
     const getPos = (e) => {
         const rect = canvas.getBoundingClientRect();
@@ -281,7 +291,12 @@ function configurarCanvas() {
         e.preventDefault();
     };
 
-    const endDraw = () => { isDrawing = false; };
+    const endDraw = () => {
+        if (isDrawing) {
+            isDrawing = false;
+            salvarEstadoHistorico();
+        }
+    };
 
     canvas.onmousedown = startDraw;
     canvas.onmousemove = draw;
@@ -291,6 +306,23 @@ function configurarCanvas() {
     canvas.ontouchstart = startDraw;
     canvas.ontouchmove = draw;
     canvas.ontouchend = endDraw;
+}
+
+function salvarEstadoHistorico() {
+    if (!canvas || !ctx) return;
+    if (historicoCanvas.length >= 10) {
+        historicoCanvas.shift(); // Manter máximo de 10 estados para poupar memória
+    }
+    historicoCanvas.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+}
+
+function anularUltimaAcao() {
+    if (somClique.src) somClique.play().catch(()=>{});
+    if (historicoCanvas.length > 1) {
+        historicoCanvas.pop(); // Remove o estado atual
+        const estadoAnterior = historicoCanvas[historicoCanvas.length - 1];
+        ctx.putImageData(estadoAnterior, 0, 0);
+    }
 }
 
 function mudarCor(novaCor, el) {
@@ -363,7 +395,6 @@ function preencherAreaComCor(startX, startY) {
     const pos = (startY * width + startX) * 4;
     const targetColor = [data[pos], data[pos + 1], data[pos + 2], data[pos + 3]];
 
-    // Se a cor do clique for idêntica à cor selecionada, cancela para evitar loop
     if (
         targetColor[0] === fillColor[0] &&
         targetColor[1] === fillColor[1] &&
@@ -374,7 +405,6 @@ function preencherAreaComCor(startX, startY) {
     }
 
     function colorMatch(idx) {
-        // Tolerância pequena para lidar com suavização do traço (anti-aliasing)
         const diff = Math.abs(data[idx] - targetColor[0]) +
                      Math.abs(data[idx + 1] - targetColor[1]) +
                      Math.abs(data[idx + 2] - targetColor[2]) +
@@ -436,6 +466,7 @@ function preencherAreaComCor(startX, startY) {
     }
 
     ctx.putImageData(imgData, 0, 0);
+    salvarEstadoHistorico();
 }
 
 function concluirDesenho() {
