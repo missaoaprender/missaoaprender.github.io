@@ -20,26 +20,26 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL DO JOGO (LAYOUT LADO A LADO EXPANDIDO)
+// 2. CONFIGURAÇÃO VISUAL DO JOGO (LAYOUT LADO A LADO EQUILIBRADO)
 // ============================================================
 const styleJogo = document.createElement('style');
 styleJogo.innerHTML = `
     .jogo-layout-principal {
         display: flex; flex-direction: row; align-items: stretch; justify-content: space-between;
-        width: 100%; height: 100%; flex: 1; gap: 12px; animation: cardPop 0.3s ease; padding: 4px 0;
+        width: 100%; height: 100%; flex: 1; gap: 14px; animation: cardPop 0.3s ease; padding: 4px 0;
     }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
-        flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;
+        flex: 1; height: 100%; min-height: 420px; display: flex; align-items: center; justify-content: center; position: relative;
     }
     canvas { display: block; cursor: crosshair; width: 100%; height: 100%; object-fit: contain; }
 
     .painel-estojo-vertical {
         display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        width: 260px; background: rgba(255,255,255,0.9); padding: 10px; border-radius: 16px; 
+        width: 260px; height: 100%; min-height: 420px; background: rgba(255,255,255,0.9); padding: 10px; border-radius: 16px; 
         border: 2px solid #E2D3AB; flex-shrink: 0; gap: 8px;
     }
 
@@ -153,7 +153,8 @@ styleJogo.innerHTML = `
 
     @media (max-width: 768px) {
         .jogo-layout-principal { flex-direction: column; }
-        .painel-estojo-vertical { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+        .painel-estojo-vertical { width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+        .canvas-wrapper { min-height: 320px; }
         .seccao-cores { width: auto; flex: 1; }
         .seccao-ferramentas { width: auto; flex: 2; }
     }
@@ -327,9 +328,9 @@ function configurarCanvas() {
     const wrapper = document.getElementById('canvasWrapper');
     if (!canvas || !wrapper) return;
 
-    canvas.width = 900;
-    canvas.height = 700;
-    ctx = canvas.getContext('2d');
+    canvas.width = 1000;
+    canvas.height = 800;
+    ctx = canvas.getContext('2d', { willReadFrequently: true });
 
     const lista = DADOS.desenhosParaColorir || [];
     const atual = lista[indiceDesenhoAtual];
@@ -374,6 +375,7 @@ function configurarCanvas() {
 
 function desenharCenarioInicial() {
     if (!ctx || !imgDesenho) return;
+    // Fundo branco sólido base
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -468,12 +470,13 @@ function preencherAreaComCor(startX, startY) {
         const g = data[idx + 1];
         const b = data[idx + 2];
         
-        if (r < 60 && g < 60 && b < 60) return false;
+        // Contornos escuros (linhas pretas) bloqueiam a tinta
+        if (r < 70 && g < 70 && b < 70) return false;
 
         const diff = Math.abs(r - targetColor[0]) +
                      Math.abs(g - targetColor[1]) +
                      Math.abs(b - targetColor[2]);
-        return diff < 65;
+        return diff < 75;
     }
 
     const pixelStack = [[startX, startY]];
