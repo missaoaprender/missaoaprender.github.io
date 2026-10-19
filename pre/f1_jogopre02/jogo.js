@@ -20,74 +20,74 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL DO JOGO (ALTURA REDUZIDA EM 10%)
+// 2. CONFIGURAÇÃO VISUAL DO JOGO (ALTURA REDUZIDA EM 10% ADICIONAIS)
 // ============================================================
 const styleJogo = document.createElement('style');
 styleJogo.innerHTML = `
     .jogo-layout-principal {
         display: flex; flex-direction: row; align-items: stretch; justify-content: space-between;
-        width: 100%; height: 100%; flex: 1; gap: 14px; animation: cardPop 0.3s ease; padding: 4px 0;
+        width: 100%; height: 100%; flex: 1; gap: 14px; animation: cardPop 0.3s ease; padding: 2px 0;
     }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
-        flex: 1; height: 90%; min-height: 360px; display: flex; align-items: center; justify-content: center; position: relative;
+        flex: 1; height: 81%; min-height: 320px; display: flex; align-items: center; justify-content: center; position: relative;
     }
     canvas { display: block; cursor: crosshair; width: 100%; height: 100%; object-fit: contain; }
 
     .painel-estojo-vertical {
         display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        width: 270px; height: 90%; min-height: 360px; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 16px; 
-        border: 2px solid #E2D3AB; flex-shrink: 0; gap: 6px;
+        width: 270px; height: 81%; min-height: 320px; background: rgba(255,255,255,0.9); padding: 6px; border-radius: 16px; 
+        border: 2px solid #E2D3AB; flex-shrink: 0; gap: 4px;
     }
 
     .seccao-cores {
-        display: flex; flex-direction: column; align-items: center; width: 100%; gap: 4px;
-        background: #FFF7E3; padding: 6px; border-radius: 12px; border: 1.5px solid #F3E0B5;
+        display: flex; flex-direction: column; align-items: center; width: 100%; gap: 3px;
+        background: #FFF7E3; padding: 5px; border-radius: 12px; border: 1.5px solid #F3E0B5;
     }
     .grid-cores {
-        display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 100%; justify-items: center;
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; width: 100%; justify-items: center;
     }
     
     .lapis-btn {
-        width: 30px; height: 30px; border-radius: 50%; border: 2.5px solid white; cursor: pointer;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: transform 0.1s;
+        width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid white; cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: transform 0.1s;
     }
     .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.15); border-color: #262638; }
 
     .seccao-ferramentas {
-        display: flex; flex-direction: column; align-items: center; width: 100%; gap: 6px; flex: 1; justify-content: center;
+        display: flex; flex-direction: column; align-items: center; width: 100%; gap: 4px; flex: 1; justify-content: center;
     }
     .linha-ferramentas {
-        display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; width: 100%;
+        display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; width: 100%;
     }
 
     .btn-ferramenta-img {
-        background: white; border: 2px solid #ECA607; width: 38px; height: 38px;
+        background: white; border: 2px solid #ECA607; width: 34px; height: 34px;
         border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; padding: 4px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; padding: 3px;
     }
     .btn-ferramenta-img:active { transform: scale(0.92); }
     .btn-ferramenta-img.ativo { background: #ECA607; border-color: #262638; transform: scale(1.08); }
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
     .btn-ferramenta-texto {
-        background: #ECA607; color: white; border: none; padding: 7px 14px; width: 100%;
-        border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
+        background: #ECA607; color: white; border: none; padding: 6px 12px; width: 100%;
+        border-radius: 14px; font-weight: 900; font-size: 0.8rem; cursor: pointer;
         box-shadow: 0 3px 8px rgba(236,166,7,0.3); transition: transform 0.1s; text-align: center;
     }
     .btn-ferramenta-texto:active { transform: scale(0.95); }
 
     .moldura-selecao-desenho {
         display: flex; align-items: center; justify-content: space-between; width: 100%;
-        background: white; border: 2px solid #ECA607; border-radius: 14px; padding: 5px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08); gap: 6px;
+        background: white; border: 2px solid #ECA607; border-radius: 14px; padding: 4px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08); gap: 4px;
     }
     .seta-desenho-btn {
-        background: #ECA607; color: white; border: none; width: 30px; height: 30px;
-        border-radius: 50%; font-size: 0.9rem; font-weight: 900; cursor: pointer;
+        background: #ECA607; color: white; border: none; width: 28px; height: 28px;
+        border-radius: 50%; font-size: 0.8rem; font-weight: 900; cursor: pointer;
         display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         transition: transform 0.1s; flex-shrink: 0;
     }
@@ -95,8 +95,8 @@ styleJogo.innerHTML = `
     .visor-desenho {
         display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; text-align: center;
     }
-    .visor-desenho img { width: 55px; height: 55px; object-fit: contain; pointer-events: none; }
-    .visor-desenho span { font-size: 0.7rem; font-weight: 900; color: #262638; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+    .visor-desenho img { width: 48px; height: 48px; object-fit: contain; pointer-events: none; }
+    .visor-desenho span { font-size: 0.65rem; font-weight: 900; color: #262638; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px; }
 
     .capa-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -154,7 +154,7 @@ styleJogo.innerHTML = `
     @media (max-width: 768px) {
         .jogo-layout-principal { flex-direction: column; }
         .painel-estojo-vertical { width: 100%; height: auto; min-height: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; }
-        .canvas-wrapper { min-height: 270px; }
+        .canvas-wrapper { min-height: 240px; }
         .seccao-cores { width: auto; flex: 1; }
         .seccao-ferramentas { width: auto; flex: 2; }
     }
@@ -246,7 +246,7 @@ function iniciarJogoDesenho() {
 
                 <div class="painel-estojo-vertical">
                     <div class="seccao-cores">
-                        <span style="font-size:0.7rem; font-weight:900; color:#C2890B; text-transform:uppercase;">Cores</span>
+                        <span style="font-size:0.65rem; font-weight:900; color:#C2890B; text-transform:uppercase;">Cores</span>
                         <div class="grid-cores">
                             <div class="lapis-btn ativo" style="background:#ECA607;" onclick="mudarCor('#ECA607', this)" title="Amarelo Ouro"></div>
                             <div class="lapis-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)" title="Vermelho Coral"></div>
