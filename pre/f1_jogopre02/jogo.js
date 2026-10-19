@@ -15,10 +15,6 @@ let historicoCanvas = [];
 let indiceDesenhoAtual = 0;
 let timerAnimacaoCapa = null;
 
-const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
-const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
-const somInstrucao = new Audio("f1_jogo01pre.mp3");
-
 // Obter lista de desenhos a partir de DADOS ou fallback
 function obterListaDesenhos() {
     if (DADOS && DADOS.desenhosParaColorir && DADOS.desenhosParaColorir.length > 0) {
@@ -30,9 +26,13 @@ function obterListaDesenhos() {
     ];
 }
 
+const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
+const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
+const somInstrucao = new Audio("f1_jogo01pre.mp3");
+
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (LAYOUT HORIZONTAL PC / TABLET)
+// 2. CONFIGURAÇÃO VISUAL (IMAGEM/CANVAS MAIS PEQUENA)
 // ============================================================
 const styleJogo = document.createElement('style');
 styleJogo.innerHTML = `
@@ -43,11 +43,12 @@ styleJogo.innerHTML = `
     }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* Lado Esquerdo: Área de Desenho/Pintura */
+    /* Lado Esquerdo: Área de Desenho/Pintura (Ajustada para o canvas ficar mais pequeno) */
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
         flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;
+        padding: 10px; box-sizing: border-box;
     }
     canvas { display: block; cursor: crosshair; width: 100%; height: 100%; object-fit: contain; }
 
@@ -95,7 +96,7 @@ styleJogo.innerHTML = `
     }
     .btn-ferramenta-texto:active { transform: scale(0.95); }
 
-    /* Moldura Seletora de Desenho na Parte Inferior do Painel */
+    /* Moldura Seletora de Desenho */
     .moldura-selecao-desenho {
         display: flex; align-items: center; justify-content: space-between; width: 100%;
         background: white; border: 2px solid #ECA607; border-radius: 12px; padding: 4px;
@@ -114,7 +115,7 @@ styleJogo.innerHTML = `
     .visor-desenho img { width: 42px; height: 42px; object-fit: contain; pointer-events: none; }
     .visor-desenho span { font-size: 0.65rem; font-weight: 900; color: #262638; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px; }
 
-    /* Estilos da Capa e Animação */
+    /* Estilos da Capa */
     .capa-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         flex: 1; width: 100%; height: 100%; gap: 10px; text-align: center;
@@ -411,7 +412,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS E PREENCHIMENTO INTELIGENTE
+// 5. CONFIGURAÇÃO DO CANVAS E DESENHO INICIAL
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
@@ -471,7 +472,9 @@ function desenharCenarioInicial() {
 
     const hRatio = canvas.width / imgDesenho.width;
     const vRatio = canvas.height / imgDesenho.height;
-    const ratio = Math.min(hRatio, vRatio) * 0.95; 
+    
+    // Proporção reduzida para 0.85 para a imagem ficar mais pequena e contida no ecrã de jogo
+    const ratio = Math.min(hRatio, vRatio) * 0.85; 
     const centerShiftX = (canvas.width - imgDesenho.width * ratio) / 2;
     const centerShiftY = (canvas.height - imgDesenho.height * ratio) / 2;
 
