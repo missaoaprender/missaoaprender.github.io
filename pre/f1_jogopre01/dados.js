@@ -7,7 +7,7 @@ const DADOS = {
     mensagem: "Diverte-te a aprender!",
     informacao: "Jogos Pré",
     tituloMenuAcordeao: "Menu",
-    urlVoltar: "../../", 
+    urlVoltar: "../", 
     iconeEstrela: "★",
     iconeInfo: "i"
   },
