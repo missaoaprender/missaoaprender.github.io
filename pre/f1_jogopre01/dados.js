@@ -41,19 +41,19 @@ const DADOS = {
   },
 
   cores: {
-    fundo: "#F3F3F8",
-    ceu1: "#FDF7E5",
-    ceu2: "#FBF0CC",
-    header: "#FBF0CC",
-    headerTopo: "#FDF7E5",
-    azulHeader: "#ECA607",
-    texto: "#3E3E59",
-    textoEscuro: "#262638",
+    fundo: "#FFFDF4",
+    ceu1: "#FCECC2",
+    ceu2: "#FFF5D6",
+    header: "#FFF5D6",
+    headerTopo: "#FCECC2",
+    azulHeader: "#E7A000",
+    texto: "#684500",
+    textoEscuro: "#362400",
     branco: "#FFFFFF",
-    creme: "#ECECEF",
-    linha: "#E2D3AB",
-    sombra: "rgba(236,166,7,.18)",
-    sombraForte: "rgba(236,166,7,.28)"
+    creme: "#FCEFCE",
+    linha: "#F7D896",
+    sombra: "rgba(231,160,0,.18)",
+    sombraForte: "rgba(231,160,0,.28)"
   },
 
   dimensoes: {
