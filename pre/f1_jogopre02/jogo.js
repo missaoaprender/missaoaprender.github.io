@@ -32,7 +32,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL
+// 2. CONFIGURAÇÃO VISUAL (OTIMIZADA PARA PC E TELEMÓVEL HORIZONTAL)
 // ============================================================
 const styleJogo = document.createElement('style');
 styleJogo.innerHTML = `
@@ -55,8 +55,8 @@ styleJogo.innerHTML = `
     /* Lado Direito: Estojo com Ferramentas e Seletor */
     .painel-estojo-vertical {
         display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        width: 230px; height: 100%; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 16px; 
-        border: 2px solid #E2D3AB; flex-shrink: 0; gap: 6px; box-sizing: border-box;
+        width: 240px; height: 100%; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 16px; 
+        border: 2px solid #E2D3AB; flex-shrink: 0; gap: 6px; box-sizing: border-box; overflow-y: auto;
     }
 
     .seccao-cores {
@@ -74,7 +74,7 @@ styleJogo.innerHTML = `
     .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.15); border-color: #262638; }
 
     .seccao-ferramentas {
-        display: flex; flex-direction: column; align-items: center; width: 100%; gap: 6px; flex: 1; justify-content: center;
+        display: flex; flex-direction: column; align-items: center; width: 100%; gap: 8px; flex: 1; justify-content: center;
     }
     .linha-ferramentas {
         display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; width: 100%;
@@ -90,29 +90,29 @@ styleJogo.innerHTML = `
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
     .btn-ferramenta-texto {
-        background: #ECA607; color: white; border: none; padding: 6px 12px; width: 100%;
-        border-radius: 12px; font-weight: 900; font-size: 0.8rem; cursor: pointer;
+        background: #ECA607; color: white; border: none; padding: 8px 12px; width: 100%;
+        border-radius: 12px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
         box-shadow: 0 3px 8px rgba(236,166,7,0.3); transition: transform 0.1s; text-align: center;
     }
     .btn-ferramenta-texto:active { transform: scale(0.95); }
 
-    /* Moldura Seletora mais alta e quadrada */
+    /* Moldura Seletora BEM MAIS ALTA para PC (130px de altura) */
     .moldura-selecao-desenho {
-        display: flex; align-items: center; justify-content: space-between; width: 100%; height: 100px;
+        display: flex; align-items: center; justify-content: space-between; width: 100%; height: 130px;
         background: white; border: 2.5px solid #ECA607; border-radius: 14px; padding: 8px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.08); gap: 6px; box-sizing: border-box;
     }
     .seta-desenho-btn {
-        background: #ECA607; color: white; border: none; width: 32px; height: 32px;
-        border-radius: 50%; font-size: 0.9rem; font-weight: 900; cursor: pointer;
+        background: #ECA607; color: white; border: none; width: 34px; height: 34px;
+        border-radius: 50%; font-size: 0.95rem; font-weight: 900; cursor: pointer;
         display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15);
         transition: transform 0.1s; flex-shrink: 0;
     }
     .seta-desenho-btn:active { transform: scale(0.9); }
     .visor-desenho {
-        display: flex; align-items: center; justify-content: center; flex: 1; height: 100%;
+        display: flex; align-items: center; justify-content: center; flex: 1; height: 100%; overflow: hidden;
     }
-    .visor-desenho img { width: 80px; height: 80px; object-fit: contain; pointer-events: none; }
+    .visor-desenho img { width: 100%; height: 105px; object-fit: contain; pointer-events: none; }
 
     /* Estilos da Capa Limpa */
     .capa-container {
@@ -172,10 +172,25 @@ styleJogo.innerHTML = `
     }
     .btn-final-branco:active { transform: scale(0.95); }
 
-    @media (max-width: 768px) {
+    /* OTIMIZAÇÕES PARA TELEMÓVEL HORIZONTAL E ECRÃS DE MENOR ALTURA */
+    @media (max-height: 550px) or (max-width: 850px) and (orientation: landscape) {
+        .jogo-layout-principal { gap: 6px; padding: 2px 0; }
+        .painel-estojo-vertical { width: 180px; padding: 4px; gap: 4px; }
+        .grid-cores { gap: 3px; }
+        .lapis-btn { width: 22px; height: 22px; }
+        .btn-ferramenta-img { width: 28px; height: 28px; }
+        .moldura-selecao-desenho { height: 75px; padding: 4px; }
+        .visor-desenho img { height: 55px; }
+        .seta-desenho-btn { width: 26px; height: 26px; font-size: 0.75rem; }
+        .btn-ferramenta-texto { padding: 5px 8px; font-size: 0.75rem; }
+        .capa-container { gap: 6px; }
+        .animacao-capa-area { width: 200px; height: 140px; }
+    }
+
+    @media (max-width: 600px) and (orientation: portrait) {
         .jogo-layout-principal { flex-direction: column; overflow: auto; }
         .painel-estojo-vertical { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; }
-        .canvas-wrapper { height: 220px; }
+        .canvas-wrapper { height: 250px; }
         .seccao-cores { width: auto; flex: 1; }
         .seccao-ferramentas { width: auto; flex: 2; }
     }
@@ -200,7 +215,7 @@ function mostrarCapa() {
     if (area) {
         area.innerHTML = `
             <div class="capa-container">
-                <div style="font-size: 1.5rem; font-weight: 900; color: #C2890B; text-transform: uppercase;">Estojo Mágico - Livro de Colorir</div>
+                <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; text-transform: uppercase;">Estojo Mágico - Livro de Colorir</div>
                 
                 <div class="animacao-capa-area" onclick="tocarSomInstrucao()" title="Clica para ouvir a instrução!">
                     <canvas id="capaCanvas" width="260" height="195"></canvas>
@@ -402,7 +417,7 @@ function iniciarJogoDesenho() {
                             </div>
                         </div>
 
-                        <!-- Moldura Seletora mais alta e quadrada -->
+                        <!-- Moldura Seletora mais alta para PC e otimizada -->
                         <div class="moldura-selecao-desenho">
                             <button class="seta-desenho-btn" onclick="mudarDesenhoJogo(-1)">❮</button>
                             <div class="visor-desenho" id="visorDesenhoJogo"></div>
