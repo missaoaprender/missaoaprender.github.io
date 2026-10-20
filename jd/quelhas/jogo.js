@@ -18,7 +18,6 @@ let tabuleiro = Array(10).fill().map(() => Array(10).fill(0));
 let startCell = null;     
 let primeiraJogadaRealizada = false;
 let j2JaJogou = false; 
-let trocouOrientacao = false; 
 let orientacoes = [0, 1]; // [J1, J2/Pc] -> 0: Vertical, 1: Horizontal
 let simuInterval;         
 
@@ -143,9 +142,8 @@ style.innerHTML = `
     .inst-list { list-style: none; padding: 0; }
     .inst-list li { background: #f9f9f9; margin-bottom: 10px; padding: 15px; border-radius: 15px; border-left: 5px solid ${DADOS.cores.azulHeader}; color: #555; font-size: 0.95rem; line-height: 1.4; }
 
-    /* TABULEIRO COM ROTAÇÃO */
-    .grid-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #bbb; padding: 3px; border-radius: 8px; width: fit-content; margin: 0 auto; transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
-    .grid-board.rotated { transform: rotate(180deg); }
+    /* TABULEIRO ESTÁTICO (SEM ROTAÇÃO) */
+    .grid-board { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; background: #bbb; padding: 3px; border-radius: 8px; width: fit-content; margin: 0 auto; }
     
     .cell { width: var(--cell-size); height: var(--cell-size); background: white; border-radius: 1px; display: flex; align-items: center; justify-content: center; position: relative; }
     .cell.occupied::after { content: ''; width: 85%; height: 85%; background: #333; border-radius: 50%; }
@@ -188,7 +186,7 @@ function mostrarCapa() {
                 <ul class="inst-list">
                     <li><b>1.</b> O jogador Vertical começa sempre o jogo.</li>
                     <li><b>2.</b> Para jogar, clica na casa onde o teu bloco começa e depois na casa onde termina.</li>
-                    <li><b>3. Regra da Troca:</b> Na primeira jogada do segundo jogador (J2), este pode optar por <b>trocar de orientação</b>. O tabuleiro roda 180º e o J2 assume a Vertical.</li>
+                    <li><b>3. Regra da Troca:</b> Na primeira jogada do segundo jogador (J2), este pode optar por <b>trocar de orientação</b>. Assim, passa a jogar na vertical e o J1 na horizontal.</li>
                 </ul>
             </div>`;
         document.body.appendChild(panel);
@@ -287,7 +285,7 @@ function setModo(modo, nivel) {
     somClique.play();
     modoJogo = modo; nivelJogo = nivel;
     mostrarDicas = (nivel === 1);
-    matchScore = [0, 0]; currentGameNum = 1; orientacoes = [0, 1]; trocouOrientacao = false;
+    matchScore = [0, 0]; currentGameNum = 1; orientacoes = [0, 1];
     iniciarJogo();
 }
 
@@ -321,7 +319,7 @@ function atualizarUI() {
 
     const area = document.getElementById('contentor-jogo');
     if (area) {
-        area.innerHTML = `<div id="grid-mount" class="grid-board ${trocouOrientacao ? 'rotated' : ''}"></div>`;
+        area.innerHTML = `<div id="grid-mount" class="grid-board"></div>`;
         renderTabuleiro(document.getElementById('grid-mount'));
 
         if (primeiraJogadaRealizada && !j2JaJogou && turnoAtual === 1) {
@@ -374,8 +372,7 @@ function handleCellClick(r, c) {
 
 function swapOrientations() { 
     somAcerto.play(); 
-    trocouOrientacao = !trocouOrientacao; 
-    orientacoes = [orientacoes[1], orientacoes[0]]; 
+    orientacoes = [orientacoes[1], orientacoes[0]]; // Apenas inverte as orientações de J1 e J2
     j2JaJogou = true; 
     turnoAtual = 0; 
     atualizarUI(); 
@@ -428,7 +425,6 @@ function iaControlador() {
         });
         m = boas.length > 0 ? boas[Math.floor(Math.random()*boas.length)] : moves[Math.floor(Math.random()*moves.length)];
     } else {
-        // Nível 2 Avançado (IA com Antecipação / Simulação Estratégica)
         let melhor = -Infinity;
         for (let mv of moves) {
             let s = 0; 
@@ -436,13 +432,11 @@ function iaControlador() {
             t[mv.r1][mv.c1]=1; 
             t[mv.r2][mv.c2]=1;
 
-            // Se esta jogada esgota todas as opções e faz o adversário perder, é jogada vencedora imediata
             if(!temLancesLegaisParaAlguem(t)) {
                 s += 1000;
             } else {
                 let lAdv = contarLances(0, t); 
                 let lProp = contarLances(1, t);
-                // Como é Misere, deixar o adversário com um número par de jogadas futuras tende a ser vantajoso
                 s += (lAdv % 2 === 0) ? 50 : -20; 
                 s += lProp * 5;
             }
@@ -493,7 +487,7 @@ function finalizarRonda(perdedorIdx) {
     }
     
     if (matchScore[0] >= 2 || matchScore[1] >= 2) setTimeout(finalizarMatch, 2800);
-    else setTimeout(() => { currentGameNum++; trocouOrientacao = false; iniciarJogo(); }, 2800);
+    else setTimeout(() => { currentGameNum++; iniciarJogo(); }, 2800);
 }
 
 function finalizarMatch() {
