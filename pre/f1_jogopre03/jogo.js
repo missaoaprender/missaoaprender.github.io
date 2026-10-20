@@ -250,20 +250,6 @@ function iniciarAnimacaoCapaRealista() {
     cCtx.fillStyle = "#262638";
     cCtx.fillText("2 + 1", 80, 80);
     cCtx.fillText("3 + 2", 160, 130);
-
-    const desenhos = obterListaDesenhos();
-    const atual = desenhos[indiceDesenhoAtual] || desenhos[0];
-    
-    if (atual && atual.arquivo) {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => {
-            cCtx.drawImage(img, 0, 0, cCanvas.width, cCanvas.height);
-            cCtx.fillText("1 + 1", 50, 100);
-            cCtx.fillText("2 + 2", 180, 80);
-        };
-        img.src = atual.arquivo;
-    }
 }
 
 function tocarSomInstrucao() {
@@ -367,7 +353,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS E INCLUSÃO DE SOMAS AUTOMÁTICAS
+// 5. CONFIGURAÇÃO DO CANVAS E SOMAS BEM POSICIONADAS NAS MANCHAS
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
@@ -426,18 +412,19 @@ function desenharCenarioComSomas() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(imgDesenho, 0, 0, canvas.width, canvas.height);
 
-    // Inclusão de textos com somas de exemplo distribuídas pelo desenho
-    ctx.font = "bold 28px Arial";
+    // Coordenadas corrigidas e posicionadas exatamente sobre as manchas e zonas internas da vaca do desenho
+    ctx.font = "bold 22px Arial";
     ctx.fillStyle = "#262638";
     ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
 
     const somasExemplo = [
-        { texto: "1 + 1", x: 300, y: 250 },
-        { texto: "2 + 1", x: 500, y: 300 },
-        { texto: "3 + 2", x: 700, y: 400 },
-        { texto: "4 + 1", x: 400, y: 550 },
-        { texto: "2 + 2", x: 650, y: 200 },
-        { texto: "5 + 3", x: 250, y: 450 }
+        { texto: "2 + 1", x: 535, y: 345 },  // Bochecha / Focinho direito
+        { texto: "3 + 2", x: 720, y: 460 },  // Focinho / cara
+        { texto: "2 + 2", x: 675, y: 220 },  // Testa / Orelha
+        { texto: "4 + 1", x: 385, y: 700 },  // Mancha preta na coxa/perna traseira
+        { texto: "5 + 3", x: 280, y: 550 },  // Perto da cauda / anca traseira
+        { texto: "1 + 1", x: 325, y: 300 }   // Nuvem superior esquerda
     ];
 
     somasExemplo.forEach(s => {
