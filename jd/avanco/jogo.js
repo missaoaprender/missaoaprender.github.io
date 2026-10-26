@@ -12,10 +12,10 @@ let modoJogo = 'CPU';
 let nivelJogo = 1;         
 let mostrarDicas = true;  
 let matchScore = [0, 0];  
-let turnoAtual = 0;       
-let tabuleiro = [];       
+let turnoAtual = 0;        
+let tabuleiro = [];        
 let selectedPiece = null; 
-let simuInterval;         
+let simuInterval;          
 
 // Ligação correta aos sons vindos de DADOS
 const somAcerto = { play: () => { try { if (DADOS && DADOS.sons && DADOS.sons.certo) new Audio(DADOS.sons.certo).play(); } catch(e){} } };
@@ -119,7 +119,9 @@ style.innerHTML = `
     .btn-nivel-card:active { transform: scale(0.95); }
 
     #simu-container { height: 260px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-top: 5px; margin-bottom: 20px; }
-    #simu-board { transform: scale(1.1); }
+    
+    /* Ajuste exclusivo para reduzir o tamanho da grelha apenas na capa/simulação */
+    #simu-board { transform: scale(0.75); transform-origin: center; }
 
     #instrucoes-panel { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10000; transition: transform 0.5s ease; transform: translateY(100%); visibility: hidden; padding: 40px 25px; overflow-y: auto; border-radius: 35px 35px 0 0; }
     #instrucoes-panel.open { transform: translateY(0); visibility: visible; }
