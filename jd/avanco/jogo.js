@@ -120,8 +120,8 @@ style.innerHTML = `
 
     #simu-container { height: 260px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-top: 5px; margin-bottom: 20px; }
     
-    /* Ajuste exclusivo para reduzir o tamanho da grelha apenas na capa/simulação */
-    #simu-board { transform: scale(0.75); transform-origin: center; }
+    /* Redução significativa aplicada exclusivamente à grelha da capa */
+    #simu-board { transform: scale(0.55); transform-origin: center; }
 
     #instrucoes-panel { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10000; transition: transform 0.5s ease; transform: translateY(100%); visibility: hidden; padding: 40px 25px; overflow-y: auto; border-radius: 35px 35px 0 0; }
     #instrucoes-panel.open { transform: translateY(0); visibility: visible; }
@@ -409,7 +409,6 @@ function iaControlador() {
     if (nivelJogo === 1) {
         m = moves[Math.floor(Math.random() * moves.length)];
     } else {
-        // Nível 2 Reforçado (IA Avançada: Vitória imediata > Capturas > Avanço estratégico máximo)
         const win = moves.find(m => m.tr === 6);
         const cap = moves.find(m => tabuleiro[m.tr][m.tc] === 1);
         
@@ -418,7 +417,6 @@ function iaControlador() {
         } else if (cap) {
             m = cap;
         } else {
-            // Ordena pelo avanço máximo no tabuleiro (quanto mais próximo de tr = 6, melhor)
             moves.sort((a, b) => b.tr - a.tr);
             m = moves[0];
         }
