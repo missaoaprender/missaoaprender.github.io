@@ -120,8 +120,8 @@ style.innerHTML = `
 
     #simu-container { height: 260px; display: flex; align-items: center; justify-content: center; width: 100%; overflow: visible; margin-top: 5px; margin-bottom: 20px; }
     
-    /* Grelha da simulação com o tamanho exato padrão do jogo (sem escala artificial) */
-    #simu-board { transform: none; }
+    /* Simulação na capa reduzida exatamente em 10% (scale 0.9) */
+    #simu-board { transform: scale(0.9); transform-origin: center; }
 
     #instrucoes-panel { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: white; z-index: 10000; transition: transform 0.5s ease; transform: translateY(100%); visibility: hidden; padding: 40px 25px; overflow-y: auto; border-radius: 35px 35px 0 0; }
     #instrucoes-panel.open { transform: translateY(0); visibility: visible; }
