@@ -8,12 +8,12 @@ const JOGO_CONFIG = {
 };
 
 let corAtual = "#ECA607";
-let ferramentaAtual = "lapis"; // "lapis", "borracha", "balde"
+let ferramentaAtual = "lapis"; 
 let tamanhoPincel = 10;
 let isDrawing = false;
 let ctx = null;
 let canvas = null;
-let historicoCanvas = []; // Histórico para o botão anular
+let historicoCanvas = []; 
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
@@ -121,13 +121,21 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA E REPRODUÇÃO DE SOM
+// 3. CAPA E REPRODUÇÃO DE SOM (Com barrita em cima e botões em baixo)
 // ============================================================
 function mostrarCapa() {
     if(!document.getElementById('round-feedback')) {
         const feedback = document.createElement('div');
         feedback.id = 'round-feedback';
         document.querySelector('.botao-ano').appendChild(feedback);
+    }
+
+    const slotTopo = document.getElementById('slot-topo');
+    const slotFundo = document.getElementById('slot-fundo');
+
+    if (slotTopo) {
+        slotTopo.className = "barrita-fundo-cartao";
+        slotTopo.innerHTML = "";
     }
 
     const area = document.getElementById('contentor-jogo');
@@ -138,11 +146,9 @@ function mostrarCapa() {
         `;
     }
 
-    const barra = document.getElementById('barra-inferior');
-    if (barra) {
-        barra.style.display = 'flex';
-        barra.className = "barra-jogo-topo";
-        barra.innerHTML = `
+    if (slotFundo) {
+        slotFundo.className = "barra-jogo-topo";
+        slotFundo.innerHTML = `
             <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
             <button class="btn-capa-jogar" onclick="iniciarJogoDesenho()">COMEÇAR</button>
         `;
@@ -157,13 +163,24 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO ESTOJO MÁGICO
+// 4. LÓGICA DO ESTOJO MÁGICO (Com barra de ferramentas em cima e barrita em baixo)
 // ============================================================
 function iniciarJogoDesenho() {
     if (somClique.src) somClique.play().catch(()=>{});
+    
+    const slotTopo = document.getElementById('slot-topo');
+    const slotFundo = document.getElementById('slot-fundo');
     const area = document.getElementById('contentor-jogo');
     const feedbackEl = document.getElementById('round-feedback');
     if (feedbackEl) feedbackEl.style.display = 'none';
+
+    if (slotTopo) {
+        slotTopo.className = "barra-jogo-topo";
+        slotTopo.innerHTML = `
+            <div style="color:white; font-weight:800; font-size:0.9rem;">✏️ Escolhe os teus lápis e cria magia!</div>
+            <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem;">Voltar</button>
+        `;
+    }
 
     if (area) {
         area.innerHTML = `
@@ -204,12 +221,9 @@ function iniciarJogoDesenho() {
         `;
     }
 
-    const barra = document.getElementById('barra-inferior');
-    if (barra) {
-        barra.innerHTML = `
-            <div style="color:white; font-weight:800; font-size:0.9rem;">✏️ Escolhe os teus lápis e cria magia!</div>
-            <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem;">Voltar</button>
-        `;
+    if (slotFundo) {
+        slotFundo.className = "barrita-fundo-cartao";
+        slotFundo.innerHTML = "";
     }
 
     configurarCanvas();
@@ -481,8 +495,10 @@ function concluirDesenho() {
                 </div>
             </div>`;
     }
-    const barra = document.getElementById('barra-inferior');
-    if (barra) barra.style.display = "none";
+    const slotTopo = document.getElementById('slot-topo');
+    const slotFundo = document.getElementById('slot-fundo');
+    if (slotTopo) slotTopo.innerHTML = "";
+    if (slotFundo) slotFundo.innerHTML = "";
 }
 
 // Iniciar a capa diretamente
