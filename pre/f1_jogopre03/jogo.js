@@ -352,7 +352,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS (APENAS CARREGA A IMAGEM SEM INJETAR SOMAS)
+// 5. CONFIGURAÇÃO DO CANVAS (CARREGA A IMAGEM ORIGINAL COM AS SOMAS)
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
@@ -433,7 +433,7 @@ function mudarCorPorResultado(resultado, el) {
 
 
 // ============================================================
-// 6. PREENCHIMENTO INTELIGENTE (TINTA COBRE AS SOMAS DA IMAGEM)
+// 6. PREENCHIMENTO INTELIGENTE (TINTA COBRE E TAPA AS SOMAS)
 // ============================================================
 function hexToRgba(hex) {
     let c = hex.replace('#', '');
@@ -459,12 +459,13 @@ function preencherAreaComCor(startX, startY) {
 
     function colorMatch(idx) {
         const r = data[idx], g = data[idx + 1], b = data[idx + 2];
-        // Apenas as linhas pretas grossas do contorno bloqueiam a tinta (r, g, b < 40).
-        // Os números pretos das somas na imagem (que têm pixeis mais claros ou acinzentados/misturados com o fundo) serão ignorados e tapados pela tinta.
-        if (r < 40 && g < 40 && b < 40) return false; 
+        
+        // Apenas as linhas pretas grossas dos contornos (muito escuras) impedem o alastramento da tinta.
+        // Os números da soma na imagem são ignorados por esta condição, permitindo que a tinta passe por cima e os tape por completo.
+        if (r < 30 && g < 30 && b < 30) return false; 
         
         const diff = Math.abs(r - targetColor[0]) + Math.abs(g - targetColor[1]) + Math.abs(b - targetColor[2]);
-        return diff < 85;
+        return diff < 90;
     }
 
     const pixelStack = [[startX, startY]];
