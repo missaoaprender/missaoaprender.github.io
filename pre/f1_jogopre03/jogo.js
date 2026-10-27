@@ -352,7 +352,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS (CARREGA A IMAGEM ORIGINAL COM CONTAS)
+// 5. CONFIGURAÇÃO DO CANVAS
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
@@ -433,7 +433,7 @@ function mudarCorPorResultado(resultado, el) {
 
 
 // ============================================================
-// 6. PREENCHIMENTO INTELIGENTE (TINTA COBRE E TAPA AS CONTAS)
+// 6. PREENCHIMENTO INTELIGENTE (TINTA TAPA AS CONTAS POR COMPLETO)
 // ============================================================
 function hexToRgba(hex) {
     let c = hex.replace('#', '');
@@ -460,12 +460,12 @@ function preencherAreaComCor(startX, startY) {
     function colorMatch(idx) {
         const r = data[idx], g = data[idx + 1], b = data[idx + 2];
         
-        // Apenas linhas pretas grossas principais bloqueiam a tinta.
-        // Os números e operações pretas dentro das zonas são totalmente tapados pela tinta.
-        if (r < 30 && g < 30 && b < 30) return false; 
+        // Apenas os contornos pretos muito grossos e escuros (r, g, b < 25) impedem a tinta de passar.
+        // Os números das somas são mais claros ou finos, pelo que a tinta passa por cima e os apaga/tapa na totalidade.
+        if (r < 25 && g < 25 && b < 25) return false; 
         
         const diff = Math.abs(r - targetColor[0]) + Math.abs(g - targetColor[1]) + Math.abs(b - targetColor[2]);
-        return diff < 90;
+        return diff < 100;
     }
 
     const pixelStack = [[startX, startY]];
@@ -509,90 +509,97 @@ function preencherAreaComCor(startX, startY) {
 
 
 // ============================================================
-// 7. VALIDAÇÃO INTELIGENTE: APAGA O QUE ESTÁ ERRADO E DEIXA CONTINUAR
+// 7. VALIDAÇÃO REAL: APAGA O QUE ESTÁ MAL E DEIXA O ALUNO CONTINUAR
 // ============================================================
 function concluirDesenho() {
     const lista = obterListaDesenhos();
     const atual = lista[indiceDesenhoAtual];
 
-    if (!atual || !atual.mapa || !imgDesenho) {
+    if (!atual || !atual.mapa) {
         mostrarFeedbackSucesso();
         return;
     }
 
+    // Carrega o mapa de cores e a imagem original com as contas em simultâneo de forma segura
     const imgMapa = new Image();
     imgMapa.crossOrigin = "anonymous";
     imgMapa.onload = () => {
-        // Cria canvas temporário para ler o mapa de cores
         const offCanvas = document.createElement('canvas');
         offCanvas.width = canvas.width;
         offCanvas.height = canvas.height;
         const offCtx = offCanvas.getContext('2d', { willReadFrequently: true });
         offCtx.drawImage(imgMapa, 0, 0, canvas.width, canvas.height);
 
-        // Cria canvas temporário para ler a imagem original limpa (para restaurar o fundo e as contas originais onde houver erro)
-        const cleanCanvas = document.createElement('canvas');
-        cleanCanvas.width = canvas.width;
-        cleanCanvas.height = canvas.height;
-        const cleanCtx = cleanCanvas.getContext('2d', { willReadFrequently: true });
-        cleanCtx.fillStyle = "#FFFFFF";
-        cleanCtx.fillRect(0, 0, canvas.width, canvas.height);
-        cleanCtx.drawImage(imgDesenho, 0, 0, canvas.width, canvas.height);
+        const imgOriginalComContas = new Image();
+        imgOriginalComContas.crossOrigin = "anonymous";
+        imgOriginalComContas.onload = () => {
+            const cleanCanvas = document.createElement('canvas');
+            cleanCanvas.width = canvas.width;
+            cleanCanvas.height = canvas.height;
+            const cleanCtx = cleanCanvas.getContext('2d', { willReadFrequently: true });
+            cleanCtx.fillStyle = "#FFFFFF";
+            cleanCtx.fillRect(0, 0, canvas.width, canvas.height);
+            cleanCtx.drawImage(imgOriginalComContas, 0, 0, canvas.width, canvas.height);
 
-        const userImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const mapImgData = offCtx.getImageData(0, 0, canvas.width, canvas.height);
-        const cleanImgData = cleanCtx.getImageData(0, 0, canvas.width, canvas.height);
-        
-        const dataUser = userImgData.data;
-        const dataMap = mapImgData.data;
-        const dataClean = cleanImgData.data;
-
-        let errosEncontrados = 0;
-        let totalPixelsColoridos = 0;
-
-        // Vamos verificar cada pixel do canvas
-        for (let i = 0; i < dataUser.length; i += 4) {
-            const rUser = dataUser[i], gUser = dataUser[i+1], bUser = dataUser[i+2];
-            const rMap = dataMap[i], gMap = dataMap[i+1], bMap = dataMap[i+2];
-
-            // Ignora contornos pretos e áreas que ainda estão brancas/fundo
-            if ((rUser < 50 && gUser < 50 && bUser < 50) || (rUser > 240 && gUser > 240 && bUser > 240)) {
-                continue;
-            }
-            if (rMap > 240 && gMap > 240 && bMap > 240) {
-                continue;
-            }
-
-            totalPixelsColoridos++;
-
-            // Compara a cor pintada pelo utilizador com a cor esperada no mapa
-            const diff = Math.abs(rUser - rMap) + Math.abs(gUser - gMap) + Math.abs(bUser - bMap);
+            const userImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const mapImgData = offCtx.getImageData(0, 0, canvas.width, canvas.height);
+            const cleanImgData = cleanCtx.getImageData(0, 0, canvas.width, canvas.height);
             
-            if (diff > 50) {
-                // ERRO: O aluno pintou com a cor errada nesta zona!
-                errosEncontrados++;
+            const dataUser = userImgData.data;
+            const dataMap = mapImgData.data;
+            const dataClean = cleanImgData.data;
+
+            let errosEncontrados = 0;
+            let totalPixelsColoridos = 0;
+
+            // Analisa o canvas pixel a pixel
+            for (let i = 0; i < dataUser.length; i += 16) {
+                const rUser = dataUser[i], gUser = dataUser[i+1], bUser = dataUser[i+2];
+                const rMap = dataMap[i], gMap = dataMap[i+1], bMap = dataMap[i+2];
+
+                // Ignora contornos pretos e áreas que ainda estão em branco
+                if ((rUser < 40 && gUser < 40 && bUser < 40) || (rUser > 245 && gUser > 245 && bUser > 245)) {
+                    continue;
+                }
+                if (rMap > 245 && gMap > 245 && bMap > 245) {
+                    continue;
+                }
+
+                totalPixelsColoridos++;
+
+                // Compara a cor do utilizador com a cor gabarito do mapa
+                const diff = Math.abs(rUser - rMap) + Math.abs(gUser - gMap) + Math.abs(bUser - bMap);
                 
-                // Apaga imediatamente este pixel, restaurando-o para o estado original da imagem (fazendo a conta aparecer de novo)
-                dataUser[i] = dataClean[i];
-                dataUser[i+1] = dataClean[i+1];
-                dataUser[i+2] = dataClean[i+2];
-                dataUser[i+3] = dataClean[i+3];
+                if (diff > 60) {
+                    errosEncontrados++;
+                    
+                    // Apaga o erro detetado num raio de pixéis e restaura a imagem original (fazendo a conta reaparecer)
+                    for (let offset = 0; offset < 16; offset += 4) {
+                        const idx = i + offset;
+                        if (idx < dataUser.length) {
+                            dataUser[idx] = dataClean[idx];
+                            dataUser[idx+1] = dataClean[idx+1];
+                            dataUser[idx+2] = dataClean[idx+2];
+                            dataUser[idx+3] = dataClean[idx+3];
+                        }
+                    }
+                }
             }
-        }
 
-        // Atualiza o canvas com os erros apagados
-        ctx.putImageData(userImgData, 0, 0);
-        salvarEstadoHistorico();
+            // Atualiza o canvas apagando apenas os erros
+            ctx.putImageData(userImgData, 0, 0);
+            salvarEstadoHistorico();
 
-        // Se encontrou erros ou se ainda há muitas zonas por pintar (poucos pixels coloridos)
-        if (errosEncontrados > 100) {
-            mostrarFeedbackErroEspecifico("Encontramos algumas cores incorretas! Essas zonas foram limpas para poderes tentar novamente.");
-        } else if (totalPixelsColoridos < 5000) {
-            mostrarFeedbackErroEspecifico("Ainda tens zonas por pintar! Continua o excelente trabalho.");
-        } else {
-            // Está tudo perfeito!
-            mostrarFeedbackSucesso();
-        }
+            // Se houver erros, avisa o aluno e deixa-o continuar a pintar
+            if (errosEncontrados > 20) {
+                mostrarFeedbackErroEspecifico("Ops! Há zonas com cores erradas. Essas partes foram limpas para poderes corrigir e tentar outra vez!");
+            } else if (totalPixelsColoridos < 2000) {
+                mostrarFeedbackErroEspecifico("Ainda tens zonas por pintar no desenho! Continua.");
+            } else {
+                mostrarFeedbackSucesso();
+            }
+        };
+        imgOriginalComContas.src = atual.arquivo;
     };
     imgMapa.src = atual.mapa;
 }
