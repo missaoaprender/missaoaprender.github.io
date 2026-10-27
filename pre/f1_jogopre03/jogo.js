@@ -35,8 +35,9 @@ function obterListaDesenhos() {
     if (DADOS && DADOS.desenhosParaColorir && DADOS.desenhosParaColorir.length > 0) {
         return DADOS.desenhosParaColorir;
     }
+    // Cada desenho pode incluir agora o seu "mapa" de cores de referência para validação
     return [
-        { nome: "Desenho 1", arquivo: "desenho5.png" }
+        { nome: "Abóbora de Halloween", arquivo: "desenho5.png", mapa: "mapa5.png" }
     ];
 }
 
@@ -411,7 +412,6 @@ function desenharCenarioComSomas() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(imgDesenho, 0, 0, canvas.width, canvas.height);
 
-    // Coordenadas calculadas especificamente para as zonas do desenho da abóbora (desenho5.png)
     ctx.font = "bold 22px Arial";
     ctx.fillStyle = "#262638";
     ctx.textAlign = "center";
@@ -529,7 +529,67 @@ function preencherAreaComCor(startX, startY) {
     salvarEstadoHistorico();
 }
 
+// ============================================================
+// 7. VALIDAÇÃO POR MAPA DE CORES E CONCLUSÃO
+// ============================================================
 function concluirDesenho() {
+    const lista = obterListaDesenhos();
+    const atual = lista[indiceDesenhoAtual];
+
+    // Se o desenho tiver um mapa de referência associado, validamos por imagem
+    if (atual && atual.mapa) {
+        const imgMapa = new Image();
+        imgMapa.crossOrigin = "anonymous";
+        imgMapa.onload = () => {
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = canvas.width;
+            offCanvas.height = canvas.height;
+            const offCtx = offCanvas.getContext('2d', { willReadFrequently: true });
+            offCtx.drawImage(imgMapa, 0, 0, canvas.width, canvas.height);
+
+            const userImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const mapImgData = offCtx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            let erros = 0;
+            let pixelsValidados = 0;
+
+            // Amostragem de pixels para validação eficiente (evita lag)
+            for (let i = 0; i < userImgData.data.length; i += 16) {
+                const rUser = userImgData.data[i];
+                const gUser = userImgData.data[i+1];
+                const bUser = userImgData.data[i+2];
+
+                const rMap = mapImgData.data[i];
+                const gMap = mapImgData.data[i+1];
+                const bMap = mapImgData.data[i+2];
+
+                // Ignora contornos pretos e áreas totalmente brancas de fundo não essenciais
+                if ((rUser < 50 && gUser < 50 && bUser < 50) || (rMap > 240 && gMap > 240 && bMap > 240)) {
+                    continue;
+                }
+
+                pixelsValidados++;
+                const diff = Math.abs(rUser - rMap) + Math.abs(gUser - gMap) + Math.abs(bUser - bMap);
+                if (diff > 50) {
+                    erros++;
+                }
+            }
+
+            // Se houver muitas discrepâncias em relação ao mapa de cores
+            if (pixelsValidados > 0 && (erros / pixelsValidados) > 0.15) {
+                mostrarFeedbackErro();
+            } else {
+                mostrarFeedbackSucesso();
+            }
+        };
+        imgMapa.src = atual.mapa;
+    } else {
+        // Se não houver mapa configurado, valida por defeito o sucesso
+        mostrarFeedbackSucesso();
+    }
+}
+
+function mostrarFeedbackSucesso() {
     if (somAcerto.src) somAcerto.play().catch(()=>{});
     const overlay = document.getElementById('round-feedback');
     const iconeFeedback = DADOS.icons.feedbacks.feedback1;
@@ -540,7 +600,7 @@ function concluirDesenho() {
             <div class="vitoria-card">
                 <img src="${iconeFeedback}" style="width:120px; height:120px; object-fit:contain;">
                 <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">EXCELENTE TRABALHO!</h1>
-                <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Resolveste as somas e criaste uma obra de arte!</p>
+                <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Pintaste tudo direitinho e resolveste as somas!</p>
                 <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
                     <button class="btn-final-roxo" onclick="mostrarCapa()">Escolher Outro</button>
                     <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
@@ -550,6 +610,25 @@ function concluirDesenho() {
     }
     const barra = document.getElementById('barra-inferior');
     if (barra) barra.style.display = "none";
+}
+
+function mostrarFeedbackErro() {
+    if (somClique.src) somClique.play().catch(()=>{});
+    const overlay = document.getElementById('round-feedback');
+
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.innerHTML = `
+            <div class="vitoria-card">
+                <div style="font-size: 3rem; margin-bottom: 5px;">🎨</div>
+                <h1 style="color:#C2890B; font-size:1.3rem; font-weight:900; margin:0; text-transform:uppercase;">QUASE LÁ!</h1>
+                <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Há algumas cores que não correspondem aos resultados das somas. Tenta verificar e pintar novamente!</p>
+                <div style="display:flex; justify-content:center; gap:12px; margin-top:12px; width:100%; max-width:420px;">
+                    <button class="btn-final-roxo" onclick="document.getElementById('round-feedback').style.display='none'; const b=document.getElementById('barra-inferior'); if(b) b.style.display='flex';">Continuar a Pintar</button>
+                </div>
+            </div>
+            <div class="feedback-bottom-bar"></div>`;
+    }
 }
 
 // Iniciar aplicação
