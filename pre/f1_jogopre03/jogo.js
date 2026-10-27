@@ -35,7 +35,6 @@ function obterListaDesenhos() {
     if (DADOS && DADOS.desenhosParaColorir && DADOS.desenhosParaColorir.length > 0) {
         return DADOS.desenhosParaColorir;
     }
-    // Cada desenho pode incluir agora o seu "mapa" de cores de referência para validação
     return [
         { nome: "Abóbora de Halloween", arquivo: "desenho5.png", mapa: "mapa5.png" }
     ];
@@ -273,7 +272,7 @@ function iniciarJogoDesenho() {
     if (area) {
         area.innerHTML = `
             <div class="jogo-layout-principal">
-                <!-- Esquerda: Desenho com Somas -->
+                <!-- Esquerda: Desenho -->
                 <div class="canvas-wrapper" id="canvasWrapper">
                     <canvas id="paintCanvas"></canvas>
                 </div>
@@ -353,7 +352,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS E SOMAS POSICIONADAS NA ABÓBORA
+// 5. CONFIGURAÇÃO DO CANVAS (APENAS CARREGA A IMAGEM SEM INJETAR SOMAS)
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
@@ -372,7 +371,9 @@ function configurarCanvas() {
         imgDesenho = new Image();
         imgDesenho.crossOrigin = "anonymous";
         imgDesenho.onload = () => {
-            desenharCenarioComSomas();
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(imgDesenho, 0, 0, canvas.width, canvas.height);
             salvarEstadoHistorico();
         };
         imgDesenho.src = atual.arquivo;
@@ -406,33 +407,6 @@ function configurarCanvas() {
     canvas.ontouchstart = lidarComClique;
 }
 
-function desenharCenarioComSomas() {
-    if (!ctx || !imgDesenho) return;
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(imgDesenho, 0, 0, canvas.width, canvas.height);
-
-    ctx.font = "bold 22px Arial";
-    ctx.fillStyle = "#262638";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    const somasExemplo = [
-        { texto: "1+5", x: 505, y: 200 },  // Chapéu superior
-        { texto: "2+6", x: 505, y: 440 },  // Aba do chapéu
-        { texto: "1+3", x: 235, y: 600 },  // Gomo esquerdo da abóbora
-        { texto: "1+1", x: 375, y: 395 },  // Olho esquerdo
-        { texto: "2+2", x: 505, y: 380 },  // Testa / Centro superior
-        { texto: "1+1", x: 635, y: 395 },  // Olho direito
-        { texto: "4+0", x: 775, y: 600 },  // Gomo direito da abóbora
-        { texto: "2+1", x: 565, y: 690 }   // Boca inferior
-    ];
-
-    somasExemplo.forEach(s => {
-        ctx.fillText(s.texto, s.x, s.y);
-    });
-}
-
 function salvarEstadoHistorico() {
     if (!canvas || !ctx) return;
     if (historicoCanvas.length >= 10) historicoCanvas.shift();
@@ -459,7 +433,7 @@ function mudarCorPorResultado(resultado, el) {
 
 
 // ============================================================
-// 6. PREENCHIMENTO INTELIGENTE (FLOOD FILL)
+// 6. PREENCHIMENTO INTELIGENTE (TINTA COBRE AS SOMAS DA IMAGEM)
 // ============================================================
 function hexToRgba(hex) {
     let c = hex.replace('#', '');
@@ -485,9 +459,12 @@ function preencherAreaComCor(startX, startY) {
 
     function colorMatch(idx) {
         const r = data[idx], g = data[idx + 1], b = data[idx + 2];
-        if (r < 70 && g < 70 && b < 70) return false; // Não pinta as linhas pretas do desenho
+        // Apenas as linhas pretas grossas do contorno bloqueiam a tinta (r, g, b < 40).
+        // Os números pretos das somas na imagem (que têm pixeis mais claros ou acinzentados/misturados com o fundo) serão ignorados e tapados pela tinta.
+        if (r < 40 && g < 40 && b < 40) return false; 
+        
         const diff = Math.abs(r - targetColor[0]) + Math.abs(g - targetColor[1]) + Math.abs(b - targetColor[2]);
-        return diff < 75;
+        return diff < 85;
     }
 
     const pixelStack = [[startX, startY]];
@@ -529,6 +506,7 @@ function preencherAreaComCor(startX, startY) {
     salvarEstadoHistorico();
 }
 
+
 // ============================================================
 // 7. VALIDAÇÃO POR MAPA DE CORES E CONCLUSÃO
 // ============================================================
@@ -536,7 +514,6 @@ function concluirDesenho() {
     const lista = obterListaDesenhos();
     const atual = lista[indiceDesenhoAtual];
 
-    // Se o desenho tiver um mapa de referência associado, validamos por imagem
     if (atual && atual.mapa) {
         const imgMapa = new Image();
         imgMapa.crossOrigin = "anonymous";
@@ -553,7 +530,6 @@ function concluirDesenho() {
             let erros = 0;
             let pixelsValidados = 0;
 
-            // Amostragem de pixels para validação eficiente (evita lag)
             for (let i = 0; i < userImgData.data.length; i += 16) {
                 const rUser = userImgData.data[i];
                 const gUser = userImgData.data[i+1];
@@ -563,7 +539,6 @@ function concluirDesenho() {
                 const gMap = mapImgData.data[i+1];
                 const bMap = mapImgData.data[i+2];
 
-                // Ignora contornos pretos e áreas totalmente brancas de fundo não essenciais
                 if ((rUser < 50 && gUser < 50 && bUser < 50) || (rMap > 240 && gMap > 240 && bMap > 240)) {
                     continue;
                 }
@@ -575,7 +550,6 @@ function concluirDesenho() {
                 }
             }
 
-            // Se houver muitas discrepâncias em relação ao mapa de cores
             if (pixelsValidados > 0 && (erros / pixelsValidados) > 0.15) {
                 mostrarFeedbackErro();
             } else {
@@ -584,7 +558,6 @@ function concluirDesenho() {
         };
         imgMapa.src = atual.mapa;
     } else {
-        // Se não houver mapa configurado, valida por defeito o sucesso
         mostrarFeedbackSucesso();
     }
 }
@@ -622,7 +595,7 @@ function mostrarFeedbackErro() {
             <div class="vitoria-card">
                 <div style="font-size: 3rem; margin-bottom: 5px;">🎨</div>
                 <h1 style="color:#C2890B; font-size:1.3rem; font-weight:900; margin:0; text-transform:uppercase;">QUASE LÁ!</h1>
-                <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Há algumas cores que não correspondem aos resultados das somas. Tenta verificar e pintar novamente!</p>
+                <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Há algumas cores que não correspondem aos resultados esperados. Tenta verificar e pintar novamente!</p>
                 <div style="display:flex; justify-content:center; gap:12px; margin-top:12px; width:100%; max-width:420px;">
                     <button class="btn-final-roxo" onclick="document.getElementById('round-feedback').style.display='none'; const b=document.getElementById('barra-inferior'); if(b) b.style.display='flex';">Continuar a Pintar</button>
                 </div>
