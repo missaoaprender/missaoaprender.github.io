@@ -13,9 +13,9 @@ const PALETA_SOMAS = {
     1: { cor: "#ff5a5f", nome: "Vermelho" },
     2: { cor: "#ff9f1c", nome: "Laranja" },
     3: { cor: "#ffd166", nome: "Amarelo" },
-    4: { cor: "#8cc63f", nome: "Verde Claro" },
+    4: { cor: "#ff7f00", nome: "Laranja Abóbora" },
     5: { cor: "#06d6a0", nome: "Verde Menta" },
-    6: { cor: "#2ec4b6", nome: "Verde Água" },
+    6: { cor: "#8b00ff", nome: "Roxo Escuro" },
     7: { cor: "#3a86ff", nome: "Azul" },
     8: { cor: "#4361ee", nome: "Azul Escuro" },
     9: { cor: "#7209b7", nome: "Roxo" },
@@ -36,8 +36,7 @@ function obterListaDesenhos() {
         return DADOS.desenhosParaColorir;
     }
     return [
-        { nome: "Desenho 1", arquivo: "desenho1.png" },
-        { nome: "Desenho 2", arquivo: "desenho2.png" }
+        { nome: "Desenho 1", arquivo: "desenho5.png" }
     ];
 }
 
@@ -218,7 +217,7 @@ function mostrarCapa() {
                 
                 <div class="animacao-capa-area" onclick="tocarSomInstrucao()" title="Clica para ouvir!">
                     <canvas id="capaCanvas" width="260" height="195"></canvas>
-                    <div id="capaMao" style="position:absolute; font-size:2.2rem; pointer-events:none; transition: all 0.2s ease;">➕</div>
+                    <div id="capaMao" style="position:absolute; font-size:2.2rem; pointer-events:none; transition: all 0.2s ease;">🎃</div>
                 </div>
             </div>
         `;
@@ -248,8 +247,8 @@ function iniciarAnimacaoCapaRealista() {
 
     cCtx.font = "bold 16px Arial";
     cCtx.fillStyle = "#262638";
-    cCtx.fillText("2 + 1", 80, 80);
-    cCtx.fillText("3 + 2", 160, 130);
+    cCtx.fillText("1 + 5", 110, 80);
+    cCtx.fillText("2 + 6", 110, 130);
 }
 
 function tocarSomInstrucao() {
@@ -286,9 +285,9 @@ function iniciarJogoDesenho() {
                             <div class="lapis-soma-btn ativo" onclick="mudarCorPorResultado(1, this)"><div class="cor-bola" style="background:#ff5a5f;"></div><span>1</span></div>
                             <div class="lapis-soma-btn" onclick="mudarCorPorResultado(2, this)"><div class="cor-bola" style="background:#ff9f1c;"></div><span>2</span></div>
                             <div class="lapis-soma-btn" onclick="mudarCorPorResultado(3, this)"><div class="cor-bola" style="background:#ffd166;"></div><span>3</span></div>
-                            <div class="lapis-soma-btn" onclick="mudarCorPorResultado(4, this)"><div class="cor-bola" style="background:#8cc63f;"></div><span>4</span></div>
+                            <div class="lapis-soma-btn" onclick="mudarCorPorResultado(4, this)"><div class="cor-bola" style="background:#ff7f00;"></div><span>4</span></div>
                             <div class="lapis-soma-btn" onclick="mudarCorPorResultado(5, this)"><div class="cor-bola" style="background:#06d6a0;"></div><span>5</span></div>
-                            <div class="lapis-soma-btn" onclick="mudarCorPorResultado(6, this)"><div class="cor-bola" style="background:#2ec4b6;"></div><span>6</span></div>
+                            <div class="lapis-soma-btn" onclick="mudarCorPorResultado(6, this)"><div class="cor-bola" style="background:#8b00ff;"></div><span>6</span></div>
                             <div class="lapis-soma-btn" onclick="mudarCorPorResultado(7, this)"><div class="cor-bola" style="background:#3a86ff;"></div><span>7</span></div>
                             <div class="lapis-soma-btn" onclick="mudarCorPorResultado(8, this)"><div class="cor-bola" style="background:#4361ee;"></div><span>8</span></div>
                             <div class="lapis-soma-btn" onclick="mudarCorPorResultado(9, this)"><div class="cor-bola" style="background:#7209b7;"></div><span>9</span></div>
@@ -321,7 +320,7 @@ function iniciarJogoDesenho() {
     if (barra) {
         barra.style.display = 'flex';
         barra.innerHTML = `
-            <div style="color:white; font-weight:800; font-size:0.85rem;">➕ Resolve a soma e pinta com a cor correspondente!</div>
+            <div style="color:white; font-weight:800; font-size:0.85rem;">🎃 Resolve a soma e pinta com a cor correspondente!</div>
             <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem; width:auto;">Voltar</button>
         `;
     }
@@ -353,7 +352,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS E SOMAS BEM POSICIONADAS NAS MANCHAS
+// 5. CONFIGURAÇÃO DO CANVAS E SOMAS POSICIONADAS NA ABÓBORA
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
@@ -412,19 +411,21 @@ function desenharCenarioComSomas() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(imgDesenho, 0, 0, canvas.width, canvas.height);
 
-    // Coordenadas corrigidas e posicionadas exatamente sobre as manchas e zonas internas da vaca do desenho
+    // Coordenadas calculadas especificamente para as zonas do desenho da abóbora (desenho5.png)
     ctx.font = "bold 22px Arial";
     ctx.fillStyle = "#262638";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
 
     const somasExemplo = [
-        { texto: "2 + 1", x: 535, y: 345 },  // Bochecha / Focinho direito
-        { texto: "3 + 2", x: 720, y: 460 },  // Focinho / cara
-        { texto: "2 + 2", x: 675, y: 220 },  // Testa / Orelha
-        { texto: "4 + 1", x: 385, y: 700 },  // Mancha preta na coxa/perna traseira
-        { texto: "5 + 3", x: 280, y: 550 },  // Perto da cauda / anca traseira
-        { texto: "1 + 1", x: 325, y: 300 }   // Nuvem superior esquerda
+        { texto: "1+5", x: 505, y: 200 },  // Chapéu superior
+        { texto: "2+6", x: 505, y: 440 },  // Aba do chapéu
+        { texto: "1+3", x: 235, y: 600 },  // Gomo esquerdo da abóbora
+        { texto: "1+1", x: 375, y: 395 },  // Olho esquerdo
+        { texto: "2+2", x: 505, y: 380 },  // Testa / Centro superior
+        { texto: "1+1", x: 635, y: 395 },  // Olho direito
+        { texto: "4+0", x: 775, y: 600 },  // Gomo direito da abóbora
+        { texto: "2+1", x: 565, y: 690 }   // Boca inferior
     ];
 
     somasExemplo.forEach(s => {
