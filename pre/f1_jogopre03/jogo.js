@@ -22,12 +22,11 @@ const PALETA_SOMAS = {
     10: { cor: "#ff007f", nome: "Rosa Choque" }
 };
 
-let corAtualHex = "#ff5a5f";
+let corAtual = "#ff5a5f";
 let resultadoAtualCor = 1;
 let ctx = null;
 let canvas = null;
 let imgDesenho = null;
-let imgMapaRef = null;
 let historicoCanvas = []; 
 let indiceDesenhoAtual = 0;
 let timerAnimacaoCapa = null;
@@ -353,7 +352,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS E CARREGAMENTO DO MAPA DE REFERÊNCIA
+// 5. CONFIGURAÇÃO DO CANVAS
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
@@ -369,13 +368,6 @@ function configurarCanvas() {
     const atual = lista[indiceDesenhoAtual];
 
     if (atual && atual.arquivo) {
-        if (atual.mapa) {
-            imgMapaRef = new Image();
-            imgMapaRef.crossOrigin = "anonymous";
-            imgMapaRef.onload = () => {};
-            imgMapaRef.src = atual.mapa;
-        }
-
         imgDesenho = new Image();
         imgDesenho.crossOrigin = "anonymous";
         imgDesenho.onload = () => {
@@ -433,7 +425,7 @@ function anularUltimaAcao() {
 function mudarCorPorResultado(resultado, el) {
     if (somClique.src) somClique.play().catch(()=>{});
     resultadoAtualCor = resultado;
-    corAtualHex = PALETA_SOMAS[resultado].cor;
+    corAtual = PALETA_SOMAS[resultado].cor;
     
     document.querySelectorAll('.lapis-soma-btn').forEach(b => b.classList.remove('ativo'));
     if (el) el.classList.add('ativo');
@@ -461,13 +453,15 @@ function preencherAreaComCor(startX, startY) {
     const imgData = ctx.getImageData(0, 0, width, height);
     const data = imgData.data;
 
-    const fillColor = hexToRgba(corAtualHex);
+    const fillColor = hexToRgba(corAtual);
     const pos = (startY * width + startX) * 4;
     const targetColor = [data[pos], data[pos + 1], data[pos + 2], data[pos + 3]];
 
     function colorMatch(idx) {
         const r = data[idx], g = data[idx + 1], b = data[idx + 2];
-        if (r < 30 && g < 30 && b < 30) return false; // Contornos pretos principais bloqueiam
+        // Contornos pretos principais bloqueiam a tinta
+        if (r < 30 && g < 30 && b < 30) return false; 
+        
         const diff = Math.abs(r - targetColor[0]) + Math.abs(g - targetColor[1]) + Math.abs(b - targetColor[2]);
         return diff < 110;
     }
@@ -513,82 +507,89 @@ function preencherAreaComCor(startX, startY) {
 
 
 // ============================================================
-// 7. VERIFICAÇÃO INTELIGENTE AO CLICAR EM "PRONTO!"
+// 7. VALIDAÇÃO POR MAPA DE CORES AO CLICAR EM "PRONTO!"
 // ============================================================
 function concluirDesenho() {
     const lista = obterListaDesenhos();
     const atual = lista[indiceDesenhoAtual];
 
-    if (!atual || !atual.mapa || !imgMapaRef || !imgDesenho) {
+    if (!atual || !atual.mapa) {
         mostrarFeedbackSucesso();
         return;
     }
 
-    const mapCanvas = document.createElement('canvas');
-    mapCanvas.width = canvas.width;
-    mapCanvas.height = canvas.height;
-    const mapCtx = mapCanvas.getContext('2d', { willReadFrequently: true });
-    mapCtx.drawImage(imgMapaRef, 0, 0, canvas.width, canvas.height);
+    const imgMapa = new Image();
+    imgMapa.crossOrigin = "anonymous";
+    imgMapa.onload = () => {
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = canvas.width;
+        offCanvas.height = canvas.height;
+        const offCtx = offCanvas.getContext('2d', { willReadFrequently: true });
+        offCtx.drawImage(imgMapa, 0, 0, canvas.width, canvas.height);
 
-    const cleanCanvas = document.createElement('canvas');
-    cleanCanvas.width = canvas.width;
-    cleanCanvas.height = canvas.height;
-    const cleanCtx = cleanCanvas.getContext('2d', { willReadFrequently: true });
-    cleanCtx.fillStyle = "#FFFFFF";
-    cleanCtx.fillRect(0, 0, cleanCanvas.width, cleanCanvas.height);
-    cleanCtx.drawImage(imgDesenho, 0, 0, cleanCanvas.width, cleanCanvas.height);
+        const imgOriginal = new Image();
+        imgOriginal.crossOrigin = "anonymous";
+        imgOriginal.onload = () => {
+            const cleanCanvas = document.createElement('canvas');
+            cleanCanvas.width = canvas.width;
+            cleanCanvas.height = canvas.height;
+            const cleanCtx = cleanCanvas.getContext('2d', { willReadFrequently: true });
+            cleanCtx.fillStyle = "#FFFFFF";
+            cleanCtx.fillRect(0, 0, cleanCanvas.width, cleanCanvas.height);
+            cleanCtx.drawImage(imgOriginal, 0, 0, cleanCanvas.width, cleanCanvas.height);
 
-    const userImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const mapImgData = mapCtx.getImageData(0, 0, canvas.width, canvas.height);
-    const cleanImgData = cleanCtx.getImageData(0, 0, canvas.width, canvas.height);
+            const userImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const mapImgData = offCtx.getImageData(0, 0, canvas.width, canvas.height);
+            const cleanImgData = cleanCtx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            const dataUser = userImgData.data;
+            const dataMap = mapImgData.data;
+            const dataClean = cleanImgData.data;
 
-    const dataUser = userImgData.data;
-    const dataMap = mapImgData.data;
-    const dataClean = cleanImgData.data;
+            let errosEncontrados = 0;
+            let pixelsColoridos = 0;
 
-    let errosEncontrados = 0;
-    let pixelsTotalColoridos = 0;
+            for (let i = 0; i < dataUser.length; i += 16) {
+                const rUser = dataUser[i], gUser = dataUser[i+1], bUser = dataUser[i+2];
+                const rMap = dataMap[i], gMap = dataMap[i+1], bMap = dataMap[i+2];
 
-    // Compara pixel a pixel respeitando os contornos naturais da imagem
-    for (let i = 0; i < dataUser.length; i += 4) {
-        const rUser = dataUser[i], gUser = dataUser[i+1], bUser = dataUser[i+2];
-        const rMap = dataMap[i], gMap = dataMap[i+1], bMap = dataMap[i+2];
+                if ((rUser < 40 && gUser < 40 && bUser < 40) || (rUser > 245 && gUser > 245 && bUser > 245)) continue;
+                if (rMap > 245 && gMap > 245 && bMap > 245) continue;
 
-        // Ignora contornos pretos e zonas em branco/fundo
-        if ((rUser < 40 && gUser < 40 && bUser < 40) || (rUser > 245 && gUser > 245 && bUser > 245)) continue;
-        if (rMap > 245 && gMap > 245 && bMap > 245) continue;
+                pixelsColoridos++;
+                const diff = Math.abs(rUser - rMap) + Math.abs(gUser - gMap) + Math.abs(bUser - bMap);
+                
+                if (diff > 55) {
+                    errosEncontrados++;
+                    // Apaga o erro detetado e faz a conta original reaparecer nessa parte
+                    for (let offset = 0; offset < 16; offset += 4) {
+                        const idx = i + offset;
+                        if (idx < dataUser.length) {
+                            dataUser[idx] = dataClean[idx];
+                            dataUser[idx+1] = dataClean[idx+1];
+                            dataUser[idx+2] = dataClean[idx+2];
+                            dataUser[idx+3] = dataClean[idx+3];
+                        }
+                    }
+                }
+            }
 
-        pixelsTotalColoridos++;
+            ctx.putImageData(userImgData, 0, 0);
+            salvarEstadoHistorico();
 
-        const expectedColorHex = PALETA_SOMAS[resultadoAtualCor]?.cor || "#FFFFFF";
-        
-        // Verifica se a cor aplicada está incorreta face ao mapa de gabarito
-        const diff = Math.abs(rUser - rMap) + Math.abs(gUser - gMap) + Math.abs(bUser - bMap);
-        
-        if (diff > 60) {
-            errosEncontrados++;
-            // Apaga imediatamente apenas o pixel errado, restaurando a conta original nessa zona
-            dataUser[i] = dataClean[i];
-            dataUser[i+1] = dataClean[i+1];
-            dataUser[i+2] = dataClean[i+2];
-            dataUser[i+3] = dataClean[i+3];
-        }
-    }
-
-    // Atualiza o canvas apagando os erros automaticamente
-    ctx.putImageData(userImgData, 0, 0);
-    salvarEstadoHistorico();
-
-    if (errosEncontrados > 100) {
-        // Se houver erros, limpa-os e avisa o aluno para continuar a pintar
-        if (somClique.src) somClique.play().catch(()=>{});
-        mostrarFeedbackErroEspecifico("Encontramos algumas zonas mal pintadas! Essas partes foram limpas para poderes corrigir e continuar.");
-    } else if (pixelsTotalColoridos < 3000) {
-        mostrarFeedbackErroEspecifico("Ainda tens zonas por pintar no desenho! Continua.");
-    } else {
-        // Tudo perfeito! Avança para o ecrã de sucesso
-        mostrarFeedbackSucesso();
-    }
+            // Se houver erros ou se faltar pintar partes importantes, avisa e limpa os erros para continuar
+            if (errosEncontrados > 30) {
+                mostrarFeedbackErroEspecifico("Há zonas com cores incorretas! Essas partes foram limpas para poderes corrigir.");
+            } else if (pixelsColoridos < 2500) {
+                mostrarFeedbackErroEspecifico("Ainda tens zonas por pintar no desenho! Continua.");
+            } else {
+                // SÓ AVANÇA PARA O ECRÃ DE SUCESSO SE ESTIVER TUDO PERFEITAMENTE CORRETO!
+                mostrarFeedbackSucesso();
+            }
+        };
+        imgOriginal.src = atual.arquivo;
+    };
+    imgMapa.src = atual.mapa;
 }
 
 function mostrarFeedbackSucesso() {
@@ -615,7 +616,9 @@ function mostrarFeedbackSucesso() {
 }
 
 function mostrarFeedbackErroEspecifico(mensagem) {
+    if (somClique.src) somClique.play().catch(()=>{});
     const overlay = document.getElementById('round-feedback');
+
     if (overlay) {
         overlay.style.display = 'flex';
         overlay.innerHTML = `
