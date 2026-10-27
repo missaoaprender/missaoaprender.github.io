@@ -35,8 +35,9 @@ function obterListaDesenhos() {
     if (DADOS && DADOS.desenhosParaColorir && DADOS.desenhosParaColorir.length > 0) {
         return DADOS.desenhosParaColorir;
     }
+    // O desenho aponta diretamente para a imagem que já tem as operações embutidas por ti
     return [
-        { nome: "Abóbora de Halloween", arquivo: "desenho6.png", mapa: "mapa5.png" }
+        { nome: "Abóbora de Halloween", arquivo: "desenho5.png", mapa: "mapa5.png" }
     ];
 }
 
@@ -352,7 +353,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS E DESENHO AUTOMÁTICO DAS SOMAS NO DESENHO LIMPO
+// 5. CONFIGURAÇÃO DO CANVAS (CARREGA DIRETAMENTE A IMAGEM COM AS CONTAS)
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
@@ -371,15 +372,10 @@ function configurarCanvas() {
         imgDesenho = new Image();
         imgDesenho.crossOrigin = "anonymous";
         imgDesenho.onload = () => {
-            // Desenha o desenho limpo (desenho6.png)
             ctx.fillStyle = "#FFFFFF";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(imgDesenho, 0, 0, canvas.width, canvas.height);
-
-            // Insere automaticamente as operações extraídas da imagem de referência nos locais corretos
-            desenharSomasAutomaticas();
-
-            salvarEstadoHistorico();
+            salvarEstadoHistorico(); // Guarda o estado inicial com as contas visíveis
         };
         imgDesenho.src = atual.arquivo;
     } else {
@@ -412,30 +408,6 @@ function configurarCanvas() {
     canvas.ontouchstart = lidarComClique;
 }
 
-function desenharSomasAutomaticas() {
-    if (!ctx) return;
-    ctx.font = "bold 22px Arial";
-    ctx.fillStyle = "#262638";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    // Extraídas e posicionadas automaticamente a partir da tua imagem de referência
-    const somasExtraidas = [
-        { texto: "1+5", x: 505, y: 200 },  // Chapéu superior
-        { texto: "2+6", x: 505, y: 440 },  // Aba do chapéu
-        { texto: "1+3", x: 235, y: 600 },  // Gomo esquerdo da abóbora
-        { texto: "1+1", x: 375, y: 395 },  // Olho esquerdo
-        { texto: "2+2", x: 505, y: 380 },  // Testa / Centro superior
-        { texto: "1+1", x: 635, y: 395 },  // Olho direito
-        { texto: "4+0", x: 775, y: 600 },  // Gomo direito da abóbora
-        { texto: "2+1", x: 565, y: 690 }   // Boca inferior
-    ];
-
-    somasExtraidas.forEach(s => {
-        ctx.fillText(s.texto, s.x, s.y);
-    });
-}
-
 function salvarEstadoHistorico() {
     if (!canvas || !ctx) return;
     if (historicoCanvas.length >= 10) historicoCanvas.shift();
@@ -445,9 +417,9 @@ function salvarEstadoHistorico() {
 function anularUltimaAcao() {
     if (somClique.src) somClique.play().catch(()=>{});
     if (historicoCanvas.length > 1) {
-        historicoCanvas.pop();
-        const estadoAnterior = historicoCanvas[historicoCanvas.length - 1];
-        ctx.putImageData(estadoAnterior, 0, 0);
+        historicoCanvas.pop(); // Remove o estado atual
+        const estadoAnterior = historicoCanvas[historicoCanvas.length - 1]; // Pega o estado anterior
+        ctx.putImageData(estadoAnterior, 0, 0); // Restaura (fazendo a operação reaparecer perfeitamente)
     }
 }
 
@@ -462,7 +434,7 @@ function mudarCorPorResultado(resultado, el) {
 
 
 // ============================================================
-// 6. PREENCHIMENTO INTELIGENTE (TINTA COBRE E TAPA AS SOMAS)
+// 6. PREENCHIMENTO INTELIGENTE (TINTA TAPA AS CONTAS E O ANULAR AS RESTAURA)
 // ============================================================
 function hexToRgba(hex) {
     let c = hex.replace('#', '');
@@ -489,8 +461,8 @@ function preencherAreaComCor(startX, startY) {
     function colorMatch(idx) {
         const r = data[idx], g = data[idx + 1], b = data[idx + 2];
         
-        // Apenas as linhas pretas grossas dos contornos principais bloqueiam a tinta.
-        // Os números adicionados por código são tapados e cobertos pela tinta.
+        // Apenas as linhas pretas grossas principais do desenho bloqueiam a tinta.
+        // Os números pretos das operações integradas na imagem são ignorados por esta condição, permitindo que a tinta passe por cima e os tape por completo.
         if (r < 30 && g < 30 && b < 30) return false; 
         
         const diff = Math.abs(r - targetColor[0]) + Math.abs(g - targetColor[1]) + Math.abs(b - targetColor[2]);
