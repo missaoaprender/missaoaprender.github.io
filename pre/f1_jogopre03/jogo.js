@@ -352,7 +352,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS (CARREGA A IMAGEM ORIGINAL COM AS SOMAS)
+// 5. CONFIGURAÇÃO DO CANVAS (CARREGA A IMAGEM COM AS SOMAS EMUTIDAS)
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
@@ -460,8 +460,8 @@ function preencherAreaComCor(startX, startY) {
     function colorMatch(idx) {
         const r = data[idx], g = data[idx + 1], b = data[idx + 2];
         
-        // Apenas as linhas pretas grossas dos contornos (muito escuras) impedem o alastramento da tinta.
-        // Os números da soma na imagem são ignorados por esta condição, permitindo que a tinta passe por cima e os tape por completo.
+        // Apenas as linhas pretas grossas dos contornos principais bloqueiam a tinta.
+        // Os números e somas integrados na imagem são ignorados e tapados por completo pela tinta.
         if (r < 30 && g < 30 && b < 30) return false; 
         
         const diff = Math.abs(r - targetColor[0]) + Math.abs(g - targetColor[1]) + Math.abs(b - targetColor[2]);
