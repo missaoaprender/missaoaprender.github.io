@@ -38,19 +38,18 @@
   <div id="app">
     <!-- ÁREA PRINCIPAL -->
     <main class="area-menu">
-      <div class="titulo-menu">
-        <h2 data-titulo-menu></h2>
-      </div>
-
-      <!-- CARTÃO ÚNICO EXPANDIDO COM A BARRA DINÂMICA AO FUNDO -->
+      <!-- CARTÃO ÚNICO EXPANDIDO COM A BARRA DINÂMICA NO TOPO E A BARRITA NO FUNDO -->
       <div class="cartao-unico-container">
         <div class="ano">
           <div class="botao-ano">
-            <!-- CONTEÚDO DINÂMICO (Capa ou Jogo) -->
-            <div id="contentor-jogo" style="flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;"></div>
-
-            <!-- BARRA INFERIOR DINÂMICA -->
+            <!-- BARRA DINÂMICA NO TOPO DO CARTÃO -->
             <div class="barra-jogo-topo" id="barra-inferior"></div>
+
+            <!-- CONTEÚDO DINÂMICO (Capa ou Jogo) -->
+            <div id="contentor-jogo" style="flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; min-height:0;"></div>
+
+            <!-- BARRITA AMARELA DECORATIVA NO FUNDO -->
+            <div class="barrita-fundo-cartao"></div>
           </div>
         </div>
       </div>
@@ -96,7 +95,7 @@
 
         #app {
           min-height: 100vh; width: min(100%, ${DADOS.dimensoes.larguraMaxima}px);
-          margin: 0 auto; padding: 98px 0 16px; position: relative;
+          margin: 0 auto; padding: 88px 0 16px; position: relative;
           display: flex; flex-direction: column; justify-content: space-between; background: transparent;
         }
 
@@ -176,7 +175,7 @@
         }
 
         .marca-texto p { 
-          margin: 8px 0 0; 
+          margin: 4px 0 0; 
           font-size: clamp(13px, 1.2vw, 16px); 
           line-height: 1.1; 
           font-weight: 800; 
@@ -213,22 +212,15 @@
 
         .area-menu { 
           position: relative; width: 100%; flex: 1; display: flex; flex-direction: column; 
-          justify-content: center; align-items: center; padding: 10px 20px; 
+          justify-content: center; align-items: center; padding: 6px 20px; 
         }
-        .titulo-menu {
-          width: fit-content; margin: 0 auto 10px; padding: 6px 24px;
-          border: 2px solid ${DADOS.cores.linha}; border-radius: 14px;
-          background: linear-gradient(180deg, #FFFFFF, ${DADOS.cores.creme});
-          box-shadow: 0 3px 7px ${DADOS.cores.sombra};
-        }
-        .titulo-menu h2 { margin: 0; font-size: clamp(16px, 1.5vw, 22px); font-weight: 900; color: ${DADOS.cores.textoEscuro}; text-align: center; }
 
         .cartao-unico-container { width: 100%; max-width: 850px; flex: 1; display: flex; flex-direction: column; }
         .ano { width: 100%; height: 100%; display: flex; flex-direction: column; flex: 1; }
 
         .botao-ano {
-          position: relative; width: 100%; flex: 1; min-height: 65vh;
-          padding: 16px; border: 3px solid rgba(255,255,255,.94);
+          position: relative; width: 100%; flex: 1; min-height: 68vh;
+          padding: 12px 16px; border: 3px solid rgba(255,255,255,.94);
           border-radius: ${DADOS.dimensoes.raioAno}px;
           background: linear-gradient(145deg, #FFFFFF 0%, ${DADOS.cores.creme} 100%);
           display: flex; flex-direction: column; justify-content: space-between; align-items: stretch;
@@ -239,24 +231,30 @@
         .barra-jogo-topo {
           width: 100%; display: flex; align-items: center; justify-content: space-between;
           background: ${DADOS.cores.azulHeader}; padding: 8px 14px;
-          border-radius: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
-          gap: 10px; flex-wrap: wrap; margin-top: 10px;
+          border-radius: 16px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+          gap: 10px; flex-wrap: wrap; margin-bottom: 8px; flex-shrink: 0;
+        }
+
+        .barrita-fundo-cartao {
+          width: 100%; height: 12px; background: ${DADOS.cores.azulHeader};
+          border-radius: 6px; margin-top: 8px; flex-shrink: 0;
+          box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
         }
 
         .rodape {
-          width: calc(100% - 40px); min-height: 53px; margin: 10px 20px 0; padding: 8px 17px;
+          width: calc(100% - 40px); min-height: 48px; margin: 8px 20px 0; padding: 6px 17px;
           display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: center;
           border: 2px solid ${DADOS.cores.linha}; border-radius: 14px; background: rgba(255,255,255,.78);
           font-size: clamp(11px, 1vw, 14px); font-weight: 800;
         }
         .rodape-item { display: flex; align-items: center; gap: 8px; }
         .rodape-info { justify-content: flex-end; }
-        .estrela { color: #FFB400; font-size: 25px; }
+        .estrela { color: #FFB400; font-size: 22px; }
         .info { 
-          width: 25px; height: 25px; min-width: 25px; min-height: 25px;
+          width: 23px; height: 23px; min-width: 23px; min-height: 23px;
           display: inline-flex; align-items: center; justify-content: center; 
           border-radius: 50% !important; color: #fff; background: ${DADOS.cores.azulHeader}; 
-          font-size: 12px; font-weight: 900; overflow: hidden; flex-shrink: 0;
+          font-size: 11px; font-weight: 900; overflow: hidden; flex-shrink: 0;
         }
 
         @media (max-width: 768px) {
@@ -267,9 +265,9 @@
           .marca { padding: 0 44px; gap: 8px; max-width: 72%; }
           .marca-sol { width: 42px; height: 42px; flex: 0 0 42px; }
           .marca-texto h1 { font-size: clamp(20px, 4.5vw, 26px); }
-          .marca-texto p { font-size: 11px; margin-top: 4px; }
+          .marca-texto p { font-size: 11px; margin-top: 2px; }
           .menu-acordeao { top: 62px; left: 12px; width: calc(100vw - 24px); max-width: 280px; }
-          #app { padding-top: 86px; }
+          #app { padding-top: 78px; }
         }
 
         @media (max-width: 900px) {
@@ -280,12 +278,12 @@
           .marca { padding: 0 38px; gap: 6px; max-width: 70%; }
           .marca-sol { width: 36px; height: 36px; flex: 0 0 36px; }
           .marca-texto h1 { font-size: clamp(18px, 4.5vw, 24px); }
-          .marca-texto p { font-size: 10px; margin-top: 3px; }
+          .marca-texto p { font-size: 10px; margin-top: 2px; }
           .menu-acordeao { top: 54px; left: 10px; width: 280px; }
           .area-menu { padding: 0 16px; }
-          .rodape { width: calc(100% - 32px); margin: 10px 16px 0; padding: 8px 12px; font-size: 11px; }
-          #app { padding-top: 76px; }
-          .info { width: 22px !important; height: 22px !important; min-width: 22px !important; min-height: 22px !important; }
+          .rodape { width: calc(100% - 32px); margin: 6px 16px 0; padding: 6px 12px; font-size: 11px; }
+          #app { padding-top: 68px; }
+          .info { width: 20px !important; height: 20px !important; min-width: 20px !important; min-height: 20px !important; }
         }
       `;
       document.head.appendChild(estilo);
@@ -295,7 +293,6 @@
       if (DADOS.pagina.browserTitulo) document.title = DADOS.pagina.browserTitulo;
       const marca = document.querySelector("[data-marca]");
       const submarca = document.querySelector("[data-submarca]");
-      const titulo = document.querySelector("[data-titulo-menu]");
       const mensagem = document.querySelector("[data-mensagem]");
       const informacoes = document.querySelectorAll("[data-informacao]");
       const tituloMenuAcordeao = document.querySelector("[data-titulo-menu-acordeao]");
@@ -312,7 +309,6 @@
       }
 
       if (submarca) submarca.textContent = DADOS.pagina.subtitulo;
-      if (titulo) titulo.textContent = DADOS.pagina.tituloMenu;
       if (mensagem) mensagem.textContent = DADOS.pagina.mensagem;
       if (tituloMenuAcordeao) tituloMenuAcordeao.textContent = DADOS.pagina.tituloMenuAcordeao;
       if (iconeEstrela) iconeEstrela.textContent = DADOS.pagina.iconeEstrela;
