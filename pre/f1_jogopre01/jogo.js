@@ -27,7 +27,7 @@ const style = document.createElement('style');
 style.innerHTML = `
     .desenho-container {
         display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        width: 100%; height: 100%; flex: 1; gap: 8px; animation: cardPop 0.3s ease; padding: 4px 0;
+        width: 100%; height: 100%; flex: 1; gap: 8px; animation: cardPop 0.3s ease; padding: 2px 0;
     }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
@@ -77,16 +77,16 @@ style.innerHTML = `
     .btn-ferramenta-texto.destaque { background: #ECA607; color: white; }
 
     .btn-capa-som {
-        width: 48px; height: 48px; background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.8);
+        width: 44px; height: 44px; background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.8);
         border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
         transition: transform 0.1s; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     }
     .btn-capa-som:active { transform: scale(0.92); }
-    .btn-capa-som img { width: 26px; height: 26px; object-fit: contain; }
+    .btn-capa-som img { width: 24px; height: 24px; object-fit: contain; }
 
     .btn-capa-jogar {
         background: white; color: #C2890B; border: none;
-        padding: 10px 28px; border-radius: 20px; font-weight: 900; font-size: 1.1rem;
+        padding: 8px 26px; border-radius: 18px; font-weight: 900; font-size: 1rem;
         cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.1s;
         text-transform: uppercase;
     }
@@ -99,11 +99,6 @@ style.innerHTML = `
         border-radius: 35px; overflow: hidden;
     }
     
-    .feedback-bottom-bar {
-        position: absolute; bottom: 20px; left: 24px; right: 24px; height: 14px;
-        background: #ECA607; border-radius: 7px;
-    }
-
     .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 25px; width: 100%; max-width: 480px; }
     
     .btn-final-roxo {
@@ -138,8 +133,8 @@ function mostrarCapa() {
     const area = document.getElementById('contentor-jogo');
     if (area) {
         area.innerHTML = `
-            <div style="font-size: 1.5rem; font-weight: 900; color: #C2890B; margin-bottom: 10px; text-transform: uppercase;">Estojo de Desenho Mágico</div>
-            <div style="background: rgba(236,166,7,0.15); width: 120px; height: 120px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(236,166,7,0.2);">✏️✨</div>
+            <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 8px; text-transform: uppercase;">Estojo de Desenho Mágico</div>
+            <div style="background: rgba(236,166,7,0.15); width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.2rem; margin-bottom: 10px; box-shadow: 0 8px 20px rgba(236,166,7,0.2);">✏️✨</div>
         `;
     }
 
@@ -212,8 +207,8 @@ function iniciarJogoDesenho() {
     const barra = document.getElementById('barra-inferior');
     if (barra) {
         barra.innerHTML = `
-            <div style="color:white; font-weight:800; font-size:0.95rem;">✏️ Escolhe os teus lápis e cria magia!</div>
-            <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 12px; font-size:0.8rem;">Voltar</button>
+            <div style="color:white; font-weight:800; font-size:0.9rem;">✏️ Escolhe os teus lápis e cria magia!</div>
+            <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem;">Voltar</button>
         `;
     }
 
@@ -240,7 +235,6 @@ function configurarCanvas() {
     if (ctx && canvas.width > 0 && tempCanvas.width > 0) {
         ctx.drawImage(tempCanvas, 0, 0);
     } else if (ctx) {
-        // Fundo branco inicial
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
@@ -311,7 +305,7 @@ function configurarCanvas() {
 function salvarEstadoHistorico() {
     if (!canvas || !ctx) return;
     if (historicoCanvas.length >= 10) {
-        historicoCanvas.shift(); // Manter máximo de 10 estados para poupar memória
+        historicoCanvas.shift();
     }
     historicoCanvas.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
 }
@@ -319,7 +313,7 @@ function salvarEstadoHistorico() {
 function anularUltimaAcao() {
     if (somClique.src) somClique.play().catch(()=>{});
     if (historicoCanvas.length > 1) {
-        historicoCanvas.pop(); // Remove o estado atual
+        historicoCanvas.pop();
         const estadoAnterior = historicoCanvas[historicoCanvas.length - 1];
         ctx.putImageData(estadoAnterior, 0, 0);
     }
@@ -478,15 +472,14 @@ function concluirDesenho() {
         overlay.style.display = 'flex';
         overlay.innerHTML = `
             <div class="vitoria-card">
-                <img src="${iconeFeedback}" style="width:130px; height:130px; object-fit:contain;">
-                <h1 style="color:#C2890B; font-size:1.6rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
-                <p style="color:#555; font-weight:800; margin:0; font-size:0.9rem;">Fizeste um desenho maravilhoso!</p>
-                <div style="display:flex; justify-content:center; gap:14px; margin-top:8px; width:100%; max-width:440px;">
+                <img src="${iconeFeedback}" style="width:120px; height:120px; object-fit:contain;">
+                <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
+                <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste um desenho maravilhoso!</p>
+                <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
                     <button class="btn-final-roxo" onclick="iniciarJogoDesenho()">Desenhar Outro</button>
                     <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
                 </div>
-            </div>
-            <div class="feedback-bottom-bar"></div>`;
+            </div>`;
     }
     const barra = document.getElementById('barra-inferior');
     if (barra) barra.style.display = "none";
