@@ -131,7 +131,7 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA E REPRODUÇÃO DE SOM (Barrita em cima, botões em baixo)
+// 3. CAPA E REPRODUÇÃO DE SOM
 // ============================================================
 function mostrarCapa() {
     if(!document.getElementById('round-feedback')) {
@@ -186,7 +186,6 @@ function iniciarJogoDesenho() {
 
     if (slotTopo) {
         slotTopo.className = "barra-jogo-topo";
-        // Ícone de som totalmente encostado à esquerda e botão de Menu à direita
         slotTopo.innerHTML = `
             <div class="btn-capa-som" style="width:36px; height:36px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:18px; height:18px;"></div>
             <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem;">Menu</button>
@@ -498,7 +497,7 @@ function concluirDesenho() {
         overlay.innerHTML = `
             <div style="width: 100%; display: flex; justify-content: center; align-items: center; flex: 1;">
                 <div class="vitoria-card">
-                    <img src="${iconeFeedback}" style="width:120px; height:120px; object-fit:contain;">
+                    <img src="${iconeFeedback}" style="width:170px; height:170px; object-fit:contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12));">
                     <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
                     <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste um desenho maravilhoso!</p>
                     <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
