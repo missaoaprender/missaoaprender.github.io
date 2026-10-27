@@ -35,7 +35,6 @@ function obterListaDesenhos() {
     if (DADOS && DADOS.desenhosParaColorir && DADOS.desenhosParaColorir.length > 0) {
         return DADOS.desenhosParaColorir;
     }
-    // O desenho aponta diretamente para a imagem que já tem as operações embutidas por ti
     return [
         { nome: "Abóbora de Halloween", arquivo: "desenho5.png", mapa: "mapa5.png" }
     ];
@@ -353,7 +352,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS (CARREGA DIRETAMENTE A IMAGEM COM AS CONTAS)
+// 5. CONFIGURAÇÃO DO CANVAS (CARREGA A IMAGEM ORIGINAL COM CONTAS)
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
@@ -375,7 +374,7 @@ function configurarCanvas() {
             ctx.fillStyle = "#FFFFFF";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(imgDesenho, 0, 0, canvas.width, canvas.height);
-            salvarEstadoHistorico(); // Guarda o estado inicial com as contas visíveis
+            salvarEstadoHistorico();
         };
         imgDesenho.src = atual.arquivo;
     } else {
@@ -417,9 +416,9 @@ function salvarEstadoHistorico() {
 function anularUltimaAcao() {
     if (somClique.src) somClique.play().catch(()=>{});
     if (historicoCanvas.length > 1) {
-        historicoCanvas.pop(); // Remove o estado atual
-        const estadoAnterior = historicoCanvas[historicoCanvas.length - 1]; // Pega o estado anterior
-        ctx.putImageData(estadoAnterior, 0, 0); // Restaura (fazendo a operação reaparecer perfeitamente)
+        historicoCanvas.pop();
+        const estadoAnterior = historicoCanvas[historicoCanvas.length - 1];
+        ctx.putImageData(estadoAnterior, 0, 0);
     }
 }
 
@@ -434,7 +433,7 @@ function mudarCorPorResultado(resultado, el) {
 
 
 // ============================================================
-// 6. PREENCHIMENTO INTELIGENTE (TINTA TAPA AS CONTAS E O ANULAR AS RESTAURA)
+// 6. PREENCHIMENTO INTELIGENTE (TINTA COBRE E TAPA AS CONTAS)
 // ============================================================
 function hexToRgba(hex) {
     let c = hex.replace('#', '');
@@ -461,8 +460,8 @@ function preencherAreaComCor(startX, startY) {
     function colorMatch(idx) {
         const r = data[idx], g = data[idx + 1], b = data[idx + 2];
         
-        // Apenas as linhas pretas grossas principais do desenho bloqueiam a tinta.
-        // Os números pretos das operações integradas na imagem são ignorados por esta condição, permitindo que a tinta passe por cima e os tape por completo.
+        // Apenas linhas pretas grossas principais bloqueiam a tinta.
+        // Os números e operações pretas dentro das zonas são totalmente tapados pela tinta.
         if (r < 30 && g < 30 && b < 30) return false; 
         
         const diff = Math.abs(r - targetColor[0]) + Math.abs(g - targetColor[1]) + Math.abs(b - targetColor[2]);
@@ -510,58 +509,92 @@ function preencherAreaComCor(startX, startY) {
 
 
 // ============================================================
-// 7. VALIDAÇÃO POR MAPA DE CORES E CONCLUSÃO
+// 7. VALIDAÇÃO INTELIGENTE: APAGA O QUE ESTÁ ERRADO E DEIXA CONTINUAR
 // ============================================================
 function concluirDesenho() {
     const lista = obterListaDesenhos();
     const atual = lista[indiceDesenhoAtual];
 
-    if (atual && atual.mapa) {
-        const imgMapa = new Image();
-        imgMapa.crossOrigin = "anonymous";
-        imgMapa.onload = () => {
-            const offCanvas = document.createElement('canvas');
-            offCanvas.width = canvas.width;
-            offCanvas.height = canvas.height;
-            const offCtx = offCanvas.getContext('2d', { willReadFrequently: true });
-            offCtx.drawImage(imgMapa, 0, 0, canvas.width, canvas.height);
-
-            const userImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const mapImgData = offCtx.getImageData(0, 0, canvas.width, canvas.height);
-            
-            let erros = 0;
-            let pixelsValidados = 0;
-
-            for (let i = 0; i < userImgData.data.length; i += 16) {
-                const rUser = userImgData.data[i];
-                const gUser = userImgData.data[i+1];
-                const bUser = userImgData.data[i+2];
-
-                const rMap = mapImgData.data[i];
-                const gMap = mapImgData.data[i+1];
-                const bMap = mapImgData.data[i+2];
-
-                if ((rUser < 50 && gUser < 50 && bUser < 50) || (rMap > 240 && gMap > 240 && bMap > 240)) {
-                    continue;
-                }
-
-                pixelsValidados++;
-                const diff = Math.abs(rUser - rMap) + Math.abs(gUser - gMap) + Math.abs(bUser - bMap);
-                if (diff > 50) {
-                    erros++;
-                }
-            }
-
-            if (pixelsValidados > 0 && (erros / pixelsValidados) > 0.15) {
-                mostrarFeedbackErro();
-            } else {
-                mostrarFeedbackSucesso();
-            }
-        };
-        imgMapa.src = atual.mapa;
-    } else {
+    if (!atual || !atual.mapa || !imgDesenho) {
         mostrarFeedbackSucesso();
+        return;
     }
+
+    const imgMapa = new Image();
+    imgMapa.crossOrigin = "anonymous";
+    imgMapa.onload = () => {
+        // Cria canvas temporário para ler o mapa de cores
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = canvas.width;
+        offCanvas.height = canvas.height;
+        const offCtx = offCanvas.getContext('2d', { willReadFrequently: true });
+        offCtx.drawImage(imgMapa, 0, 0, canvas.width, canvas.height);
+
+        // Cria canvas temporário para ler a imagem original limpa (para restaurar o fundo e as contas originais onde houver erro)
+        const cleanCanvas = document.createElement('canvas');
+        cleanCanvas.width = canvas.width;
+        cleanCanvas.height = canvas.height;
+        const cleanCtx = cleanCanvas.getContext('2d', { willReadFrequently: true });
+        cleanCtx.fillStyle = "#FFFFFF";
+        cleanCtx.fillRect(0, 0, canvas.width, canvas.height);
+        cleanCtx.drawImage(imgDesenho, 0, 0, canvas.width, canvas.height);
+
+        const userImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const mapImgData = offCtx.getImageData(0, 0, canvas.width, canvas.height);
+        const cleanImgData = cleanCtx.getImageData(0, 0, canvas.width, canvas.height);
+        
+        const dataUser = userImgData.data;
+        const dataMap = mapImgData.data;
+        const dataClean = cleanImgData.data;
+
+        let errosEncontrados = 0;
+        let totalPixelsColoridos = 0;
+
+        // Vamos verificar cada pixel do canvas
+        for (let i = 0; i < dataUser.length; i += 4) {
+            const rUser = dataUser[i], gUser = dataUser[i+1], bUser = dataUser[i+2];
+            const rMap = dataMap[i], gMap = dataMap[i+1], bMap = dataMap[i+2];
+
+            // Ignora contornos pretos e áreas que ainda estão brancas/fundo
+            if ((rUser < 50 && gUser < 50 && bUser < 50) || (rUser > 240 && gUser > 240 && bUser > 240)) {
+                continue;
+            }
+            if (rMap > 240 && gMap > 240 && bMap > 240) {
+                continue;
+            }
+
+            totalPixelsColoridos++;
+
+            // Compara a cor pintada pelo utilizador com a cor esperada no mapa
+            const diff = Math.abs(rUser - rMap) + Math.abs(gUser - gMap) + Math.abs(bUser - bMap);
+            
+            if (diff > 50) {
+                // ERRO: O aluno pintou com a cor errada nesta zona!
+                errosEncontrados++;
+                
+                // Apaga imediatamente este pixel, restaurando-o para o estado original da imagem (fazendo a conta aparecer de novo)
+                dataUser[i] = dataClean[i];
+                dataUser[i+1] = dataClean[i+1];
+                dataUser[i+2] = dataClean[i+2];
+                dataUser[i+3] = dataClean[i+3];
+            }
+        }
+
+        // Atualiza o canvas com os erros apagados
+        ctx.putImageData(userImgData, 0, 0);
+        salvarEstadoHistorico();
+
+        // Se encontrou erros ou se ainda há muitas zonas por pintar (poucos pixels coloridos)
+        if (errosEncontrados > 100) {
+            mostrarFeedbackErroEspecifico("Encontramos algumas cores incorretas! Essas zonas foram limpas para poderes tentar novamente.");
+        } else if (totalPixelsColoridos < 5000) {
+            mostrarFeedbackErroEspecifico("Ainda tens zonas por pintar! Continua o excelente trabalho.");
+        } else {
+            // Está tudo perfeito!
+            mostrarFeedbackSucesso();
+        }
+    };
+    imgMapa.src = atual.mapa;
 }
 
 function mostrarFeedbackSucesso() {
@@ -587,7 +620,7 @@ function mostrarFeedbackSucesso() {
     if (barra) barra.style.display = "none";
 }
 
-function mostrarFeedbackErro() {
+function mostrarFeedbackErroEspecifico(mensagem) {
     if (somClique.src) somClique.play().catch(()=>{});
     const overlay = document.getElementById('round-feedback');
 
@@ -596,8 +629,8 @@ function mostrarFeedbackErro() {
         overlay.innerHTML = `
             <div class="vitoria-card">
                 <div style="font-size: 3rem; margin-bottom: 5px;">🎨</div>
-                <h1 style="color:#C2890B; font-size:1.3rem; font-weight:900; margin:0; text-transform:uppercase;">QUASE LÁ!</h1>
-                <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Há algumas cores que não correspondem aos resultados esperados. Tenta verificar e pintar novamente!</p>
+                <h1 style="color:#C2890B; font-size:1.3rem; font-weight:900; margin:0; text-transform:uppercase;">ATENÇÃO!</h1>
+                <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">${mensagem}</p>
                 <div style="display:flex; justify-content:center; gap:12px; margin-top:12px; width:100%; max-width:420px;">
                     <button class="btn-final-roxo" onclick="document.getElementById('round-feedback').style.display='none'; const b=document.getElementById('barra-inferior'); if(b) b.style.display='flex';">Continuar a Pintar</button>
                 </div>
