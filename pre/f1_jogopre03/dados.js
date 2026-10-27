@@ -37,7 +37,7 @@ const DADOS = {
 
   // Lista de desenhos para colorir (a apontar para a pasta imagens/colorir/)
   desenhosParaColorir: [
-    { id: 1, nome: "Desenho 1", arquivo: "../../imagens/colorir/desenho1.png" },
+    { id: 1, nome: "Desenho 5", arquivo: "../../imagens/colorir/desenho5.png" },
     { id: 2, nome: "Desenho 2", arquivo: "../../imagens/colorir/desenho2.png" },
     { id: 3, nome: "Desenho 3", arquivo: "../../imagens/colorir/desenho3.png" },
     { id: 4, nome: "Desenho 4", arquivo: "../../imagens/colorir/desenho4.png" }
