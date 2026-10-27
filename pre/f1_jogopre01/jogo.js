@@ -121,7 +121,7 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA E REPRODUÇÃO DE SOM (Com barrita em cima e botões em baixo)
+// 3. CAPA E REPRODUÇÃO DE SOM (Barrita em cima, botões em baixo)
 // ============================================================
 function mostrarCapa() {
     if(!document.getElementById('round-feedback')) {
@@ -163,7 +163,7 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO ESTOJO MÁGICO (Com barra de ferramentas em cima e barrita em baixo)
+// 4. LÓGICA DO ESTOJO MÁGICO (Ferramentas em cima, barrita e botões em baixo)
 // ============================================================
 function iniciarJogoDesenho() {
     if (somClique.src) somClique.play().catch(()=>{});
@@ -178,7 +178,10 @@ function iniciarJogoDesenho() {
         slotTopo.className = "barra-jogo-topo";
         slotTopo.innerHTML = `
             <div style="color:white; font-weight:800; font-size:0.9rem;">✏️ Escolhe os teus lápis e cria magia!</div>
-            <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem;">Voltar</button>
+            <div style="display:flex; gap:6px; align-items:center;">
+                <div class="btn-capa-som" style="width:36px; height:36px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:18px; height:18px;"></div>
+                <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem;">Menu</button>
+            </div>
         `;
     }
 
