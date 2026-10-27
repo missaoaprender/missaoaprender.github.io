@@ -38,18 +38,17 @@
   <div id="app">
     <!-- ÁREA PRINCIPAL -->
     <main class="area-menu">
-      <!-- CARTÃO ÚNICO EXPANDIDO COM A BARRA DINÂMICA NO TOPO E A BARRITA NO FUNDO -->
       <div class="cartao-unico-container">
         <div class="ano">
-          <div class="botao-ano">
-            <!-- BARRA DINÂMICA NO TOPO DO CARTÃO -->
-            <div class="barra-jogo-topo" id="barra-inferior"></div>
+          <div class="botao-ano" id="cartao-principal-ano">
+            <!-- BARRITA SUPERIOR / BARRA DINÂMICA -->
+            <div id="slot-topo"></div>
 
             <!-- CONTEÚDO DINÂMICO (Capa ou Jogo) -->
             <div id="contentor-jogo" style="flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; min-height:0;"></div>
 
-            <!-- BARRITA AMARELA DECORATIVA NO FUNDO -->
-            <div class="barrita-fundo-cartao"></div>
+            <!-- BARRITA INFERIOR / BARRA DINÂMICA -->
+            <div id="slot-fundo"></div>
           </div>
         </div>
       </div>
@@ -136,63 +135,39 @@
         .marca-texto { display: flex; flex-direction: column; justify-content: center; min-width: 0; }
         
         .marca-texto h1 {
-          margin: 0;
-          display: flex;
-          align-items: baseline;
-          gap: .20em;
-          white-space: nowrap;
-          font-size: clamp(26px, 2.8vw, 42px);
-          line-height: 1.02;
-          font-family: "Nunito", "Trebuchet MS", sans-serif;
-          font-weight: 1000;
-          letter-spacing: -1.2px;
-          transform: rotate(-1deg);
-          transform-origin: center bottom;
+          margin: 0; display: flex; align-items: baseline; gap: .20em; white-space: nowrap;
+          font-size: clamp(26px, 2.8vw, 42px); line-height: 1.02; font-family: "Nunito", "Trebuchet MS", sans-serif;
+          font-weight: 1000; letter-spacing: -1.2px; transform: rotate(-1deg); transform-origin: center bottom;
           filter: drop-shadow(0 4px 0 #B37D00) drop-shadow(0 6px 2px rgba(234,162,0,.35));
         }
         .marca-texto h1 .palavra-pre,
         .marca-texto h1 .palavra-escolar {
-          display: inline-block;
-          paint-order: stroke fill;
-          -webkit-text-stroke: 1.35px #B37D00;
+          display: inline-block; paint-order: stroke fill; -webkit-text-stroke: 1.35px #B37D00;
           text-shadow: 0 2px 0 rgba(255,255,255,.45);
         }
         .marca-texto h1 .palavra-pre {
-          color: #FFFFFF;
-          background: linear-gradient(180deg, #FFFFFF 5%, #FFFFFF 48%, #FFF5D1 100%);
-          background-clip: text;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          color: #FFFFFF; background: linear-gradient(180deg, #FFFFFF 5%, #FFFFFF 48%, #FFF5D1 100%);
+          background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
           transform: rotate(-1deg) translateY(1px);
         }
         .marca-texto h1 .palavra-escolar {
-          color: #FFD466;
-          background: linear-gradient(180deg, #FFE899 0%, #EAA200 48%, #B37D00 100%);
-          background-clip: text;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          color: #FFD466; background: linear-gradient(180deg, #FFE899 0%, #EAA200 48%, #B37D00 100%);
+          background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
           transform: rotate(.8deg) translateY(1px);
         }
 
         .marca-texto p { 
-          margin: 4px 0 0; 
-          font-size: clamp(13px, 1.2vw, 16px); 
-          line-height: 1.1; 
-          font-weight: 800; 
-          color: ${DADOS.cores.texto}; 
-          white-space: nowrap; 
-          overflow: hidden; 
-          text-overflow: ellipsis; 
+          margin: 4px 0 0; font-size: clamp(13px, 1.2vw, 16px); line-height: 1.1; 
+          font-weight: 800; color: ${DADOS.cores.texto}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
         }
 
         .menu-acordeao {
           position: absolute; top: 74px; left: 18px; width: 300px; padding: 0;
           background: rgba(255,255,255,.98); border: 2px solid ${DADOS.cores.linha};
           border-top: 4px solid ${DADOS.cores.azulHeader}; border-radius: 0 0 20px 20px;
-          box-shadow: 0 10px 25px rgba(234,162,0,.24);
-          opacity: 0; visibility: hidden; transform: translateY(-12px) scale(.98);
-          transform-origin: top left; transition: opacity .22s ease, transform .22s ease, visibility .22s ease;
-          z-index: 1001;
+          box-shadow: 0 10px 25px rgba(234,162,0,.24); opacity: 0; visibility: hidden;
+          transform: translateY(-12px) scale(.98); transform-origin: top left;
+          transition: opacity .22s ease, transform .22s ease, visibility .22s ease; z-index: 1001;
         }
         .menu-acordeao.aberto { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
         .menu-acordeao-topo { padding: 15px 18px 13px; background: linear-gradient(180deg, #FFF9E6, #FFFFFF); border-bottom: 1px solid ${DADOS.cores.linha}; }
@@ -232,13 +207,12 @@
           width: 100%; display: flex; align-items: center; justify-content: space-between;
           background: ${DADOS.cores.azulHeader}; padding: 8px 14px;
           border-radius: 16px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
-          gap: 10px; flex-wrap: wrap; margin-bottom: 8px; flex-shrink: 0;
+          gap: 10px; flex-wrap: wrap; flex-shrink: 0;
         }
 
         .barrita-fundo-cartao {
           width: 100%; height: 12px; background: ${DADOS.cores.azulHeader};
-          border-radius: 6px; margin-top: 8px; flex-shrink: 0;
-          box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
+          border-radius: 6px; flex-shrink: 0; box-shadow: inset 0 1px 3px rgba(0,0,0,0.15);
         }
 
         .rodape {
