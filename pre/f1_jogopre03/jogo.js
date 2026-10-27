@@ -433,7 +433,7 @@ function mudarCorPorResultado(resultado, el) {
 
 
 // ============================================================
-// 6. PREENCHIMENTO INTELIGENTE (TINTA TAPA AS CONTAS POR COMPLETO)
+// 6. PREENCHIMENTO INTELIGENTE (TINTA TAPA E APAGA AS CONTAS)
 // ============================================================
 function hexToRgba(hex) {
     let c = hex.replace('#', '');
@@ -460,12 +460,12 @@ function preencherAreaComCor(startX, startY) {
     function colorMatch(idx) {
         const r = data[idx], g = data[idx + 1], b = data[idx + 2];
         
-        // Apenas os contornos pretos muito grossos e escuros (r, g, b < 25) impedem a tinta de passar.
-        // Os números das somas são mais claros ou finos, pelo que a tinta passa por cima e os apaga/tapa na totalidade.
+        // Apenas os contornos pretos principais (muito escuros) bloqueiam a tinta.
+        // As contas pretas dentro da zona são ultrapassadas e tapadas na totalidade pela cor.
         if (r < 25 && g < 25 && b < 25) return false; 
         
         const diff = Math.abs(r - targetColor[0]) + Math.abs(g - targetColor[1]) + Math.abs(b - targetColor[2]);
-        return diff < 100;
+        return diff < 110;
     }
 
     const pixelStack = [[startX, startY]];
@@ -509,99 +509,104 @@ function preencherAreaComCor(startX, startY) {
 
 
 // ============================================================
-// 7. VALIDAÇÃO REAL: APAGA O QUE ESTÁ MAL E DEIXA O ALUNO CONTINUAR
+// 7. VALIDAÇÃO REAL POR COORDENADAS INTERNAS (SEM BLOQUEIO CORS)
 // ============================================================
 function concluirDesenho() {
     const lista = obterListaDesenhos();
     const atual = lista[indiceDesenhoAtual];
 
-    if (!atual || !atual.mapa) {
-        mostrarFeedbackSucesso();
-        return;
-    }
+    // Recria a imagem original limpa em memória para restaurar as contas onde houver erro
+    const imgLimpa = new Image();
+    imgLimpa.crossOrigin = "anonymous";
+    imgLimpa.onload = () => {
+        const cleanCanvas = document.createElement('canvas');
+        cleanCanvas.width = canvas.width;
+        cleanCanvas.height = canvas.height;
+        const cleanCtx = cleanCanvas.getContext('2d', { willReadFrequently: true });
+        cleanCtx.fillStyle = "#FFFFFF";
+        cleanCtx.fillRect(0, 0, cleanCanvas.width, cleanCanvas.height);
+        cleanCtx.drawImage(imgLimpa, 0, 0, cleanCanvas.width, cleanCanvas.height);
 
-    // Carrega o mapa de cores e a imagem original com as contas em simultâneo de forma segura
-    const imgMapa = new Image();
-    imgMapa.crossOrigin = "anonymous";
-    imgMapa.onload = () => {
-        const offCanvas = document.createElement('canvas');
-        offCanvas.width = canvas.width;
-        offCanvas.height = canvas.height;
-        const offCtx = offCanvas.getContext('2d', { willReadFrequently: true });
-        offCtx.drawImage(imgMapa, 0, 0, canvas.width, canvas.height);
+        const userImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const cleanImgData = cleanCtx.getImageData(0, 0, canvas.width, canvas.height);
+        
+        const dataUser = userImgData.data;
+        const dataClean = cleanImgData.data;
 
-        const imgOriginalComContas = new Image();
-        imgOriginalComContas.crossOrigin = "anonymous";
-        imgOriginalComContas.onload = () => {
-            const cleanCanvas = document.createElement('canvas');
-            cleanCanvas.width = canvas.width;
-            cleanCanvas.height = canvas.height;
-            const cleanCtx = cleanCanvas.getContext('2d', { willReadFrequently: true });
-            cleanCtx.fillStyle = "#FFFFFF";
-            cleanCtx.fillRect(0, 0, canvas.width, canvas.height);
-            cleanCtx.drawImage(imgOriginalComContas, 0, 0, canvas.width, canvas.height);
+        // Mapeamento das zonas oficiais da abóbora (Coordenadas X, Y centrais e a cor exata esperada pelo resultado)
+        // Cores baseadas na PALETA_SOMAS: 1=Vermelho(#ff5a5f), 2=Laranja(#ff9f1c), 3=Amarelo(#ffd166), 4=Laranja Abóbora(#ff7f00), 5=Verde Menta(#06d6a0), etc.
+        const zonasValidacao = [
+            { x: 505, y: 200, corEsperada: [255, 90, 95] },    // Chapéu superior (1: #ff5a5f)
+            { x: 505, y: 440, corEsperada: [255, 159, 28] },   // Aba do chapéu (2: #ff9f1c)
+            { x: 235, y: 600, corEsperada: [255, 209, 102] },  // Gomo esquerdo (3: #ffd166)
+            { x: 375, y: 395, corEsperada: [255, 127, 0] },    // Olho esquerdo (4: #ff7f00)
+            { x: 505, y: 380, corEsperada: [6, 214, 160] },    // Testa central (5: #06d6a0)
+            { x: 635, y: 395, corEsperada: [255, 127, 0] },    // Olho direito (4: #ff7f00)
+            { x: 775, y: 600, corEsperada: [255, 209, 102] },  // Gomo direito (3: #ffd166)
+            { x: 565, y: 690, corEsperada: [255, 159, 28] }    // Boca inferior (2: #ff9f1c)
+        ];
 
-            const userImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const mapImgData = offCtx.getImageData(0, 0, canvas.width, canvas.height);
-            const cleanImgData = cleanCtx.getImageData(0, 0, canvas.width, canvas.height);
-            
-            const dataUser = userImgData.data;
-            const dataMap = mapImgData.data;
-            const dataClean = cleanImgData.data;
+        let errosEncontrados = 0;
 
-            let errosEncontrados = 0;
-            let totalPixelsColoridos = 0;
+        zonasValidacao.forEach((zona, index) => {
+            const pos = (zona.y * canvas.width + zona.x) * 4;
+            const r = dataUser[pos];
+            const g = dataUser[pos+1];
+            const b = dataUser[pos+2];
 
-            // Analisa o canvas pixel a pixel
-            for (let i = 0; i < dataUser.length; i += 16) {
-                const rUser = dataUser[i], gUser = dataUser[i+1], bUser = dataUser[i+2];
-                const rMap = dataMap[i], gMap = dataMap[i+1], bMap = dataMap[i+2];
+            // Verifica se a zona está pintada (se não for branca nem preta)
+            const isBranco = (r > 240 && g > 240 && b > 240);
+            const isPreto = (r < 50 && g < 50 && b < 50);
 
-                // Ignora contornos pretos e áreas que ainda estão em branco
-                if ((rUser < 40 && gUser < 40 && bUser < 40) || (rUser > 245 && gUser > 245 && bUser > 245)) {
-                    continue;
-                }
-                if (rMap > 245 && gMap > 245 && bMap > 245) {
-                    continue;
-                }
+            if (isBranco || isPreto) {
+                errosEncontrados++;
+                return;
+            }
 
-                totalPixelsColoridos++;
-
-                // Compara a cor do utilizador com a cor gabarito do mapa
-                const diff = Math.abs(rUser - rMap) + Math.abs(gUser - gMap) + Math.abs(bUser - bMap);
+            // Compara com a cor correta da zona
+            const diff = Math.abs(r - zona.corEsperada[0]) + Math.abs(g - zona.corEsperada[1]) + Math.abs(b - zona.corEsperada[2]);
+            if (diff > 45) {
+                errosEncontrados++;
                 
-                if (diff > 60) {
-                    errosEncontrados++;
-                    
-                    // Apaga o erro detetado num raio de pixéis e restaura a imagem original (fazendo a conta reaparecer)
-                    for (let offset = 0; offset < 16; offset += 4) {
-                        const idx = i + offset;
-                        if (idx < dataUser.length) {
-                            dataUser[idx] = dataClean[idx];
-                            dataUser[idx+1] = dataClean[idx+1];
-                            dataUser[idx+2] = dataClean[idx+2];
-                            dataUser[idx+3] = dataClean[idx+3];
-                        }
-                    }
+                // Limpa/apaga especificamente a área incorreta fazendo a conta original reaparecer nessa zona
+                limparZonaEspecifica(zona.x, zona.y, dataUser, dataClean);
+            }
+        });
+
+        ctx.putImageData(userImgData, 0, 0);
+        salvarEstadoHistorico();
+
+        if (errosEncontrados > 0) {
+            mostrarFeedbackErroEspecifico("Algumas zonas têm cores incorretas ou estão por pintar! Essas partes foram limpas para poderes corrigir.");
+        } else {
+            mostrarFeedbackSucesso();
+        }
+    };
+    imgLimpa.src = atual.arquivo;
+}
+
+// Função auxiliar para limpar uma zona específica em redor do ponto e restaurar a conta original
+function limparZonaEspecifica(startX, startY, dataUser, dataClean) {
+    const width = canvas.width;
+    const height = canvas.height;
+    const raio = 45; // Raio de limpeza à volta do ponto da soma
+
+    for (let dy = -raio; dy <= raio; dy++) {
+        for (let dx = -raio; dx <= raio; dx++) {
+            const nx = startX + dx;
+            const ny = startY + dy;
+            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                const idx = (ny * width + nx) * 4;
+                // Só restaura se não for contorno preto principal
+                if (!(dataClean[idx] < 30 && dataClean[idx+1] < 30 && dataClean[idx+2] < 30)) {
+                    dataUser[idx] = dataClean[idx];
+                    dataUser[idx+1] = dataClean[idx+1];
+                    dataUser[idx+2] = dataClean[idx+2];
+                    dataUser[idx+3] = dataClean[idx+3];
                 }
             }
-
-            // Atualiza o canvas apagando apenas os erros
-            ctx.putImageData(userImgData, 0, 0);
-            salvarEstadoHistorico();
-
-            // Se houver erros, avisa o aluno e deixa-o continuar a pintar
-            if (errosEncontrados > 20) {
-                mostrarFeedbackErroEspecifico("Ops! Há zonas com cores erradas. Essas partes foram limpas para poderes corrigir e tentar outra vez!");
-            } else if (totalPixelsColoridos < 2000) {
-                mostrarFeedbackErroEspecifico("Ainda tens zonas por pintar no desenho! Continua.");
-            } else {
-                mostrarFeedbackSucesso();
-            }
-        };
-        imgOriginalComContas.src = atual.arquivo;
-    };
-    imgMapa.src = atual.mapa;
+        }
+    }
 }
 
 function mostrarFeedbackSucesso() {
