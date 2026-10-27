@@ -95,16 +95,21 @@ style.innerHTML = `
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
         background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(6px); 
-        z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; 
-        border-radius: 35px; overflow: hidden;
+        z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: space-between; 
+        border-radius: 35px; overflow: hidden; padding: 20px;
     }
     
     .feedback-bottom-bar {
-        position: absolute; bottom: 20px; left: 24px; right: 24px; height: 14px;
-        background: #ECA607; border-radius: 7px;
+        width: 100%; height: 14px;
+        background: #ECA607; border-radius: 7px; flex-shrink: 0;
     }
 
-    .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 25px; width: 100%; max-width: 480px; }
+    .vitoria-card { 
+        background: transparent; padding: 10px 20px; text-align: center; 
+        display: flex; flex-direction: column; align-items: center; gap: 12px; 
+        animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); 
+        width: 100%; max-width: 480px; margin: auto 0;
+    }
     
     .btn-final-roxo {
         background: #ECA607; color: white; border: none; padding: 14px 20px;
@@ -168,7 +173,7 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO ESTOJO MÁGICO (Ícone som à esquerda, menu à direita)
+// 4. LÓGICA DO ESTOJO MÁGICO
 // ============================================================
 function iniciarJogoDesenho() {
     if (somClique.src) somClique.play().catch(()=>{});
@@ -181,6 +186,7 @@ function iniciarJogoDesenho() {
 
     if (slotTopo) {
         slotTopo.className = "barra-jogo-topo";
+        // Ícone de som totalmente encostado à esquerda e botão de Menu à direita
         slotTopo.innerHTML = `
             <div class="btn-capa-som" style="width:36px; height:36px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:18px; height:18px;"></div>
             <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem;">Menu</button>
@@ -490,13 +496,15 @@ function concluirDesenho() {
     if (overlay) {
         overlay.style.display = 'flex';
         overlay.innerHTML = `
-            <div class="vitoria-card">
-                <img src="${iconeFeedback}" style="width:120px; height:120px; object-fit:contain;">
-                <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
-                <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste um desenho maravilhoso!</p>
-                <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
-                    <button class="btn-final-roxo" onclick="iniciarJogoDesenho()">Desenhar Outro</button>
-                    <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
+            <div style="width: 100%; display: flex; justify-content: center; align-items: center; flex: 1;">
+                <div class="vitoria-card">
+                    <img src="${iconeFeedback}" style="width:120px; height:120px; object-fit:contain;">
+                    <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
+                    <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste um desenho maravilhoso!</p>
+                    <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
+                        <button class="btn-final-roxo" onclick="iniciarJogoDesenho()">Desenhar Outro</button>
+                        <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
+                    </div>
                 </div>
             </div>
             <div class="feedback-bottom-bar"></div>`;
