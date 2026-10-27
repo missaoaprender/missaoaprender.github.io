@@ -99,6 +99,11 @@ style.innerHTML = `
         border-radius: 35px; overflow: hidden;
     }
     
+    .feedback-bottom-bar {
+        position: absolute; bottom: 20px; left: 24px; right: 24px; height: 14px;
+        background: #ECA607; border-radius: 7px;
+    }
+
     .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 25px; width: 100%; max-width: 480px; }
     
     .btn-final-roxo {
@@ -163,7 +168,7 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO ESTOJO MÁGICO (Ferramentas em cima, barrita e botões em baixo)
+// 4. LÓGICA DO ESTOJO MÁGICO (Ícone som à esquerda, menu à direita)
 // ============================================================
 function iniciarJogoDesenho() {
     if (somClique.src) somClique.play().catch(()=>{});
@@ -177,11 +182,8 @@ function iniciarJogoDesenho() {
     if (slotTopo) {
         slotTopo.className = "barra-jogo-topo";
         slotTopo.innerHTML = `
-            <div style="color:white; font-weight:800; font-size:0.9rem;">✏️ Escolhe os teus lápis e cria magia!</div>
-            <div style="display:flex; gap:6px; align-items:center;">
-                <div class="btn-capa-som" style="width:36px; height:36px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:18px; height:18px;"></div>
-                <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem;">Menu</button>
-            </div>
+            <div class="btn-capa-som" style="width:36px; height:36px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:18px; height:18px;"></div>
+            <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem;">Menu</button>
         `;
     }
 
@@ -496,7 +498,8 @@ function concluirDesenho() {
                     <button class="btn-final-roxo" onclick="iniciarJogoDesenho()">Desenhar Outro</button>
                     <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
                 </div>
-            </div>`;
+            </div>
+            <div class="feedback-bottom-bar"></div>`;
     }
     const slotTopo = document.getElementById('slot-topo');
     const slotFundo = document.getElementById('slot-fundo');
