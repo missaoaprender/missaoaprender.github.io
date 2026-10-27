@@ -43,7 +43,6 @@ function obterListaDesenhos() {
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
-const somErro = new Audio(DADOS.sons && DADOS.sons.erro ? DADOS.sons.erro : "");
 const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
@@ -370,7 +369,6 @@ function configurarCanvas() {
     const atual = lista[indiceDesenhoAtual];
 
     if (atual && atual.arquivo) {
-        // Carrega o mapa de cores em memória em segundo plano para validação instantânea exata
         if (atual.mapa) {
             imgMapaRef = new Image();
             imgMapaRef.crossOrigin = "anonymous";
@@ -409,7 +407,7 @@ function configurarCanvas() {
 
     const lidarComClique = (e) => {
         const pos = getPos(e);
-        tentarPreencherComValidacao(pos.x, pos.y);
+        preencherAreaComCor(pos.x, pos.y);
         e.preventDefault();
     };
 
@@ -443,7 +441,7 @@ function mudarCorPorResultado(resultado, el) {
 
 
 // ============================================================
-// 6. VALIDAÇÃO INSTANTÂNEA AO CLICAR (ESTILO DIGIPUZZLE)
+// 6. PREENCHIMENTO INTELIGENTE (TINTA TAPA E APAGA AS CONTAS)
 // ============================================================
 function hexToRgba(hex) {
     let c = hex.replace('#', '');
@@ -452,51 +450,14 @@ function hexToRgba(hex) {
     return [(num >> 16) & 255, (num >> 8) & 255, num & 255, 255];
 }
 
-function tentarPreencherComValidacao(startX, startY) {
+function preencherAreaComCor(startX, startY) {
     if (!ctx || !canvas) return;
+    if (somClique.src) somClique.play().catch(()=>{});
+
     const width = canvas.width;
     const height = canvas.height;
     if (startX < 0 || startX >= width || startY < 0 || startY >= height) return;
 
-    // Se tivermos a imagem do mapa de cores de referência, verificamos se o ponto clicado pertence ao resultado selecionado
-    if (imgMapaRef && imgMapaRef.complete) {
-        const mapCanvas = document.createElement('canvas');
-        mapCanvas.width = width;
-        mapCanvas.height = height;
-        const mapCtx = mapCanvas.getContext('2d', { willReadFrequently: true });
-        mapCtx.drawImage(imgMapaRef, 0, 0, width, height);
-        const mapData = mapCtx.getImageData(0, 0, width, height).data;
-
-        const mapPos = (startY * width + startX) * 4;
-        const rMap = mapData[mapPos];
-        const gMap = mapData[mapPos + 1];
-        const bMap = mapData[mapPos + 2];
-
-        // Se clicou num contorno preto ou fora da zona válida, ignora
-        if (rMap < 40 && gMap < 40 && bMap < 40) return;
-
-        // Cor esperada para este número no mapa oficial
-        const expectedColorHex = PALETA_SOMAS[resultadoAtualCor].cor;
-        const expectedRgba = hexToRgba(expectedColorHex);
-
-        const diff = Math.abs(rMap - expectedRgba[0]) + Math.abs(gMap - expectedRgba[1]) + Math.abs(bMap - expectedRgba[2]);
-        
-        if (diff > 50) {
-            // ERRO: A cor selecionada não corresponde à operação desta zona! (Estilo Digipuzzle: toca som de erro e rejeita)
-            if (somErro.src) somErro.play().catch(()=>{});
-            mostrarFeedbackErroEspecifico("Ops! Essa cor não pertence a esta soma. Escolhe o resultado correto!");
-            return;
-        }
-    }
-
-    // Se estiver correto, executa o preenchimento que pinta e tapa as contas por completo
-    if (somClique.src) somClique.play().catch(()=>{});
-    executarFloodFill(startX, startY);
-}
-
-function executarFloodFill(startX, startY) {
-    const width = canvas.width;
-    const height = canvas.height;
     const imgData = ctx.getImageData(0, 0, width, height);
     const data = imgData.data;
 
@@ -506,7 +467,7 @@ function executarFloodFill(startX, startY) {
 
     function colorMatch(idx) {
         const r = data[idx], g = data[idx + 1], b = data[idx + 2];
-        if (r < 30 && g < 30 && b < 30) return false; // Contornos pretos bloqueiam
+        if (r < 30 && g < 30 && b < 30) return false; // Contornos pretos principais bloqueiam
         const diff = Math.abs(r - targetColor[0]) + Math.abs(g - targetColor[1]) + Math.abs(b - targetColor[2]);
         return diff < 110;
     }
@@ -552,13 +513,13 @@ function executarFloodFill(startX, startY) {
 
 
 // ============================================================
-// 7. BOTÃO "PRONTO!" PARA VALIDAR CONCLUSÃO GERAL
+// 7. VERIFICAÇÃO INTELIGENTE AO CLICAR EM "PRONTO!"
 // ============================================================
 function concluirDesenho() {
     const lista = obterListaDesenhos();
     const atual = lista[indiceDesenhoAtual];
 
-    if (!atual || !atual.mapa || !imgMapaRef) {
+    if (!atual || !atual.mapa || !imgMapaRef || !imgDesenho) {
         mostrarFeedbackSucesso();
         return;
     }
@@ -569,35 +530,63 @@ function concluirDesenho() {
     const mapCtx = mapCanvas.getContext('2d', { willReadFrequently: true });
     mapCtx.drawImage(imgMapaRef, 0, 0, canvas.width, canvas.height);
 
+    const cleanCanvas = document.createElement('canvas');
+    cleanCanvas.width = canvas.width;
+    cleanCanvas.height = canvas.height;
+    const cleanCtx = cleanCanvas.getContext('2d', { willReadFrequently: true });
+    cleanCtx.fillStyle = "#FFFFFF";
+    cleanCtx.fillRect(0, 0, cleanCanvas.width, cleanCanvas.height);
+    cleanCtx.drawImage(imgDesenho, 0, 0, cleanCanvas.width, cleanCanvas.height);
+
     const userImgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const mapImgData = mapCtx.getImageData(0, 0, canvas.width, canvas.height);
-    
-    let zonasFaltantesOuErradas = 0;
-    let pixelsColoridos = 0;
+    const cleanImgData = cleanCtx.getImageData(0, 0, canvas.width, canvas.height);
 
-    for (let i = 0; i < userImgData.data.length; i += 16) {
-        const rUser = userImgData.data[i];
-        const gUser = userImgData.data[i+1];
-        const bUser = userImgData.data[i+2];
+    const dataUser = userImgData.data;
+    const dataMap = mapImgData.data;
+    const dataClean = cleanImgData.data;
 
-        const rMap = mapImgData.data[i];
-        const gMap = mapImgData.data[i+1];
-        const bMap = mapImgData.data[i+2];
+    let errosEncontrados = 0;
+    let pixelsTotalColoridos = 0;
 
+    // Compara pixel a pixel respeitando os contornos naturais da imagem
+    for (let i = 0; i < dataUser.length; i += 4) {
+        const rUser = dataUser[i], gUser = dataUser[i+1], bUser = dataUser[i+2];
+        const rMap = dataMap[i], gMap = dataMap[i+1], bMap = dataMap[i+2];
+
+        // Ignora contornos pretos e zonas em branco/fundo
         if ((rUser < 40 && gUser < 40 && bUser < 40) || (rUser > 245 && gUser > 245 && bUser > 245)) continue;
         if (rMap > 245 && gMap > 245 && bMap > 245) continue;
 
-        pixelsColoridos++;
+        pixelsTotalColoridos++;
+
+        const expectedColorHex = PALETA_SOMAS[resultadoAtualCor]?.cor || "#FFFFFF";
+        
+        // Verifica se a cor aplicada está incorreta face ao mapa de gabarito
         const diff = Math.abs(rUser - rMap) + Math.abs(gUser - gMap) + Math.abs(bUser - bMap);
-        if (diff > 50) {
-            zonasFaltantesOuErradas++;
+        
+        if (diff > 60) {
+            errosEncontrados++;
+            // Apaga imediatamente apenas o pixel errado, restaurando a conta original nessa zona
+            dataUser[i] = dataClean[i];
+            dataUser[i+1] = dataClean[i+1];
+            dataUser[i+2] = dataClean[i+2];
+            dataUser[i+3] = dataClean[i+3];
         }
     }
 
-    if (zonasFaltantesOuErradas > 50 || pixelsColoridos < 3000) {
-        if (somErro.src) somErro.play().catch(()=>{});
-        mostrarFeedbackErroEspecifico("Ainda tens zonas por pintar corretamente. Verifica as somas e continua!");
+    // Atualiza o canvas apagando os erros automaticamente
+    ctx.putImageData(userImgData, 0, 0);
+    salvarEstadoHistorico();
+
+    if (errosEncontrados > 100) {
+        // Se houver erros, limpa-os e avisa o aluno para continuar a pintar
+        if (somClique.src) somClique.play().catch(()=>{});
+        mostrarFeedbackErroEspecifico("Encontramos algumas zonas mal pintadas! Essas partes foram limpas para poderes corrigir e continuar.");
+    } else if (pixelsTotalColoridos < 3000) {
+        mostrarFeedbackErroEspecifico("Ainda tens zonas por pintar no desenho! Continua.");
     } else {
+        // Tudo perfeito! Avança para o ecrã de sucesso
         mostrarFeedbackSucesso();
     }
 }
