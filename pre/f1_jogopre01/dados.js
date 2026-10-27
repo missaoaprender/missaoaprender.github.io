@@ -2,12 +2,12 @@ const DADOS = {
   pagina: {
     browserTitulo: "Pré-Escolar",
     titulo: "Pré-Escolar",
-    subtitulo: "Estojo Mágico", // Nome do jogo no cabeçalho
+    subtitulo: "Atividades Criativas",
     tituloMenu: "Estojo Mágico",
     mensagem: "Diverte-te a aprender!",
     informacao: "Jogos Pré",
     tituloMenuAcordeao: "Menu",
-    urlVoltar: "../", 
+    urlVoltar: "../../", 
     iconeEstrela: "★",
     iconeInfo: "i"
   },
@@ -35,25 +35,33 @@ const DADOS = {
     }
   },
 
+  // Lista de desenhos para colorir (a apontar para a pasta imagens/colorir/)
+  desenhosParaColorir: [
+    { id: 1, nome: "Desenho 5", arquivo: "../../imagens/colorir/desenho5.png" },
+    { id: 2, nome: "Desenho 6", arquivo: "../../imagens/colorir/desenho6.png" },
+    { id: 3, nome: "Desenho 3", arquivo: "../../imagens/colorir/desenho3.png" },
+    { id: 4, nome: "Desenho 4", arquivo: "../../imagens/colorir/desenho4.png" }
+  ],
+
   sons: {
     certo: "",
     errado: ""
   },
 
   cores: {
-    fundo: "#FFFDF4",
-    ceu1: "#FCECC2",
-    ceu2: "#FFF5D6",
-    header: "#FFF5D6",
-    headerTopo: "#FCECC2",
-    azulHeader: "#E7A000",
-    texto: "#684500",
-    textoEscuro: "#362400",
+    fundo: "#F3F3F8",
+    ceu1: "#FDF7E5",
+    ceu2: "#FBF0CC",
+    header: "#FBF0CC",
+    headerTopo: "#FDF7E5",
+    azulHeader: "#ECA607",
+    texto: "#3E3E59",
+    textoEscuro: "#262638",
     branco: "#FFFFFF",
-    creme: "#FCEFCE",
-    linha: "#F7D896",
-    sombra: "rgba(231,160,0,.18)",
-    sombraForte: "rgba(231,160,0,.28)"
+    creme: "#ECECEF",
+    linha: "#E2D3AB",
+    sombra: "rgba(236,166,7,.18)",
+    sombraForte: "rgba(236,166,7,.28)"
   },
 
   dimensoes: {
@@ -67,7 +75,7 @@ const DADOS = {
   },
 
   jogos: [
-    { nome: "Estojo Mágico", idade: "Pré-Escolar", imagem: "../../icons/gatos&caes.png", cor: "#ECA607", cor2: "#3E3E59", pagina: "jogo.js" }
+    { nome: "Estojo Mágico", idade: "Pré-Escolar", imagem: "../../icons/gatos&caes.png", cor: "#ECA607", cor2: "#3E3E59", pagina: "index.html" }
   ],
 
   menuAnos: [
