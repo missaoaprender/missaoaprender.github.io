@@ -21,60 +21,63 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (LAYOUT LADO A LADO E MENU DROPDOWN)
+// 2. CONFIGURAÇÃO VISUAL (ÁREA DE DESENHO EXPANDIDA & 12 CORES)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
     .desenho-container {
         display: flex; flex-direction: row; align-items: stretch; justify-content: space-between;
-        width: 100%; height: 100%; flex: 1; gap: 12px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
+        width: 100%; height: 100%; flex: 1; gap: 14px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
     }
     @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
+    /* CANVAS COM MUITO MAIS DESTAQUE (OCUPA MAIS ESPAÇO) */
     .canvas-wrapper {
-        background: white; border: 3px solid #E2D3AB; border-radius: 16px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
-        flex: 1.4; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0;
+        background: white; border: 3px solid #E2D3AB; border-radius: 18px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
+        flex: 3; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0;
         transition: all 0.3s ease;
     }
     .canvas-wrapper:hover {
-        box-shadow: 0 8px 25px rgba(236,166,7,0.15);
+        box-shadow: 0 10px 30px rgba(236,166,7,0.18);
     }
     canvas { display: block; cursor: crosshair; width: 100%; height: 100%; }
 
+    /* PAINEL DE FERRAMENTAS MAIS COMPACTO (LARGURA DE 4 CORES) */
     .painel-estojo {
-        display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; flex: 1; background: rgba(255,255,255,0.92); padding: 12px 14px; border-radius: 16px; border: 2px solid #E2D3AB; flex-shrink: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 8px; flex: 0.9; max-width: 210px; background: rgba(255,255,255,0.94); padding: 10px 10px; border-radius: 18px; border: 2px solid #E2D3AB; flex-shrink: 0;
         box-shadow: 0 4px 15px rgba(0,0,0,0.04);
     }
 
-    .linha-lapis {
-        display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; width: 100%;
+    /* GRELHA DE 12 CORES (4 COLUNAS) */
+    .grid-cores {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; justify-items: center;
     }
     
     .lapis-btn {
-        width: 36px; height: 36px; border-radius: 50%; border: 3px solid white; cursor: pointer;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.15); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+        width: 32px; height: 32px; border-radius: 50%; border: 2.5px solid white; cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
     }
-    .lapis-btn:hover { transform: translateY(-3px) scale(1.08); }
-    .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.18); border-color: #262638; box-shadow: 0 5px 12px rgba(0,0,0,0.25); }
+    .lapis-btn:hover { transform: translateY(-2px) scale(1.1); }
+    .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.18); border-color: #262638; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
 
     /* BOTÃO DO LÁPIS COM DROPDOWN DE GROSSURAS */
     .dropdown-container {
         position: relative; display: inline-block;
     }
     .lapis-dropdown-btn {
-        background: white; border: 2px solid #ECA607; width: 44px; height: 44px;
-        border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        background: white; border: 2px solid #ECA607; width: 38px; height: 38px;
+        border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
         padding: 4px;
     }
     .lapis-dropdown-btn:hover { transform: scale(1.08); }
     .lapis-dropdown-btn.ativo { background: #FFF9E6; border-color: #262638; box-shadow: 0 4px 12px rgba(236,166,7,0.4); }
-    .lapis-dropdown-btn img { width: 24px; height: 32px; object-fit: contain; pointer-events: none; }
+    .lapis-dropdown-btn img { width: 20px; height: 26px; object-fit: contain; pointer-events: none; }
 
     .dropdown-content {
         display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
-        background: white; min-width: 130px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border-radius: 14px;
+        background: white; min-width: 120px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border-radius: 14px;
         border: 2px solid #E2D3AB; z-index: 100; padding: 8px; flex-direction: column; gap: 6px;
         animation: popUpDropdown 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
@@ -82,15 +85,19 @@ style.innerHTML = `
     @keyframes popUpDropdown { from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.9); } to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
 
     .opcao-traco {
-        background: #FFFDF0; border: 1.5px solid #ECA607; border-radius: 10px; padding: 6px;
+        background: #FFFDF0; border: 1.5px solid #ECA607; border-radius: 10px; padding: 5px 8px;
         display: flex; align-items: center; justify-content: space-between; cursor: pointer;
         transition: background 0.15s ease, transform 0.15s ease; font-weight: 800; font-size: 0.75rem; color: #C2890B;
     }
     .opcao-traco:hover { background: #FFF3CC; transform: scale(1.03); }
-    .linha-amostra { display: block; background: #C2890B; border-radius: 4px; width: 60px; }
+    .linha-amostra { display: block; background: #C2890B; border-radius: 4px; width: 50px; }
+
+    .linha-ferramentas {
+        display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; width: 100%;
+    }
 
     .btn-ferramenta-img {
-        background: white; border: 2px solid #ECA607; width: 40px; height: 40px;
+        background: white; border: 2px solid #ECA607; width: 38px; height: 38px;
         border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease; padding: 4px;
     }
@@ -100,13 +107,13 @@ style.innerHTML = `
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
     .btn-ferramenta-texto {
-        background: white; color: #C2890B; border: 2px solid #ECA607; padding: 8px 16px;
+        background: #ECA607; color: white; border: 2px solid #262638; padding: 8px 12px;
         border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease; display: flex; align-items: center; gap: 5px;
+        box-shadow: 0 4px 12px rgba(236,166,7,0.3); transition: transform 0.2s ease, background 0.2s ease;
+        display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%;
     }
-    .btn-ferramenta-texto:hover { transform: translateY(-2px); }
+    .btn-ferramenta-texto:hover { transform: translateY(-2px); background: #d99605; }
     .btn-ferramenta-texto:active { transform: scale(0.95); }
-    .btn-ferramenta-texto.destaque { background: #ECA607; color: white; box-shadow: 0 4px 12px rgba(236,166,7,0.3); width: 100%; justify-content: center; }
 
     .btn-capa-som {
         width: 44px; height: 44px; background: rgba(255,255,255,0.6); border: 2px solid rgba(255,255,255,0.9);
@@ -169,6 +176,8 @@ style.innerHTML = `
     /* Ajuste para telemóveis na vertical ficar em coluna */
     @media (max-width: 768px) {
         .desenho-container { flex-direction: column; }
+        .painel-estojo { max-width: 100%; width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+        .grid-cores { display: flex; flex-wrap: wrap; justify-content: center; }
     }
 `;
 document.head.appendChild(style);
@@ -234,21 +243,22 @@ function iniciarJogoDesenho() {
         slotTopo.className = "barra-jogo-topo";
         slotTopo.innerHTML = `
             <div class="btn-capa-som" style="width:36px; height:36px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:18px; height:18px;"></div>
-            <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem;">Menu</button>
+            <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem; width:auto;">Menu</button>
         `;
     }
 
     if (area) {
         area.innerHTML = `
             <div class="desenho-container">
-                <!-- CANVAS DO LADO ESQUERDO -->
+                <!-- ÁREA DO DESENHO COM MUITO MAIS DESTAQUE (ESQUERDA) -->
                 <div class="canvas-wrapper" id="canvasWrapper">
                     <canvas id="paintCanvas"></canvas>
                 </div>
 
-                <!-- PAINEL DE FERRAMENTAS DO LADO DIREITO -->
+                <!-- PAINEL DE FERRAMENTAS COMPACTO (DIREITA - LARGURA DE 4 CORES) -->
                 <div class="painel-estojo">
-                    <div class="linha-lapis">
+                    <!-- GRELHA DE 12 CORES (4 colunas x 3 linhas) -->
+                    <div class="grid-cores">
                         <div class="lapis-btn ativo" style="background:#ECA607;" onclick="mudarCor('#ECA607', this)"></div>
                         <div class="lapis-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)"></div>
                         <div class="lapis-btn" style="background:#8cc63f;" onclick="mudarCor('#8cc63f', this)"></div>
@@ -256,10 +266,15 @@ function iniciarJogoDesenho() {
                         <div class="lapis-btn" style="background:#9b5de5;" onclick="mudarCor('#9b5de5', this)"></div>
                         <div class="lapis-btn" style="background:#ff007f;" onclick="mudarCor('#ff007f', this)"></div>
                         <div class="lapis-btn" style="background:#00f5d4;" onclick="mudarCor('#00f5d4', this)"></div>
+                        <div class="lapis-btn" style="background:#fb8500;" onclick="mudarCor('#fb8500', this)"></div>
+                        <div class="lapis-btn" style="background:#ffb703;" onclick="mudarCor('#ffb703', this)"></div>
+                        <div class="lapis-btn" style="background:#023047;" onclick="mudarCor('#023047', this)"></div>
+                        <div class="lapis-btn" style="background:#70e000;" onclick="mudarCor('#70e000', this)"></div>
                         <div class="lapis-btn" style="background:#262638;" onclick="mudarCor('#262638', this)"></div>
                     </div>
 
-                    <div class="linha-lapis" style="gap: 12px; margin-top: 4px;">
+                    <!-- FERRAMENTAS (GROSSURA, BORRACHA, BALDE, ANULAR) -->
+                    <div class="linha-ferramentas">
                         <!-- DROPDOWN DE GROSSURA COM LÁPIS -->
                         <div class="dropdown-container">
                             <div class="lapis-dropdown-btn ativo" id="btnMenuGrossura" onclick="toggleDropdownGrossura(event)" title="Escolher Traço">
@@ -292,9 +307,8 @@ function iniciarJogoDesenho() {
                         </div>
                     </div>
 
-                    <div class="linha-lapis" style="margin-top: 6px; width: 100%;">
-                        <button class="btn-ferramenta-texto destaque" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
-                    </div>
+                    <!-- BOTÃO PRONTO -->
+                    <button class="btn-ferramenta-texto" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                 </div>
             </div>
         `;
@@ -331,7 +345,6 @@ function selecionarTraco(tamanho, el) {
     const drop = document.getElementById('dropdownGrossura');
     if (drop) drop.classList.remove('mostrar');
 
-    // Ativar o botão principal do lápis e desativar outras ferramentas
     ferramentaAtual = 'lapis';
     document.getElementById('btnBorracha').classList.remove('ativo');
     document.getElementById('btnBalde').classList.remove('ativo');
@@ -454,7 +467,6 @@ function mudarCor(novaCor, el) {
     
     if (el) el.classList.add('ativo');
 
-    // Atualiza a cor do ícone do lápis principal no menu dropdown
     const iconeLapis = document.querySelector('#btnMenuGrossura img');
     if (iconeLapis) {
         iconeLapis.style.filter = `drop-shadow(0 0 0 ${corAtual})`;
