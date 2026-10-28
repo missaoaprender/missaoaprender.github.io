@@ -21,25 +21,30 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (DESIGN PREMIUM)
+// 2. CONFIGURAÇÃO VISUAL (DESIGN PREMIUM COM ANIMAÇÕES FLUIDAS)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
     .desenho-container {
         display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        width: 100%; height: 100%; flex: 1; gap: 8px; animation: cardPop 0.3s ease; padding: 2px 0;
+        width: 100%; height: 100%; flex: 1; gap: 8px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 2px 0;
     }
-    @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
         flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0;
+        transition: all 0.3s ease;
+    }
+    .canvas-wrapper:hover {
+        box-shadow: 0 8px 25px rgba(236,166,7,0.15);
     }
     canvas { display: block; cursor: crosshair; width: 100%; height: 100%; }
 
     .painel-estojo {
-        display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; background: rgba(255,255,255,0.85); padding: 8px 12px; border-radius: 16px; border: 2px solid #E2D3AB; flex-shrink: 0;
+        display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; background: rgba(255,255,255,0.9); padding: 10px 14px; border-radius: 16px; border: 2px solid #E2D3AB; flex-shrink: 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
     }
 
     .linha-lapis {
@@ -47,23 +52,26 @@ style.innerHTML = `
     }
     
     .lapis-btn {
-        width: 36px; height: 36px; border-radius: 50%; border: 3px solid white; cursor: pointer;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.15); transition: transform 0.1s;
+        width: 38px; height: 38px; border-radius: 50%; border: 3px solid white; cursor: pointer;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.15); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
     }
-    .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.15); border-color: #262638; }
+    .lapis-btn:hover { transform: translateY(-3px) scale(1.08); }
+    .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.18); border-color: #262638; box-shadow: 0 5px 12px rgba(0,0,0,0.25); }
 
     .grossura-btn {
         background: white; color: #C2890B; border: 2px solid #ECA607; width: 32px; height: 32px;
         border-radius: 50%; font-weight: 900; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.1s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
     }
-    .grossura-btn.ativo { background: #ECA607; color: white; transform: scale(1.1); }
+    .grossura-btn:hover { transform: scale(1.08); }
+    .grossura-btn.ativo { background: #ECA607; color: white; transform: scale(1.12); box-shadow: 0 3px 8px rgba(236,166,7,0.4); }
 
     .btn-ferramenta-img {
         background: white; border: 2px solid #ECA607; width: 40px; height: 40px;
         border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; padding: 4px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease; padding: 4px;
     }
+    .btn-ferramenta-img:hover { transform: translateY(-2px) scale(1.05); }
     .btn-ferramenta-img:active { transform: scale(0.92); }
     .btn-ferramenta-img.ativo { background: #ECA607; border-color: #262638; transform: scale(1.08); }
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
@@ -71,60 +79,68 @@ style.innerHTML = `
     .btn-ferramenta-texto {
         background: white; color: #C2890B; border: 2px solid #ECA607; padding: 6px 14px;
         border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; display: flex; align-items: center; gap: 5px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease; display: flex; align-items: center; gap: 5px;
     }
+    .btn-ferramenta-texto:hover { transform: translateY(-2px); }
     .btn-ferramenta-texto:active { transform: scale(0.95); }
-    .btn-ferramenta-texto.destaque { background: #ECA607; color: white; }
+    .btn-ferramenta-texto.destaque { background: #ECA607; color: white; box-shadow: 0 4px 12px rgba(236,166,7,0.3); }
 
     .btn-capa-som {
-        width: 44px; height: 44px; background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.8);
+        width: 44px; height: 44px; background: rgba(255,255,255,0.6); border: 2px solid rgba(255,255,255,0.9);
         border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
-        transition: transform 0.1s; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 3px 10px rgba(0,0,0,0.1);
     }
+    .btn-capa-som:hover { transform: scale(1.1); }
     .btn-capa-som:active { transform: scale(0.92); }
     .btn-capa-som img { width: 24px; height: 24px; object-fit: contain; }
 
     .btn-capa-jogar {
         background: white; color: #C2890B; border: none;
         padding: 8px 26px; border-radius: 18px; font-weight: 900; font-size: 1rem;
-        cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.1s;
+        cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
         text-transform: uppercase;
     }
+    .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-        background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(6px); 
+        background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px); 
         z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: space-between; 
         border-radius: 35px; overflow: hidden; padding: 20px;
+        animation: fadeInFeedback 0.3s ease forwards;
     }
+    @keyframes fadeInFeedback { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
     
     .feedback-bottom-bar {
         width: 100%; height: 14px;
         background: #ECA607; border-radius: 7px; flex-shrink: 0;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .vitoria-card { 
         background: transparent; padding: 10px 20px; text-align: center; 
         display: flex; flex-direction: column; align-items: center; gap: 12px; 
-        animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); 
+        animation: cardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
         width: 100%; max-width: 480px; margin: auto 0;
     }
     
     .btn-final-roxo {
-        background: #ECA607; color: white; border: none; padding: 14px 20px;
+        background: #ECA607; color: white; border: none; padding: 14px 22px;
         border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(236,166,7,0.3); text-transform: capitalize; transition: transform 0.1s;
+        box-shadow: 0 6px 18px rgba(236,166,7,0.35); text-transform: capitalize; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         white-space: nowrap; flex: 1; text-align: center;
     }
+    .btn-final-roxo:hover { transform: translateY(-3px) scale(1.03); }
     .btn-final-roxo:active { transform: scale(0.95); }
 
     .btn-final-branco {
-        background: white; color: #C2890B; border: 2px solid #ECA607; padding: 14px 20px;
+        background: white; color: #C2890B; border: 2px solid #ECA607; padding: 14px 22px;
         border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.08); text-transform: capitalize; transition: transform 0.1s;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.08); text-transform: capitalize; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         white-space: nowrap; flex: 1; text-align: center;
     }
+    .btn-final-branco:hover { transform: translateY(-3px) scale(1.03); background: #FFF9E6; }
     .btn-final-branco:active { transform: scale(0.95); }
 `;
 document.head.appendChild(style);
@@ -151,8 +167,10 @@ function mostrarCapa() {
     const area = document.getElementById('contentor-jogo');
     if (area) {
         area.innerHTML = `
-            <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 8px; text-transform: uppercase;">Estojo de Desenho Mágico</div>
-            <div style="background: rgba(236,166,7,0.15); width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.2rem; margin-bottom: 10px; box-shadow: 0 8px 20px rgba(236,166,7,0.2);">✏️✨</div>
+            <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 8px; text-transform: uppercase; animation: cardPop 0.4s ease;">Estojo de Desenho Mágico</div>
+            <div style="background: rgba(236,166,7,0.15); width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.2rem; margin-bottom: 10px; box-shadow: 0 8px 20px rgba(236,166,7,0.2); animation: cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <img src="../../icons/paleta.png" alt="Paleta" style="width: 65px; height: 65px; object-fit: contain;">
+            </div>
         `;
     }
 
@@ -497,7 +515,7 @@ function concluirDesenho() {
         overlay.innerHTML = `
             <div style="width: 100%; display: flex; justify-content: center; align-items: center; flex: 1;">
                 <div class="vitoria-card">
-                    <img src="${iconeFeedback}" style="width:170px; height:170px; object-fit:contain; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12));">
+                    <img src="${iconeFeedback}" style="width:170px; height:170px; object-fit:contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15));">
                     <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
                     <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste um desenho maravilhoso!</p>
                     <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
