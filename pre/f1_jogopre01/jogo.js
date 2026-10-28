@@ -21,7 +21,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (TÍTULO E ANIMAÇÃO DE DESENHAR E COLORIR A CASA)
+// 2. CONFIGURAÇÃO VISUAL (ANIMAÇÃO LENTA DO PINCEL A DESENHAR E COLORIR)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
@@ -148,39 +148,57 @@ style.innerHTML = `
     .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
-    /* ANIMAÇÃO DE TRAÇO E PINTURA DA CASA */
+    /* CONTENTOR DA ANIMAÇÃO COM O PINCEL REAL */
     .animacao-casa-container {
-        width: 140px; height: 140px; background: white; border: 3px solid #E2D3AB; border-radius: 20px;
+        width: 150px; height: 150px; background: white; border: 3px solid #E2D3AB; border-radius: 20px;
         display: flex; align-items: center; justify-content: center; position: relative;
         box-shadow: 0 8px 20px rgba(236,166,7,0.2); animation: cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         overflow: hidden; margin-bottom: 12px;
     }
-    .casa-svg { width: 105px; height: 105px; }
+    .casa-svg { width: 110px; height: 110px; position: relative; z-index: 2; }
 
-    /* Animação do contorno a desenhar-se (stroke-dash) */
+    /* Traço a desenhar-se de forma lenta (6 segundos) */
     .linha-desenho {
         stroke: #262638; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round;
-        stroke-dasharray: 300; stroke-dashoffset: 300;
-        animation: desenharTraco 4s infinite ease-in-out;
+        stroke-dasharray: 400; stroke-dashoffset: 400;
+        animation: desenharTracoLento 6s infinite ease-in-out;
     }
 
-    /* Animação do preenchimento a colorir depois de desenhado */
+    /* Preenchimento a colorir após o traço */
     .preenchimento-cor {
         opacity: 0;
-        animation: colorirCasa 4s infinite ease-in-out;
+        animation: colorirCasaLento 6s infinite ease-in-out;
     }
 
-    @keyframes desenharTraco {
-        0% { stroke-dashoffset: 300; }
-        50% { stroke-dashoffset: 0; }
+    /* O Pincel real a acompanhar o desenho de forma suave e lenta */
+    .pincel-animado {
+        position: absolute; width: 32px; height: 32px; object-fit: contain;
+        z-index: 10; pointer-events: none;
+        animation: moverPincelLento 6s infinite ease-in-out;
+        filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+    }
+
+    @keyframes desenharTracoLento {
+        0% { stroke-dashoffset: 400; }
+        60% { stroke-dashoffset: 0; }
         100% { stroke-dashoffset: 0; }
     }
 
-    @keyframes colorirCasa {
+    @keyframes colorirCasaLento {
         0% { opacity: 0; }
-        50% { opacity: 0; }
-        75% { opacity: 1; }
+        60% { opacity: 0; }
+        80% { opacity: 1; }
         100% { opacity: 1; }
+    }
+
+    @keyframes moverPincelLento {
+        0%   { top: 75px; left: 20px; transform: rotate(-15deg); }
+        15%  { top: 25px; left: 70px; transform: rotate(10deg); }
+        30%  { top: 75px; left: 110px; transform: rotate(25deg); }
+        45%  { top: 100px; left: 65px; transform: rotate(-5deg); }
+        60%  { top: 60px; left: 65px; transform: rotate(0deg); }
+        80%  { top: 50px; left: 50px; transform: scale(1.1); }
+        100% { top: 75px; left: 20px; transform: rotate(-15deg); }
     }
 
     #round-feedback { 
@@ -233,7 +251,7 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA E REPRODUÇÃO DE SOM (COM ANIMAÇÃO DE DESENHAR E COLORIR)
+// 3. CAPA E REPRODUÇÃO DE SOM (COM O PINCEL E ANIMAÇÃO LENTA)
 // ============================================================
 function mostrarCapa() {
     if(!document.getElementById('round-feedback')) {
@@ -255,10 +273,13 @@ function mostrarCapa() {
         area.innerHTML = `
             <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 6px; text-transform: uppercase; animation: cardPop 0.4s ease;">Desenho Criativo</div>
             
-            <!-- ANIMAÇÃO DE DESENHAR O CONTORNO E DEPOIS COLORIR -->
+            <!-- ANIMAÇÃO LENTA COM O PINCEL.PNG A DESENHAR E COLORIR A CASA -->
             <div class="animacao-casa-container">
+                <!-- Imagem do pincel real a mover-se -->
+                <img src="pincel.png" alt="Pincel Animado" class="pincel-animado">
+
                 <svg class="casa-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Fundo colorido que surge na animação -->
+                    <!-- Preenchimento de cores a surgir calmamente -->
                     <g class="preenchimento-cor">
                         <rect x="26" y="46" width="48" height="43" fill="#ffeb00" />
                         <polygon points="17,45 50,17 83,45" fill="#d91424" />
@@ -267,7 +288,7 @@ function mostrarCapa() {
                         <rect x="55" y="52" width="12" height="12" fill="#009fe3" />
                     </g>
 
-                    <!-- Traços do contorno a desenhar do zero -->
+                    <!-- Traços do contorno desenhados lentamente -->
                     <rect class="linha-desenho" x="25" y="45" width="50" height="45" rx="2" />
                     <polygon class="linha-desenho" points="15,45 50,15 85,45" />
                     <rect class="linha-desenho" x="42" y="65" width="16" height="25" rx="1" />
