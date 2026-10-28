@@ -21,7 +21,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (ÁREA DE DESENHO EXPANDIDA & 12 CORES)
+// 2. CONFIGURAÇÃO VISUAL (LAYOUT LADO A LADO: DESENHO GRANDE À ESQUERDA, FERRAMENTAS À DIREITA)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
@@ -31,11 +31,11 @@ style.innerHTML = `
     }
     @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* CANVAS COM MUITO MAIS DESTAQUE (OCUPA MAIS ESPAÇO) */
+    /* ÁREA DO DESENHO COM GRANDE DESTAQUE À ESQUERDA */
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 18px;
         box-shadow: 0 8px 25px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
-        flex: 3; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0;
+        flex: 3.5; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0;
         transition: all 0.3s ease;
     }
     .canvas-wrapper:hover {
@@ -43,20 +43,20 @@ style.innerHTML = `
     }
     canvas { display: block; cursor: crosshair; width: 100%; height: 100%; }
 
-    /* PAINEL DE FERRAMENTAS MAIS COMPACTO (LARGURA DE 4 CORES) */
+    /* PAINEL DE FERRAMENTAS COMPACTO À DIREITA (LARGURA DE 4 CORES) */
     .painel-estojo {
-        display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 8px; flex: 0.9; max-width: 210px; background: rgba(255,255,255,0.94); padding: 10px 10px; border-radius: 18px; border: 2px solid #E2D3AB; flex-shrink: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 8px; flex: 0.85; max-width: 195px; background: rgba(255,255,255,0.94); padding: 10px 8px; border-radius: 18px; border: 2px solid #E2D3AB; flex-shrink: 0;
         box-shadow: 0 4px 15px rgba(0,0,0,0.04);
     }
 
     /* GRELHA DE 12 CORES (4 COLUNAS) */
     .grid-cores {
-        display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; justify-items: center;
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 100%; justify-items: center;
     }
     
     .lapis-btn {
-        width: 32px; height: 32px; border-radius: 50%; border: 2.5px solid white; cursor: pointer;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+        width: 30px; height: 30px; border-radius: 50%; border: 2.5px solid white; cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
     }
     .lapis-btn:hover { transform: translateY(-2px) scale(1.1); }
     .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.18); border-color: #262638; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
@@ -66,14 +66,14 @@ style.innerHTML = `
         position: relative; display: inline-block;
     }
     .lapis-dropdown-btn {
-        background: white; border: 2px solid #ECA607; width: 38px; height: 38px;
+        background: white; border: 2px solid #ECA607; width: 36px; height: 36px;
         border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
         padding: 4px;
     }
     .lapis-dropdown-btn:hover { transform: scale(1.08); }
     .lapis-dropdown-btn.ativo { background: #FFF9E6; border-color: #262638; box-shadow: 0 4px 12px rgba(236,166,7,0.4); }
-    .lapis-dropdown-btn img { width: 20px; height: 26px; object-fit: contain; pointer-events: none; }
+    .lapis-dropdown-btn img { width: 18px; height: 24px; object-fit: contain; pointer-events: none; }
 
     .dropdown-content {
         display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
@@ -90,14 +90,14 @@ style.innerHTML = `
         transition: background 0.15s ease, transform 0.15s ease; font-weight: 800; font-size: 0.75rem; color: #C2890B;
     }
     .opcao-traco:hover { background: #FFF3CC; transform: scale(1.03); }
-    .linha-amostra { display: block; background: #C2890B; border-radius: 4px; width: 50px; }
+    .linha-amostra { display: block; background: #C2890B; border-radius: 4px; width: 45px; }
 
     .linha-ferramentas {
-        display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; width: 100%;
+        display: flex; align-items: center; justify-content: center; gap: 5px; flex-wrap: wrap; width: 100%;
     }
 
     .btn-ferramenta-img {
-        background: white; border: 2px solid #ECA607; width: 38px; height: 38px;
+        background: white; border: 2px solid #ECA607; width: 36px; height: 36px;
         border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease; padding: 4px;
     }
@@ -107,8 +107,8 @@ style.innerHTML = `
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
     .btn-ferramenta-texto {
-        background: #ECA607; color: white; border: 2px solid #262638; padding: 8px 12px;
-        border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
+        background: #ECA607; color: white; border: 2px solid #262638; padding: 7px 10px;
+        border-radius: 14px; font-weight: 900; font-size: 0.8rem; cursor: pointer;
         box-shadow: 0 4px 12px rgba(236,166,7,0.3); transition: transform 0.2s ease, background 0.2s ease;
         display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%;
     }
@@ -173,7 +173,7 @@ style.innerHTML = `
     .btn-final-branco:hover { transform: translateY(-3px) scale(1.03); background: #FFF9E6; }
     .btn-final-branco:active { transform: scale(0.95); }
 
-    /* Ajuste para telemóveis na vertical ficar em coluna */
+    /* Ajuste responsivo para telemóveis na vertical */
     @media (max-width: 768px) {
         .desenho-container { flex-direction: column; }
         .painel-estojo { max-width: 100%; width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
@@ -250,14 +250,14 @@ function iniciarJogoDesenho() {
     if (area) {
         area.innerHTML = `
             <div class="desenho-container">
-                <!-- ÁREA DO DESENHO COM MUITO MAIS DESTAQUE (ESQUERDA) -->
+                <!-- ÁREA DE DESENHO GRANDE À ESQUERDA -->
                 <div class="canvas-wrapper" id="canvasWrapper">
                     <canvas id="paintCanvas"></canvas>
                 </div>
 
-                <!-- PAINEL DE FERRAMENTAS COMPACTO (DIREITA - LARGURA DE 4 CORES) -->
+                <!-- PAINEL DE FERRAMENTAS COMPACTO À DIREITA (12 CORES + FERRAMENTAS) -->
                 <div class="painel-estojo">
-                    <!-- GRELHA DE 12 CORES (4 colunas x 3 linhas) -->
+                    <!-- GRELHA DE 12 CORES (4 COLUNAS) -->
                     <div class="grid-cores">
                         <div class="lapis-btn ativo" style="background:#ECA607;" onclick="mudarCor('#ECA607', this)"></div>
                         <div class="lapis-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)"></div>
@@ -273,9 +273,8 @@ function iniciarJogoDesenho() {
                         <div class="lapis-btn" style="background:#262638;" onclick="mudarCor('#262638', this)"></div>
                     </div>
 
-                    <!-- FERRAMENTAS (GROSSURA, BORRACHA, BALDE, ANULAR) -->
+                    <!-- FERRAMENTAS (LÁPIS/DROPDOWN, BORRACHA, BALDE, ANULAR) -->
                     <div class="linha-ferramentas">
-                        <!-- DROPDOWN DE GROSSURA COM LÁPIS -->
                         <div class="dropdown-container">
                             <div class="lapis-dropdown-btn ativo" id="btnMenuGrossura" onclick="toggleDropdownGrossura(event)" title="Escolher Traço">
                                 <img src="../../icons/lapiscolorir.png" alt="Lápis Traço" style="filter: drop-shadow(0 0 0 ${corAtual});">
@@ -319,7 +318,6 @@ function iniciarJogoDesenho() {
         slotFundo.innerHTML = "";
     }
 
-    // Fechar dropdown ao clicar fora
     window.onclick = function(event) {
         if (!event.target.closest('.dropdown-container')) {
             const drop = document.getElementById('dropdownGrossura');
