@@ -58,13 +58,15 @@ style.innerHTML = `
     .lapis-btn:hover { transform: translateY(-3px) scale(1.08); }
     .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.18); border-color: #262638; box-shadow: 0 5px 12px rgba(0,0,0,0.25); }
 
-    .grossura-btn {
-        background: white; color: #C2890B; border: 2px solid #ECA607; width: 32px; height: 32px;
-        border-radius: 50%; font-weight: 900; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+    /* ESTILO PARA OS BOTÕES DE LÁPIS COM IMAGEM (TRAÇO) */
+    .lapis-traço-btn {
+        background: white; color: #C2890B; border: 2px solid #ECA607; padding: 4px 8px;
+        border-radius: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
     }
-    .grossura-btn:hover { transform: scale(1.08); }
-    .grossura-btn.ativo { background: #ECA607; color: white; transform: scale(1.12); box-shadow: 0 3px 8px rgba(236,166,7,0.4); }
+    .lapis-traço-btn:hover { transform: scale(1.08); }
+    .lapis-traço-btn.ativo { background: #FFF9E6; border-color: #262638; transform: scale(1.12); box-shadow: 0 3px 8px rgba(236,166,7,0.4); }
+    .lapis-traço-btn img { object-fit: contain; pointer-events: none; transition: filter 0.2s ease; }
 
     .btn-ferramenta-img {
         background: white; border: 2px solid #ECA607; width: 40px; height: 40px;
@@ -229,9 +231,15 @@ function iniciarJogoDesenho() {
                     </div>
                     <div class="linha-lapis">
                         <span style="font-size:0.8rem; font-weight:800; color:#555;">Traço:</span>
-                        <button class="grossura-btn" onclick="mudarGrossura(4, this)">F</button>
-                        <button class="grossura-btn ativo" onclick="mudarGrossura(10, this)">M</button>
-                        <button class="grossura-btn" onclick="mudarGrossura(18, this)">G</button>
+                        <button class="lapis-traço-btn" onclick="mudarGrossura(4, this)" title="Fino">
+                            <img src="../../icons/lapiscolorir.png" alt="Fino" style="width: 16px; height: 24px; filter: drop-shadow(0 0 0 ${corAtual});">
+                        </button>
+                        <button class="lapis-traço-btn ativo" onclick="mudarGrossura(10, this)" title="Médio">
+                            <img src="../../icons/lapiscolorir.png" alt="Médio" style="width: 22px; height: 30px; filter: drop-shadow(0 0 0 ${corAtual});">
+                        </button>
+                        <button class="lapis-traço-btn" onclick="mudarGrossura(18, this)" title="Grande">
+                            <img src="../../icons/lapiscolorir.png" alt="Grande" style="width: 28px; height: 36px; filter: drop-shadow(0 0 0 ${corAtual});">
+                        </button>
                         
                         <div class="btn-ferramenta-img" id="btnBorracha" onclick="ativarBorracha(this)" title="Borracha">
                             <img src="../../icons/borracha.png" alt="Borracha">
@@ -372,6 +380,11 @@ function mudarCor(novaCor, el) {
     document.getElementById('btnBalde').classList.remove('ativo');
     
     if (el) el.classList.add('ativo');
+
+    // Atualiza a cor dos lápis de traço dinamicamente
+    document.querySelectorAll('.lapis-traço-btn img').forEach(img => {
+        img.style.filter = `drop-shadow(0 0 0 ${corAtual})`;
+    });
 }
 
 function mudarGrossura(tamanho, el) {
@@ -379,7 +392,7 @@ function mudarGrossura(tamanho, el) {
     tamanhoPincel = tamanho;
     if (ctx) ctx.lineWidth = tamanhoPincel;
     
-    document.querySelectorAll('.grossura-btn').forEach(b => b.classList.remove('ativo'));
+    document.querySelectorAll('.lapis-traço-btn').forEach(b => b.classList.remove('ativo'));
     if (el) el.classList.add('ativo');
 }
 
