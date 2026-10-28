@@ -21,7 +21,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (ESTRUTURA E CURSOR DINÂMICO)
+// 2. CONFIGURAÇÃO VISUAL (ESTRUTURA, CORES E ANIMAÇÃO DA CASA)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
@@ -148,6 +148,35 @@ style.innerHTML = `
     .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
+    /* ANIMAÇÃO DA CASA NA CAPA */
+    .animacao-casa-container {
+        width: 140px; height: 140px; background: white; border: 3px solid #E2D3AB; border-radius: 20px;
+        display: flex; align-items: center; justify-content: center; position: relative;
+        box-shadow: 0 8px 20px rgba(236,166,7,0.2); animation: cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        overflow: hidden; margin-bottom: 12px;
+    }
+    .casa-svg {
+        width: 100px; height: 100px; animation: pulseCasa 2.5s infinite ease-in-out;
+    }
+    @keyframes pulseCasa {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.06); }
+        100% { transform: scale(1); }
+    }
+    .parede-animada { animation: pintarParede 3s infinite alternate; }
+    .telhado-animado { animation: pintarTelhado 3s infinite alternate; }
+    
+    @keyframes pintarParede {
+        0% { fill: #ffffff; }
+        50% { fill: #ffeb00; }
+        100% { fill: #ffeb00; }
+    }
+    @keyframes pintarTelhado {
+        0% { fill: #ffffff; }
+        50% { fill: #d91424; }
+        100% { fill: #d91424; }
+    }
+
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
         background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px); 
@@ -198,7 +227,7 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA E REPRODUÇÃO DE SOM
+// 3. CAPA E REPRODUÇÃO DE SOM (COM ANIMAÇÃO DA CASA A SER PINTADA)
 // ============================================================
 function mostrarCapa() {
     if(!document.getElementById('round-feedback')) {
@@ -218,9 +247,21 @@ function mostrarCapa() {
     const area = document.getElementById('contentor-jogo');
     if (area) {
         area.innerHTML = `
-            <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 8px; text-transform: uppercase; animation: cardPop 0.4s ease;">Estojo de Desenho Mágico</div>
-            <div style="background: rgba(236,166,7,0.15); width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.2rem; margin-bottom: 10px; box-shadow: 0 8px 20px rgba(236,166,7,0.2); animation: cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);">
-                <img src="../../icons/paleta.png" alt="Paleta" style="width: 65px; height: 65px; object-fit: contain;">
+            <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 6px; text-transform: uppercase; animation: cardPop 0.4s ease;">Estojo de Desenho Mágico</div>
+            
+            <!-- ANIMAÇÃO SVG DA CASA A SER DESENHADA E PINTADA -->
+            <div class="animacao-casa-container">
+                <svg class="casa-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Paredes da Casa -->
+                    <rect class="parede-animada" x="25" y="45" width="50" height="45" stroke="#262638" stroke-width="3" rx="2" />
+                    <!-- Telhado -->
+                    <polygon class="telhado-animado" points="15,45 50,15 85,45" stroke="#262638" stroke-width="3" stroke-linejoin="round" />
+                    <!-- Porta -->
+                    <rect x="42" y="65" width="16" height="25" fill="#9c4820" stroke="#262638" stroke-width="2.5" rx="1" />
+                    <!-- Janela -->
+                    <rect x="33" y="52" width="12" height="12" fill="#009fe3" stroke="#262638" stroke-width="2" rx="1" />
+                    <rect x="55" y="52" width="12" height="12" fill="#009fe3" stroke="#262638" stroke-width="2" rx="1" />
+                </svg>
             </div>
         `;
     }
@@ -257,7 +298,6 @@ function atualizarCursorPincel() {
         cTemp.height = 32;
         const ctxTemp = cTemp.getContext('2d');
 
-        // Desenha a imagem do pincel redimensionada para 32x32
         ctxTemp.drawImage(imgPincel, 0, 0, 32, 32);
 
         if (ferramentaAtual === 'lapis' || ferramentaAtual === 'balde') {
@@ -271,12 +311,10 @@ function atualizarCursorPincel() {
         }
 
         const urlCursor = cTemp.toDataURL();
-        // Aplicar o cursor garantindo o ponto de clique na ponta (hotspot em 2, 29)
         canvasEl.style.cursor = `url(${urlCursor}) 2 29, crosshair`;
     };
 
     imgPincel.onerror = function() {
-        // Fallback seguro caso ocorra erro ao carregar o ficheiro pincel.png
         canvasEl.style.cursor = 'crosshair';
     };
 }
@@ -434,8 +472,6 @@ function configurarCanvas() {
     ctx.strokeStyle = corAtual;
 
     salvarEstadoHistorico();
-    
-    // Força a atualização imediata do cursor pincel ao configurar o canvas
     setTimeout(atualizarCursorPincel, 50);
 
     const getPos = (e) => {
