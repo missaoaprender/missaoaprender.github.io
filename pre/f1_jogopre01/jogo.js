@@ -7,7 +7,7 @@ const JOGO_CONFIG = {
     caminhoIconsMenu: "../../icons/"
 };
 
-let corAtual = "#ECA607";
+let corAtual = "#000000";
 let ferramentaAtual = "lapis"; 
 let tamanhoPincel = 10;
 let isDrawing = false;
@@ -246,24 +246,20 @@ function tocarSomInstrucao() {
 // ============================================================
 function atualizarCursorPincel() {
     const imgPincel = new Image();
-    imgPincel.src = "pincel.png"; // Localizado na mesma pasta
+    imgPincel.src = "pincel.png";
     imgPincel.onload = function() {
-        // Criamos um canvas temporário de 32x32 para gerar o cursor personalizado
         const cTemp = document.createElement('canvas');
         cTemp.width = 32;
         cTemp.height = 32;
         const ctxTemp = cTemp.getContext('2d');
 
-        // Desenha a imagem do pincel original
         ctxTemp.drawImage(imgPincel, 0, 0, 32, 32);
 
-        // Se a ferramenta for lápis ou balde, aplicamos a cor atual na ponta do pincel
         if (ferramentaAtual === 'lapis' || ferramentaAtual === 'balde') {
             ctxTemp.globalCompositeOperation = 'source-in';
             ctxTemp.fillStyle = corAtual;
             ctxTemp.fillRect(0, 0, 32, 32);
         } else if (ferramentaAtual === 'borracha') {
-            // Se for borracha, podemos deixar com um tom neutro ou branco
             ctxTemp.globalCompositeOperation = 'source-in';
             ctxTemp.fillStyle = '#FFFFFF';
             ctxTemp.fillRect(0, 0, 32, 32);
@@ -272,12 +268,10 @@ function atualizarCursorPincel() {
         const urlCursor = cTemp.toDataURL();
         const canvasEl = document.getElementById('paintCanvas');
         if (canvasEl) {
-            // Ponto de foco (hotspot) na ponta inferior esquerda do pincel (ex: 2, 29)
             canvasEl.style.cursor = `url(${urlCursor}) 2 29, crosshair`;
         }
     };
     imgPincel.onerror = function() {
-        // Fallback caso a imagem demore ou não carregue
         const canvasEl = document.getElementById('paintCanvas');
         if (canvasEl) canvasEl.style.cursor = 'crosshair';
     };
@@ -310,22 +304,22 @@ function iniciarJogoDesenho() {
 
                 <!-- PAINEL LATERAL À DIREITA -->
                 <div class="painel-estojo">
-                    <!-- CAIXA DA PALETA DE CORES (12 CORES) -->
+                    <!-- CAIXA DA PALETA DE CORES (EXATAMENTE COMO NA REFERÊNCIA) -->
                     <div class="painel-cores-box">
                         <span class="titulo-cores">Cores</span>
                         <div class="grid-cores">
-                            <div class="lapis-btn ativo" style="background:#ECA607;" onclick="mudarCor('#ECA607', this)"></div>
-                            <div class="lapis-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)"></div>
-                            <div class="lapis-btn" style="background:#8cc63f;" onclick="mudarCor('#8cc63f', this)"></div>
-                            <div class="lapis-btn" style="background:#3a86ff;" onclick="mudarCor('#3a86ff', this)"></div>
-                            <div class="lapis-btn" style="background:#9b5de5;" onclick="mudarCor('#9b5de5', this)"></div>
-                            <div class="lapis-btn" style="background:#ff007f;" onclick="mudarCor('#ff007f', this)"></div>
-                            <div class="lapis-btn" style="background:#00f5d4;" onclick="mudarCor('#00f5d4', this)"></div>
-                            <div class="lapis-btn" style="background:#fb8500;" onclick="mudarCor('#fb8500', this)"></div>
-                            <div class="lapis-btn" style="background:#ffb703;" onclick="mudarCor('#ffb703', this)"></div>
-                            <div class="lapis-btn" style="background:#023047;" onclick="mudarCor('#023047', this)"></div>
-                            <div class="lapis-btn" style="background:#70e000;" onclick="mudarCor('#70e000', this)"></div>
-                            <div class="lapis-btn" style="background:#262638;" onclick="mudarCor('#262638', this)"></div>
+                            <div class="lapis-btn ativo" style="background:#000000;" onclick="mudarCor('#000000', this)" title="Preto"></div>
+                            <div class="lapis-btn" style="background:#fbb1bd;" onclick="mudarCor('#fbb1bd', this)" title="Rosa Claro"></div>
+                            <div class="lapis-btn" style="background:#f272a1;" onclick="mudarCor('#f272a1', this)" title="Rosa Chiclete"></div>
+                            <div class="lapis-btn" style="background:#d91424;" onclick="mudarCor('#d91424', this)" title="Vermelho"></div>
+                            <div class="lapis-btn" style="background:#f37022;" onclick="mudarCor('#f37022', this)" title="Laranja"></div>
+                            <div class="lapis-btn" style="background:#ffeb00;" onclick="mudarCor('#ffeb00', this)" title="Amarelo Canário"></div>
+                            <div class="lapis-btn" style="background:#23aa45;" onclick="mudarCor('#23aa45', this)" title="Verde"></div>
+                            <div class="lapis-btn" style="background:#0a683e;" onclick="mudarCor('#0a683e', this)" title="Verde Escuro"></div>
+                            <div class="lapis-btn" style="background:#009fe3;" onclick="mudarCor('#009fe3', this)" title="Azul Claro"></div>
+                            <div class="lapis-btn" style="background:#1d3d88;" onclick="mudarCor('#1d3d88', this)" title="Azul Escuro"></div>
+                            <div class="lapis-btn" style="background:#752358;" onclick="mudarCor('#752358', this)" title="Roxo"></div>
+                            <div class="lapis-btn" style="background:#9c4820;" onclick="mudarCor('#9c4820', this)" title="Castanho"></div>
                         </div>
                     </div>
 
