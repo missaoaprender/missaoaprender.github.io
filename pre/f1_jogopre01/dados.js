@@ -2,8 +2,8 @@ const DADOS = {
   pagina: {
     browserTitulo: "Pré-Escolar",
     titulo: "Pré-Escolar",
-    subtitulo: "Atividades Criativas",
-    tituloMenu: "Estojo Mágico",
+    subtitulo: "Desenho Criativo",
+    tituloMenu: "Desenho Criativo",
     mensagem: "Diverte-te a aprender!",
     informacao: "Jogos Pré",
     tituloMenuAcordeao: "Menu",
