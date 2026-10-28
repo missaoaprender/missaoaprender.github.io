@@ -21,7 +21,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (ESTRUTURA IDÊNTICA À REFERÊNCIA)
+// 2. CONFIGURAÇÃO VISUAL (ESTRUTURA E CURSOR DINÂMICO)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
@@ -37,7 +37,7 @@ style.innerHTML = `
         box-shadow: 0 4px 15px rgba(0,0,0,0.06); overflow: hidden; touch-action: none;
         flex: 3.5; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0;
     }
-    canvas { display: block; cursor: crosshair; width: 100%; height: 100%; }
+    canvas { display: block; width: 100%; height: 100%; }
 
     /* PAINEL LATERAL À DIREITA */
     .painel-estojo {
@@ -130,7 +130,6 @@ style.innerHTML = `
     .btn-capa-som:active { transform: scale(0.92); }
     .btn-capa-som img { width: 22px; height: 22px; object-fit: contain; }
 
-    /* BOTÃO MENU DO TOPO COM FUNDO BRANCO E MESMA ALTURA DO SOM */
     .btn-menu-topo {
         height: 44px; background: white; color: #C2890B; border: 2px solid #E2D3AB;
         padding: 0 16px; border-radius: 22px; font-weight: 900; font-size: 0.85rem;
@@ -243,8 +242,47 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO ESTOJO MÁGICO
+// 4. LÓGICA DO ESTOJO MÁGICO E CURSOR DINÂMICO
 // ============================================================
+function atualizarCursorPincel() {
+    const imgPincel = new Image();
+    imgPincel.src = "pincel.png"; // Localizado na mesma pasta
+    imgPincel.onload = function() {
+        // Criamos um canvas temporário de 32x32 para gerar o cursor personalizado
+        const cTemp = document.createElement('canvas');
+        cTemp.width = 32;
+        cTemp.height = 32;
+        const ctxTemp = cTemp.getContext('2d');
+
+        // Desenha a imagem do pincel original
+        ctxTemp.drawImage(imgPincel, 0, 0, 32, 32);
+
+        // Se a ferramenta for lápis ou balde, aplicamos a cor atual na ponta do pincel
+        if (ferramentaAtual === 'lapis' || ferramentaAtual === 'balde') {
+            ctxTemp.globalCompositeOperation = 'source-in';
+            ctxTemp.fillStyle = corAtual;
+            ctxTemp.fillRect(0, 0, 32, 32);
+        } else if (ferramentaAtual === 'borracha') {
+            // Se for borracha, podemos deixar com um tom neutro ou branco
+            ctxTemp.globalCompositeOperation = 'source-in';
+            ctxTemp.fillStyle = '#FFFFFF';
+            ctxTemp.fillRect(0, 0, 32, 32);
+        }
+
+        const urlCursor = cTemp.toDataURL();
+        const canvasEl = document.getElementById('paintCanvas');
+        if (canvasEl) {
+            // Ponto de foco (hotspot) na ponta inferior esquerda do pincel (ex: 2, 29)
+            canvasEl.style.cursor = `url(${urlCursor}) 2 29, crosshair`;
+        }
+    };
+    imgPincel.onerror = function() {
+        // Fallback caso a imagem demore ou não carregue
+        const canvasEl = document.getElementById('paintCanvas');
+        if (canvasEl) canvasEl.style.cursor = 'crosshair';
+    };
+}
+
 function iniciarJogoDesenho() {
     if (somClique.src) somClique.play().catch(()=>{});
     
@@ -365,6 +403,7 @@ function selecionarTraco(tamanho, el) {
     document.getElementById('btnBorracha').classList.remove('ativo');
     document.getElementById('btnBalde').classList.remove('ativo');
     document.getElementById('btnMenuGrossura').classList.add('ativo');
+    atualizarCursorPincel();
 }
 
 function configurarCanvas() {
@@ -397,6 +436,7 @@ function configurarCanvas() {
     ctx.strokeStyle = corAtual;
 
     salvarEstadoHistorico();
+    atualizarCursorPincel();
 
     const getPos = (e) => {
         const rect = canvas.getBoundingClientRect();
@@ -487,6 +527,8 @@ function mudarCor(novaCor, el) {
     if (iconeLapis) {
         iconeLapis.style.filter = `drop-shadow(0 0 0 ${corAtual})`;
     }
+
+    atualizarCursorPincel();
 }
 
 function ativarBorracha(el) {
@@ -496,6 +538,7 @@ function ativarBorracha(el) {
     document.getElementById('btnBalde').classList.remove('ativo');
     document.getElementById('btnMenuGrossura').classList.remove('ativo');
     if (el) el.classList.add('ativo');
+    atualizarCursorPincel();
 }
 
 function ativarBalde(el) {
@@ -505,6 +548,7 @@ function ativarBalde(el) {
     document.getElementById('btnBorracha').classList.remove('ativo');
     document.getElementById('btnMenuGrossura').classList.remove('ativo');
     if (el) el.classList.add('ativo');
+    atualizarCursorPincel();
 }
 
 // ============================================================
