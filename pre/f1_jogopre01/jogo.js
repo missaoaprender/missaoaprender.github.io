@@ -21,7 +21,7 @@ const somInstrucao = new Audio("f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (ESTRUTURA IDÊNCIA À REFERÊNCIA)
+// 2. CONFIGURAÇÃO VISUAL (ESTRUTURA IDÊNTICA À REFERÊNCIA)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
@@ -31,7 +31,7 @@ style.innerHTML = `
     }
     @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* ÁREA DE DESENHO GRANDE À ESQUERDA COM MOLDRUA SUAVE */
+    /* ÁREA DE DESENHO GRANDE À ESQUERDA COM MOLDURA SUAVE */
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.06); overflow: hidden; touch-action: none;
@@ -111,10 +111,10 @@ style.innerHTML = `
     .btn-ferramenta-img.ativo { background: #ECA607; border-color: #262638; transform: scale(1.08); }
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
-    /* BOTÃO PRONTO IDÊNTICO À REFERÊNCIA */
+    /* BOTÃO PRONTO */
     .btn-ferramenta-texto {
-        background: #ECA607; color: white; border: 2px solid #ECA607; padding: 10px 14px;
-        border-radius: 14px; font-weight: 900; font-size: 0.9rem; cursor: pointer;
+        background: #ECA607; color: white; border: 2.5px solid #F4D06F; padding: 10px 14px;
+        border-radius: 16px; font-weight: 900; font-size: 0.9rem; cursor: pointer;
         box-shadow: 0 4px 12px rgba(236,166,7,0.35); transition: transform 0.2s ease, background 0.2s ease;
         display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; text-transform: uppercase;
     }
@@ -122,13 +122,23 @@ style.innerHTML = `
     .btn-ferramenta-texto:active { transform: scale(0.95); }
 
     .btn-capa-som {
-        width: 44px; height: 44px; background: rgba(255,255,255,0.6); border: 2px solid rgba(255,255,255,0.9);
+        width: 44px; height: 44px; background: rgba(255,255,255,0.8); border: 2px solid rgba(255,255,255,0.95);
         border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
         transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 3px 10px rgba(0,0,0,0.1);
     }
     .btn-capa-som:hover { transform: scale(1.1); }
     .btn-capa-som:active { transform: scale(0.92); }
-    .btn-capa-som img { width: 24px; height: 24px; object-fit: contain; }
+    .btn-capa-som img { width: 22px; height: 22px; object-fit: contain; }
+
+    /* BOTÃO MENU DO TOPO COM FUNDO BRANCO E MESMA ALTURA DO SOM */
+    .btn-menu-topo {
+        height: 44px; background: white; color: #C2890B; border: 2px solid #E2D3AB;
+        padding: 0 16px; border-radius: 22px; font-weight: 900; font-size: 0.85rem;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .btn-menu-topo:hover { transform: scale(1.05); background: #FFF9E6; }
+    .btn-menu-topo:active { transform: scale(0.95); }
 
     .btn-capa-jogar {
         background: white; color: #C2890B; border: none;
@@ -247,8 +257,8 @@ function iniciarJogoDesenho() {
     if (slotTopo) {
         slotTopo.className = "barra-jogo-topo";
         slotTopo.innerHTML = `
-            <div class="btn-capa-som" style="width:36px; height:36px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:18px; height:18px;"></div>
-            <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem; width:auto;">Menu</button>
+            <div class="btn-capa-som" style="width:44px; height:44px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:22px; height:22px;"></div>
+            <button class="btn-menu-topo" onclick="mostrarCapa()"><i class="fas fa-bars"></i> Menu</button>
         `;
     }
 
@@ -281,7 +291,7 @@ function iniciarJogoDesenho() {
                         </div>
                     </div>
 
-                    <!-- FERRAMENTAS (LÁPIS/DROPDOWN, BALDE, ANULAR) -->
+                    <!-- FERRAMENTAS (LÁPIS/DROPDOWN, BORRACHA, BALDE, ANULAR) -->
                     <div class="linha-ferramentas">
                         <div class="dropdown-container">
                             <div class="lapis-dropdown-btn ativo" id="btnMenuGrossura" onclick="toggleDropdownGrossura(event)" title="Escolher Traço">
