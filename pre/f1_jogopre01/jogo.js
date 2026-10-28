@@ -242,17 +242,22 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO ESTOJO MÁGICO E CURSOR DINÂMICO
+// 4. LÓGICA DO ESTOJO MÁGICO E CURSOR DINÂMICO DE PINCEL
 // ============================================================
 function atualizarCursorPincel() {
+    const canvasEl = document.getElementById('paintCanvas');
+    if (!canvasEl) return;
+
     const imgPincel = new Image();
     imgPincel.src = "pincel.png";
+    
     imgPincel.onload = function() {
         const cTemp = document.createElement('canvas');
         cTemp.width = 32;
         cTemp.height = 32;
         const ctxTemp = cTemp.getContext('2d');
 
+        // Desenha a imagem do pincel redimensionada para 32x32
         ctxTemp.drawImage(imgPincel, 0, 0, 32, 32);
 
         if (ferramentaAtual === 'lapis' || ferramentaAtual === 'balde') {
@@ -266,14 +271,13 @@ function atualizarCursorPincel() {
         }
 
         const urlCursor = cTemp.toDataURL();
-        const canvasEl = document.getElementById('paintCanvas');
-        if (canvasEl) {
-            canvasEl.style.cursor = `url(${urlCursor}) 2 29, crosshair`;
-        }
+        // Aplicar o cursor garantindo o ponto de clique na ponta (hotspot em 2, 29)
+        canvasEl.style.cursor = `url(${urlCursor}) 2 29, crosshair`;
     };
+
     imgPincel.onerror = function() {
-        const canvasEl = document.getElementById('paintCanvas');
-        if (canvasEl) canvasEl.style.cursor = 'crosshair';
+        // Fallback seguro caso ocorra erro ao carregar o ficheiro pincel.png
+        canvasEl.style.cursor = 'crosshair';
     };
 }
 
@@ -304,7 +308,7 @@ function iniciarJogoDesenho() {
 
                 <!-- PAINEL LATERAL À DIREITA -->
                 <div class="painel-estojo">
-                    <!-- CAIXA DA PALETA DE CORES (EXATAMENTE COMO NA REFERÊNCIA) -->
+                    <!-- CAIXA DA PALETA DE CORES (12 CORES) -->
                     <div class="painel-cores-box">
                         <span class="titulo-cores">Cores</span>
                         <div class="grid-cores">
@@ -430,7 +434,9 @@ function configurarCanvas() {
     ctx.strokeStyle = corAtual;
 
     salvarEstadoHistorico();
-    atualizarCursorPincel();
+    
+    // Força a atualização imediata do cursor pincel ao configurar o canvas
+    setTimeout(atualizarCursorPincel, 50);
 
     const getPos = (e) => {
         const rect = canvas.getBoundingClientRect();
