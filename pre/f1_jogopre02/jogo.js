@@ -106,17 +106,20 @@ style.innerHTML = `
     .btn-ferramenta-img.ativo { background: #ECA607; border-color: #262638; transform: scale(1.08); }
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
-    /* Seletor de desenhos na barra lateral */
-    .seletor-desenhos-barra {
-        display: flex; align-items: center; justify-content: space-between; background: #FFFDF0; border: 2px solid #ECA607; padding: 4px 8px; border-radius: 14px; width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    /* Moldura de selecção na barra lateral */
+    .moldura-barra-container {
+        display: flex; align-items: center; justify-content: space-between; background: #FFFDF0; border: 2px solid #E2D3AB; padding: 6px 8px; border-radius: 14px; width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.05); gap: 4px;
     }
     .btn-seta-barra {
-        background: #ECA607; color: white; border: none; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 900; font-size: 0.8rem; transition: transform 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        background: #ECA607; color: white; border: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 900; font-size: 0.85rem; transition: transform 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.15); flex-shrink: 0;
     }
     .btn-seta-barra:hover { transform: scale(1.1); }
     .btn-seta-barra:active { transform: scale(0.92); }
-    .nome-desenho-barra {
-        font-weight: 900; color: #C2890B; font-size: 0.75rem; text-transform: uppercase; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px;
+    .moldura-barra-info {
+        display: flex; flex-direction: column; align-items: center; gap: 2px; overflow: hidden; flex: 1;
+    }
+    .moldura-barra-texto {
+        font-weight: 900; color: #C2890B; font-size: 0.7rem; text-transform: uppercase; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;
     }
 
     .btn-ferramenta-texto {
@@ -137,6 +140,15 @@ style.innerHTML = `
     .btn-capa-som:active { transform: scale(0.92); }
     .btn-capa-som img { width: 22px; height: 22px; object-fit: contain; }
 
+    .btn-menu-topo {
+        height: 44px; background: white; color: #C2890B; border: 2px solid #E2D3AB;
+        padding: 0 16px; border-radius: 22px; font-weight: 900; font-size: 0.85rem;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .btn-menu-topo:hover { transform: scale(1.05); background: #FFF9E6; }
+    .btn-menu-topo:active { transform: scale(0.95); }
+
     .btn-capa-jogar {
         background: white; color: #C2890B; border: none;
         padding: 8px 26px; border-radius: 18px; font-weight: 900; font-size: 1rem;
@@ -146,13 +158,23 @@ style.innerHTML = `
     .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
-    .preview-desenho-container {
-        width: 190px; height: 190px; background: white; border: 3px solid #E2D3AB; border-radius: 24px;
-        display: flex; align-items: center; justify-content: center; position: relative;
-        box-shadow: 0 10px 25px rgba(236,166,7,0.25); animation: cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        overflow: hidden; margin-bottom: 12px; padding: 15px;
+    /* Moldura central na capa inicial */
+    .moldura-desenho-capa {
+        width: 210px; height: 210px; background: white; border: 3px solid #E2D3AB; border-radius: 24px;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;
+        box-shadow: 0 10px 25px rgba(236,166,7,0.25); padding: 15px; gap: 8px;
     }
-    .preview-desenho-img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+    .moldura-img { width: 130px; height: 130px; object-fit: contain; pointer-events: none; }
+    .moldura-titulo { font-weight: 900; color: #C2890B; font-size: 0.9rem; text-transform: uppercase; text-align: center; }
+
+    .seletor-capa-container {
+        display: flex; align-items: center; gap: 20px; justify-content: center; margin-bottom: 10px;
+    }
+    .btn-seta-capa {
+        background: #ECA607; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s ease;
+    }
+    .btn-seta-capa:hover { transform: scale(1.1); }
+    .btn-seta-capa:active { transform: scale(0.92); }
 
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
@@ -217,21 +239,17 @@ function mostrarCapa() {
     const slotFundo = document.getElementById('slot-fundo');
 
     if (slotTopo) {
-        slotTopo.className = "barra-jogo-topo";
-        slotTopo.innerHTML = `
-            <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
-            <div style="font-weight: 900; color: white; font-size: 1rem; text-transform: uppercase;">Escolhe o teu desenho!</div>
-        `;
+        slotTopo.className = "barrita-fundo-cartao";
+        slotTopo.innerHTML = "";
     }
 
-    renderizarPreviewCapa();
+    renderizarCapaComMoldura();
 
     if (slotFundo) {
         slotFundo.className = "barra-jogo-topo";
         slotFundo.innerHTML = `
-            <div></div>
+            <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
             <button class="btn-capa-jogar" onclick="iniciarJogoDesenho()">COMEÇAR</button>
-            <div></div>
         `;
     }
 }
@@ -245,30 +263,34 @@ function mudarDesenho(direcao) {
     if (indiceDesenhoAtual < 0) indiceDesenhoAtual = lista.length - 1;
     if (indiceDesenhoAtual >= lista.length) indiceDesenhoAtual = 0;
 
-    // Se estiver na capa, atualiza a pré-visualização grande
-    if (document.querySelector('.preview-desenho-container')) {
-        renderizarPreviewCapa();
+    // Atualiza a vista dependendo de estarmos na capa ou já a pintar
+    if (document.querySelector('.moldura-desenho-capa')) {
+        renderizarCapaComMoldura();
     } else {
-        // Se já estiver a jogar, recarrega o canvas com o novo desenho selecionado
         configurarCanvas();
     }
 }
 
-function renderizarPreviewCapa() {
+function renderizarCapaComMoldura() {
     const lista = DADOS.desenhosParaColorir || [];
     const desenhoObj = lista[indiceDesenhoAtual] || { nome: "Desenho", arquivo: "" };
-    
+    const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Desenho Criativo";
+
     const area = document.getElementById('contentor-jogo');
     if (area) {
-        const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Desenho Criativo";
-        
         area.innerHTML = `
-            <div style="font-size: 1.2rem; font-weight: 900; color: #C2890B; margin-bottom: 4px; text-transform: uppercase;">${tituloAnimacao}</div>
+            <div style="font-size: 1.3rem; font-weight: 900; color: #C2890B; margin-bottom: 12px; text-transform: uppercase;">${tituloAnimacao}</div>
             
-            <div class="preview-desenho-container">
-                <img src="${desenhoObj.arquivo}" alt="${desenhoObj.nome}" class="preview-desenho-img">
+            <div class="seletor-capa-container">
+                <button class="btn-seta-capa" onclick="mudarDesenho(-1)"><i class="fas fa-chevron-left"></i></button>
+                
+                <div class="moldura-desenho-capa">
+                    <img src="${desenhoObj.arquivo}" alt="${desenhoObj.nome}" class="moldura-img">
+                    <span class="moldura-titulo">${desenhoObj.nome}</span>
+                </div>
+
+                <button class="btn-seta-capa" onclick="mudarDesenho(1)"><i class="fas fa-chevron-right"></i></button>
             </div>
-            <div style="font-weight: 900; color: #C2890B; font-size: 0.95rem; text-transform: uppercase;">${desenhoObj.nome}</div>
         `;
     }
 }
@@ -327,8 +349,11 @@ function iniciarJogoDesenho() {
     if (feedbackEl) feedbackEl.style.display = 'none';
 
     if (slotTopo) {
-        slotTopo.className = "barrita-fundo-cartao";
-        slotTopo.innerHTML = "";
+        slotTopo.className = "barra-jogo-topo";
+        slotTopo.innerHTML = `
+            <div class="btn-capa-som" style="width:44px; height:44px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:22px; height:22px;"></div>
+            <button class="btn-menu-topo" onclick="mostrarCapa()"><i class="fas fa-bars"></i> Menu</button>
+        `;
     }
 
     const lista = DADOS.desenhosParaColorir || [];
@@ -392,10 +417,12 @@ function iniciarJogoDesenho() {
                         </div>
                     </div>
 
-                    <!-- Seletor de desenhos colocado na barra lateral antes do botão Pronto! -->
-                    <div class="seletor-desenhos-barra">
+                    <!-- Moldura de seleção colocada na barra lateral antes do botão Pronto! -->
+                    <div class="moldura-barra-container">
                         <button class="btn-seta-barra" onclick="mudarDesenho(-1)"><i class="fas fa-chevron-left"></i></button>
-                        <span class="nome-desenho-barra" id="nomeDesenhoBarra">${desenhoAtualObj.nome}</span>
+                        <div class="moldura-barra-info">
+                            <span class="moldura-barra-texto" id="nomeDesenhoBarra">${desenhoAtualObj.nome}</span>
+                        </div>
                         <button class="btn-seta-barra" onclick="mudarDesenho(1)"><i class="fas fa-chevron-right"></i></button>
                     </div>
 
@@ -457,7 +484,6 @@ function configurarCanvas() {
     const lista = DADOS.desenhosParaColorir || [];
     const desenhoObj = lista[indiceDesenhoAtual];
     
-    // Atualizar o nome do desenho na barra lateral se já estiver criada
     const spanBarra = document.getElementById('nomeDesenhoBarra');
     if (spanBarra && desenhoObj) spanBarra.textContent = desenhoObj.nome;
 
@@ -474,7 +500,7 @@ function configurarCanvas() {
 
             ctx.drawImage(imgDesenho, 0, 0, imgDesenho.width, imgDesenho.height, centerShiftX, centerShiftY, imgDesenho.width * ratio, imgDesenho.height * ratio);
             
-            historicoCanvas = []; // Limpa o histórico ao mudar de desenho
+            historicoCanvas = [];
             salvarEstadoHistorico();
         };
     } else {
