@@ -713,7 +713,7 @@ function concluirDesenho() {
                 <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">QUE PINTURA MARAVILHOSA!</h1>
                 <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste uma obra de arte incrível!</p>
                 <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
-                    <button class="btn-final-roxo" onclick="mostrarCapa()">Escolher Outro</button>
+                    <button class="btn-final-roxo" onclick="mostrarCapa()">Novo Desenho</button>
                     <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
                 </div>
             </div>
