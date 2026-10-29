@@ -163,7 +163,7 @@ styleJogo.innerHTML = `
         background: #ECA607; border-radius: 7px;
     }
 
-    .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 25px; width: 100%; max-width: 480px; }
+    .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 25px; width: 100%; max-width: 480px; }
     
     .btn-final-roxo {
         background: #ECA607; color: white; border: none; padding: 12px 20px;
@@ -702,18 +702,16 @@ function preencherAreaComCor(startX, startY) {
 function concluirDesenho() {
     if (somAcerto.src) somAcerto.play().catch(()=>{});
     const overlay = document.getElementById('round-feedback');
-    
-    // Captura a imagem atual do canvas pintado
-    const imagemPintadaUrl = canvas ? canvas.toDataURL() : "";
+    const iconeFeedback = DADOS.icons.feedbacks.feedback1;
 
     if (overlay) {
         overlay.style.display = 'flex';
         overlay.innerHTML = `
             <div class="vitoria-card">
-                <img src="${imagemPintadaUrl}" style="width:140px; height:110px; object-fit:contain; border:2px solid #E2D3AB; border-radius:12px; background:white; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
-                <h1 style="color:#C2890B; font-size:1.4rem; font-weight:900; margin:0; text-transform:uppercase;">QUE PINTURA MARAVILHOSA!</h1>
+                <img src="${iconeFeedback}" style="width:120px; height:120px; object-fit:contain;">
+                <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">QUE PINTURA MARAVILHOSA!</h1>
                 <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste uma obra de arte incrível!</p>
-                <div style="display:flex; justify-content:center; gap:12px; margin-top:6px; width:100%; max-width:420px;">
+                <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
                     <button class="btn-final-roxo" onclick="mostrarCapa()">Novo Desenho</button>
                     <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
                 </div>
