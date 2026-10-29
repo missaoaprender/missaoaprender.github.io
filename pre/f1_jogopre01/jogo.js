@@ -1,8 +1,8 @@
 // ============================================================
-// 1. ESTADO GLOBAL E SONS
+// 1. ESTADO GLOBAL E SONS (Lidos de DADOS)
 // ============================================================
 const JOGO_CONFIG = {
-    nomeDoJogo: "Desenho Criativo",
+    nomeDoJogo: DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Desenho Criativo",
     caminhoSons: DADOS.sons ? DADOS.sons.caminho : "",
     caminhoIconsMenu: "../../icons/"
 };
@@ -17,11 +17,11 @@ let historicoCanvas = [];
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
-const somInstrucao = new Audio("f1_jogo01pre.mp3");
+const somInstrucao = new Audio(DADOS.sons && DADOS.sons.instrucao ? DADOS.sons.instrucao : "f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (ANIMAÇÃO MAIOR E PINCEL NA PASTA DOS ÍCONES)
+// 2. CONFIGURAÇÃO VISUAL
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
@@ -31,7 +31,6 @@ style.innerHTML = `
     }
     @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* ÁREA DE DESENHO GRANDE À ESQUERDA COM MOLDURA SUAVE */
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.06); overflow: hidden; touch-action: none;
@@ -39,13 +38,11 @@ style.innerHTML = `
     }
     canvas { display: block; width: 100%; height: 100%; }
 
-    /* PAINEL LATERAL À DIREITA */
     .painel-estojo {
         display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 10px; flex: 0.9; max-width: 220px; background: rgba(255,255,255,0.95); padding: 12px; border-radius: 16px; border: 2px solid #E2D3AB; flex-shrink: 0;
         box-shadow: 0 4px 15px rgba(0,0,0,0.04);
     }
 
-    /* CAIXA DA PALETA DE CORES */
     .painel-cores-box {
         width: 100%; background: #FFFDF7; border: 2px solid #E2D3AB; border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; align-items: center; gap: 8px;
     }
@@ -53,7 +50,6 @@ style.innerHTML = `
         font-size: 0.75rem; font-weight: 900; color: #C2890B; letter-spacing: 1px; text-transform: uppercase; margin: 0;
     }
 
-    /* GRELHA DE 12 CORES (4 COLUNAS) */
     .grid-cores {
         display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; justify-items: center;
     }
@@ -65,12 +61,10 @@ style.innerHTML = `
     .lapis-btn:hover { transform: translateY(-2px) scale(1.1); }
     .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.18); border-color: #262638; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
 
-    /* LINHA DE FERRAMENTAS */
     .linha-ferramentas {
         display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;
     }
 
-    /* DROPDOWN DE GROSSURA COM LÁPIS */
     .dropdown-container {
         position: relative; display: inline-block;
     }
@@ -111,7 +105,6 @@ style.innerHTML = `
     .btn-ferramenta-img.ativo { background: #ECA607; border-color: #262638; transform: scale(1.08); }
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
-    /* BOTÃO PRONTO */
     .btn-ferramenta-texto {
         background: #ECA607; color: white; border: 2.5px solid #F4D06F; padding: 10px 14px;
         border-radius: 16px; font-weight: 900; font-size: 0.9rem; cursor: pointer;
@@ -148,7 +141,6 @@ style.innerHTML = `
     .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
-    /* ANIMAÇÃO MAIOR DA CASA COM O PINCEL */
     .animacao-casa-container {
         width: 190px; height: 190px; background: white; border: 3px solid #E2D3AB; border-radius: 24px;
         display: flex; align-items: center; justify-content: center; position: relative;
@@ -157,20 +149,17 @@ style.innerHTML = `
     }
     .casa-svg { width: 145px; height: 145px; position: relative; z-index: 2; }
 
-    /* Traço a desenhar-se lentamente (6 segundos) */
     .linha-desenho {
         stroke: #262638; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round;
         stroke-dasharray: 450; stroke-dashoffset: 450;
         animation: desenharTracoLento 6s infinite ease-in-out;
     }
 
-    /* Preenchimento a colorir após o traço */
     .preenchimento-cor {
         opacity: 0;
         animation: colorirCasaLento 6s infinite ease-in-out;
     }
 
-    /* O pincel a mover-se suavemente ao longo da animação maior */
     .pincel-animado {
         position: absolute; width: 40px; height: 40px; object-fit: contain;
         z-index: 10; pointer-events: none;
@@ -270,15 +259,16 @@ function mostrarCapa() {
 
     const area = document.getElementById('contentor-jogo');
     if (area) {
+        // Título dinâmico obtido a partir de DADOS.animacaoCapa
+        const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Desenho Criativo";
+        
         area.innerHTML = `
-            <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 6px; text-transform: uppercase; animation: cardPop 0.4s ease;">Desenho Criativo</div>
+            <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 6px; text-transform: uppercase; animation: cardPop 0.4s ease;">${tituloAnimacao}</div>
             
-            <!-- ANIMAÇÃO MAIOR COM A IMAGEM PINCEL.PNG LOCALIZADA NA PASTA DOS ÍCONES -->
             <div class="animacao-casa-container">
-                <img src="../../icons/pincel.png" alt="Pincel" class="pincel-animado">
+                <img src="${DADOS.icons.pincel}" alt="Pincel" class="pincel-animado">
 
                 <svg class="casa-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Preenchimento de cores a surgir após o desenho -->
                     <g class="preenchimento-cor">
                         <rect x="26" y="46" width="48" height="43" fill="#ffeb00" />
                         <polygon points="17,45 50,17 83,45" fill="#d91424" />
@@ -287,7 +277,6 @@ function mostrarCapa() {
                         <rect x="55" y="52" width="12" height="12" fill="#009fe3" />
                     </g>
 
-                    <!-- Traço da casa desenhado lentamente -->
                     <rect class="linha-desenho" x="25" y="45" width="50" height="45" rx="2" />
                     <polygon class="linha-desenho" points="15,45 50,15 85,45" />
                     <rect class="linha-desenho" x="42" y="65" width="16" height="25" rx="1" />
@@ -315,14 +304,14 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO ESTOJO MÁGICO E CURSOR DINÂMICO DE PINCEL
+// 4. LÓGICA DO ESTOJO MÁGICO E CURSOR DINÂMICO
 // ============================================================
 function atualizarCursorPincel() {
     const canvasEl = document.getElementById('paintCanvas');
     if (!canvasEl) return;
 
     const imgPincel = new Image();
-    imgPincel.src = "../../icons/pincel.png";
+    imgPincel.src = DADOS.icons.pincel;
     
     imgPincel.onload = function() {
         const cTemp = document.createElement('canvas');
@@ -371,14 +360,11 @@ function iniciarJogoDesenho() {
     if (area) {
         area.innerHTML = `
             <div class="desenho-container">
-                <!-- ÁREA DO DESENHO GRANDE À ESQUERDA -->
                 <div class="canvas-wrapper" id="canvasWrapper">
                     <canvas id="paintCanvas"></canvas>
                 </div>
 
-                <!-- PAINEL LATERAL À DIREITA -->
                 <div class="painel-estojo">
-                    <!-- CAIXA DA PALETA DE CORES (12 CORES) -->
                     <div class="painel-cores-box">
                         <span class="titulo-cores">Cores</span>
                         <div class="grid-cores">
@@ -397,7 +383,6 @@ function iniciarJogoDesenho() {
                         </div>
                     </div>
 
-                    <!-- FERRAMENTAS (LÁPIS/DROPDOWN, BORRACHA, BALDE, ANULAR) -->
                     <div class="linha-ferramentas">
                         <div class="dropdown-container">
                             <div class="lapis-dropdown-btn ativo" id="btnMenuGrossura" onclick="toggleDropdownGrossura(event)" title="Escolher Traço">
@@ -430,7 +415,6 @@ function iniciarJogoDesenho() {
                         </div>
                     </div>
 
-                    <!-- BOTÃO PRONTO -->
                     <button class="btn-ferramenta-texto" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                 </div>
             </div>
@@ -619,9 +603,6 @@ function ativarBalde(el) {
     atualizarCursorPincel();
 }
 
-// ============================================================
-// ALGORITMO DE PREENCHIMENTO POR INUNDAÇÃO (FLOOD FILL)
-// ============================================================
 function hexToRgba(hex) {
     let c = hex.replace('#', '');
     if (c.length === 3) {
@@ -752,5 +733,4 @@ function concluirDesenho() {
     if (slotFundo) slotFundo.innerHTML = "";
 }
 
-// Iniciar a capa diretamente
 mostrarCapa();
