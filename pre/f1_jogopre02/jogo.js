@@ -16,6 +16,9 @@ let canvas = null;
 let historicoCanvas = []; 
 let indiceDesenhoAtual = 0; // Índice para o carrossel de desenhos
 
+// Referência guardada da imagem do desenho original para a borracha inteligente
+let imgDesenhoOriginal = null; 
+
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
 const somInstrucao = new Audio(DADOS.sons && DADOS.sons.instrucao ? DADOS.sons.instrucao : "f1_jogo01pre.mp3");
@@ -106,7 +109,6 @@ style.innerHTML = `
     .btn-ferramenta-img.ativo { background: #ECA607; border-color: #262638; transform: scale(1.08); }
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
-    /* Moldura quadrada, maior e sem legenda na barra lateral */
     .moldura-barra-container {
         display: flex; align-items: center; justify-content: space-between; background: #FFFDF0; border: 2px solid #E2D3AB; padding: 6px; border-radius: 14px; width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.05); gap: 6px;
     }
@@ -150,7 +152,6 @@ style.innerHTML = `
     .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
-    /* Animação da Capa */
     .animacao-casa-container {
         width: 190px; height: 190px; background: white; border: 3px solid #E2D3AB; border-radius: 24px;
         display: flex; align-items: center; justify-content: center; position: relative;
@@ -442,7 +443,7 @@ function iniciarJogoDesenho() {
                         </div>
                     </div>
 
-                    <!-- Moldura quadrada, maior e sem legenda na barra lateral -->
+                    <!-- Moldura quadrada com setas na barra lateral -->
                     <div class="moldura-barra-container">
                         <button class="btn-seta-barra" onclick="mudarDesenho(-1)"><i class="fas fa-chevron-left"></i></button>
                         <div class="moldura-barra-quadrada">
@@ -509,7 +510,6 @@ function configurarCanvas() {
     const lista = DADOS.desenhosParaColorir || [];
     const desenhoObj = lista[indiceDesenhoAtual];
     
-    // Atualizar a miniatura na moldura lateral
     const imgMiniatura = document.getElementById('miniaturaDesenhoBarra');
     if (imgMiniatura && desenhoObj) imgMiniatura.src = desenhoObj.arquivo;
 
@@ -524,8 +524,12 @@ function configurarCanvas() {
             const centerShiftX = (canvas.width - imgDesenho.width * ratio) / 2;
             const centerShiftY = (canvas.height - imgDesenho.height * ratio) / 2;
 
+            // Desenhar imagem no canvas principal
             ctx.drawImage(imgDesenho, 0, 0, imgDesenho.width, imgDesenho.height, centerShiftX, centerShiftY, imgDesenho.width * ratio, imgDesenho.height * ratio);
             
+            // Guardar referência da imagem original para a borracha inteligente respeitar o traço
+            imgDesenhoOriginal = { img: imgDesenho, x: centerShiftX, y: centerShiftY, w: imgDesenho.width * ratio, h: imgDesenho.height * ratio };
+
             historicoCanvas = [];
             salvarEstadoHistorico();
         };
@@ -569,13 +573,13 @@ function configurarCanvas() {
         const pos = getPos(e);
         
         if (ferramentaAtual === 'borracha') {
-            ctx.strokeStyle = '#FFFFFF';
+            // Borracha inteligente: pinta de branco apenas se não for o traço original do desenho
+            apagarCorComBorrachaInteligente(pos.x, pos.y);
         } else {
             ctx.strokeStyle = corAtual;
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
         }
-
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
         e.preventDefault();
     };
 
@@ -594,6 +598,52 @@ function configurarCanvas() {
     canvas.ontouchstart = startDraw;
     canvas.ontouchmove = draw;
     canvas.ontouchend = endDraw;
+}
+
+function apagarCorComBorrachaInteligente(x, y) {
+    if (!ctx || !canvas) return;
+    const raio = Math.max(4, Math.floor(tamanhoPincel / 2));
+    const width = canvas.width;
+    const height = canvas.height;
+
+    const startX = Math.max(0, x - raio);
+    const endX = Math.min(width, x + raio);
+    const startY = Math.max(0, y - raio);
+    const endY = Math.min(height, y + raio);
+
+    const imgData = ctx.getImageData(0, 0, width, height);
+    const data = imgData.data;
+
+    // Criar um canvas temporário para verificar os pixéis pretos/escuros do desenho original
+    const cTemp = document.createElement('canvas');
+    cTemp.width = width;
+    cTemp.height = height;
+    const ctxTemp = cTemp.getContext('2d');
+    ctxTemp.fillStyle = "#FFFFFF";
+    ctxTemp.fillRect(0, 0, width, height);
+    if (imgDesenhoOriginal) {
+        ctxTemp.drawImage(imgDesenhoOriginal.img, 0, 0, imgDesenhoOriginal.img.width, imgDesenhoOriginal.img.height, imgDesenhoOriginal.x, imgDesenhoOriginal.y, imgDesenhoOriginal.w, imgDesenhoOriginal.h);
+    }
+    const originalData = ctxTemp.getImageData(0, 0, width, height).data;
+
+    for (let cy = startY; cy < endY; cy++) {
+        for (let cx = startX; cx < endX; cx++) {
+            const dist = Math.sqrt((cx - x) ** 2 + (cy - y) ** 2);
+            if (dist <= raio) {
+                const idx = (cy * width + cx) * 4;
+                // Verificar se o pixel original NÃO é um traço preto/escuro (tolerância para detetar traços pretos)
+                const isOriginalLine = originalData[idx] < 50 && originalData[idx+1] < 50 && originalData[idx+2] < 50;
+                
+                if (!isOriginalLine) {
+                    data[idx] = 255;     // R (Branco)
+                    data[idx+1] = 255;   // G (Branco)
+                    data[idx+2] = 255;   // B (Branco)
+                }
+            }
+        }
+    }
+
+    ctx.putImageData(imgData, 0, 0);
 }
 
 function salvarEstadoHistorico() {
@@ -616,13 +666,18 @@ function anularUltimaAcao() {
 function mudarCor(novaCor, el) {
     if (somClique.src) somClique.play().catch(()=>{});
     corAtual = novaCor;
-    ferramentaAtual = 'lapis';
+    
+    // Se o balde estiver ativo, mantemos o balde ativo e não forçamos a mudança para lápis
+    if (ferramentaAtual !== 'balde') {
+        ferramentaAtual = 'lapis';
+        document.getElementById('btnBorracha').classList.remove('ativo');
+        document.getElementById('btnBalde').classList.remove('ativo');
+        document.getElementById('btnMenuGrossura').classList.add('ativo');
+    }
+
     if (ctx) ctx.strokeStyle = corAtual;
     
     document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
-    document.getElementById('btnBorracha').classList.remove('ativo');
-    document.getElementById('btnBalde').classList.remove('ativo');
-    
     if (el) el.classList.add('ativo');
 
     const iconeLapis = document.querySelector('#btnMenuGrossura img');
