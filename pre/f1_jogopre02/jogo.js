@@ -703,7 +703,7 @@ function concluirDesenho() {
     if (somAcerto.src) somAcerto.play().catch(()=>{});
     const overlay = document.getElementById('round-feedback');
     
-    // Captura a imagem atual do canvas de pintura
+    // Captura a imagem atual do canvas pintado
     const imagemPintadaUrl = canvas ? canvas.toDataURL() : "";
 
     if (overlay) {
