@@ -41,13 +41,8 @@
       <div class="cartao-unico-container">
         <div class="ano">
           <div class="botao-ano" id="cartao-principal-ano">
-            <!-- SLOT TOPO -->
             <div id="slot-topo"></div>
-
-            <!-- CONTEÚDO DINÂMICO (Capa ou Jogo) -->
             <div id="contentor-jogo" style="flex:1; width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; min-height:0;"></div>
-
-            <!-- SLOT FUNDO -->
             <div id="slot-fundo"></div>
           </div>
         </div>
@@ -116,11 +111,6 @@
         }
         .botao-menu { left: 18px; }
         .botao-seta { right: 18px; }
-
-        .botao-menu:active, .botao-seta:active {
-          transform: translateY(calc(-50% + 3px)) scale(0.95);
-          box-shadow: 0 1px 3px rgba(0,0,0,.25);
-        }
 
         .botao-menu::before {
           content: ""; position: absolute; width: 56%; height: 56%; left: 22%; top: 22%;
@@ -230,37 +220,6 @@
           display: inline-flex; align-items: center; justify-content: center; 
           border-radius: 50% !important; color: #fff; background: ${DADOS.cores.azulHeader}; 
           font-size: 11px; font-weight: 900; overflow: hidden; flex-shrink: 0;
-        }
-
-        @media (max-width: 768px) {
-          .cabecalho { height: 74px; }
-          .botao-menu, .botao-seta { width: 50px; height: 50px; }
-          .botao-menu { left: 10px; }
-          .botao-seta { right: 10px; }
-          .marca { padding: 0 52px; gap: 10px; max-width: 78%; }
-          .marca-sol { width: 48px; height: 48px; flex: 0 0 48px; }
-          .marca-texto { gap: 6px; }
-          .marca-texto h1 { font-size: clamp(18px, 4vw, 24px); }
-          .marca-texto p { font-size: 12px; }
-          .menu-acordeao { top: 64px; left: 10px; width: calc(100vw - 20px); max-width: 280px; }
-          #app { padding-top: 80px; }
-        }
-
-        @media (max-width: 900px) {
-          .cabecalho { height: 70px; }
-          .botao-menu, .botao-seta { width: 48px; height: 48px; }
-          .botao-menu { left: 10px; }
-          .botao-seta { right: 10px; }
-          .marca { padding: 0 48px; gap: 8px; max-width: 75%; }
-          .marca-sol { width: 44px; height: 44px; flex: 0 0 44px; }
-          .marca-texto { gap: 5px; }
-          .marca-texto h1 { font-size: clamp(17px, 4vw, 23px); }
-          .marca-texto p { font-size: 11px; }
-          .menu-acordeao { top: 60px; left: 10px; width: 280px; }
-          .area-menu { padding: 0 16px; }
-          .rodape { width: calc(100% - 32px); margin: 6px 16px 0; padding: 6px 12px; font-size: 11px; }
-          #app { padding-top: 76px; }
-          .info { width: 20px !important; height: 20px !important; min-width: 20px !important; min-height: 20px !important; }
         }
       `;
       document.head.appendChild(estilo);
