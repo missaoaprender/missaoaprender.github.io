@@ -2,7 +2,7 @@
 // 1. ESTADO GLOBAL E SONS
 // ============================================================
 const JOGO_CONFIG = {
-    nomeDoJogo: "Estojo Mágico - Livro de Colorir",
+    nomeDoJogo: DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Estojo Mágico - Livro de Colorir",
     caminhoSons: DADOS.sons ? DADOS.sons.caminho : "",
     caminhoIconsMenu: "../../icons/"
 };
@@ -28,7 +28,7 @@ function obterListaDesenhos() {
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
-const somInstrucao = new Audio("f1_jogo01pre.mp3");
+const somInstrucao = new Audio(DADOS.sons && DADOS.sons.instrucao ? DADOS.sons.instrucao : "f1_jogo01pre.mp3");
 
 
 // ============================================================
@@ -127,17 +127,26 @@ styleJogo.innerHTML = `
     }
 
     .btn-capa-som {
-        width: 44px; height: 44px; background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.8);
+        width: 44px; height: 44px; background: rgba(255,255,255,0.8); border: 2px solid rgba(255,255,255,0.95);
         border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
         transition: transform 0.1s; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     }
     .btn-capa-som:active { transform: scale(0.92); }
-    .btn-capa-som img { width: 24px; height: 24px; object-fit: contain; }
+    .btn-capa-som img { width: 22px; height: 22px; object-fit: contain; }
+
+    .btn-menu-topo {
+        height: 44px; background: white; color: #C2890B; border: 2px solid #E2D3AB;
+        padding: 0 16px; border-radius: 22px; font-weight: 900; font-size: 0.85rem;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .btn-menu-topo:hover { transform: scale(1.05); background: #FFF9E6; }
+    .btn-menu-topo:active { transform: scale(0.95); }
 
     .btn-capa-jogar {
         background: white; color: #C2890B; border: none;
-        padding: 10px 32px; border-radius: 22px; font-weight: 900; font-size: 1.1rem;
-        cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.1s;
+        padding: 8px 26px; border-radius: 18px; font-weight: 900; font-size: 1rem;
+        cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: transform 0.2s ease;
         text-transform: uppercase;
     }
     .btn-capa-jogar:active { transform: scale(0.95); }
@@ -172,7 +181,6 @@ styleJogo.innerHTML = `
     }
     .btn-final-branco:active { transform: scale(0.95); }
 
-    /* OTIMIZAÇÕES PARA TELEMÓVEL HORIZONTAL E ECRÃS DE MENOR ALTURA */
     @media (max-height: 550px) or (max-width: 850px) and (orientation: landscape) {
         .jogo-layout-principal { gap: 6px; padding: 2px 0; }
         .painel-estojo-vertical { width: 180px; padding: 4px; gap: 4px; }
@@ -199,7 +207,7 @@ document.head.appendChild(styleJogo);
 
 
 // ============================================================
-// 3. CAPA COM ANIMAÇÃO REAL DE PINTURA (LIMPA E BOTÃO JOGAR)
+// 3. CAPA COM ANIMAÇÃO REAL DE PINTURA E BARRAS DINÂMICAS
 // ============================================================
 function mostrarCapa() {
     clearTimeout(timerAnimacaoCapa);
@@ -211,11 +219,20 @@ function mostrarCapa() {
         if (parentBtn) parentBtn.appendChild(feedback);
     }
 
+    const slotTopo = document.getElementById('slot-topo');
+    const slotFundo = document.getElementById('slot-fundo');
+
+    if (slotTopo) {
+        slotTopo.className = "barrita-fundo-cartao";
+        slotTopo.innerHTML = "";
+    }
+
     const area = document.getElementById('contentor-jogo');
     if (area) {
+        const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Estojo Mágico - Livro de Colorir";
         area.innerHTML = `
             <div class="capa-container">
-                <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; text-transform: uppercase;">Estojo Mágico - Livro de Colorir</div>
+                <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; text-transform: uppercase;">${tituloAnimacao}</div>
                 
                 <div class="animacao-capa-area" onclick="tocarSomInstrucao()" title="Clica para ouvir a instrução!">
                     <canvas id="capaCanvas" width="260" height="195"></canvas>
@@ -225,11 +242,9 @@ function mostrarCapa() {
         `;
     }
 
-    const barra = document.getElementById('barra-inferior');
-    if (barra) {
-        barra.style.display = 'flex';
-        barra.className = "barra-jogo-topo";
-        barra.innerHTML = `
+    if (slotFundo) {
+        slotFundo.className = "barra-jogo-topo";
+        slotFundo.innerHTML = `
             <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
             <button class="btn-capa-jogar" onclick="iniciarJogoDesenho()">JOGAR</button>
         `;
@@ -371,9 +386,19 @@ function iniciarJogoDesenho() {
     clearTimeout(timerAnimacaoCapa);
     if (somClique.src) somClique.play().catch(()=>{});
 
+    const slotTopo = document.getElementById('slot-topo');
+    const slotFundo = document.getElementById('slot-fundo');
     const area = document.getElementById('contentor-jogo');
     const feedbackEl = document.getElementById('round-feedback');
     if (feedbackEl) feedbackEl.style.display = 'none';
+
+    if (slotTopo) {
+        slotTopo.className = "barra-jogo-topo";
+        slotTopo.innerHTML = `
+            <div class="btn-capa-som" style="width:44px; height:44px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:22px; height:22px;"></div>
+            <button class="btn-menu-topo" onclick="mostrarCapa()"><i class="fas fa-bars"></i> Menu</button>
+        `;
+    }
 
     if (area) {
         area.innerHTML = `
@@ -431,11 +456,11 @@ function iniciarJogoDesenho() {
         `;
     }
 
-    const barra = document.getElementById('barra-inferior');
-    if (barra) {
-        barra.innerHTML = `
-            <div style="color:white; font-weight:800; font-size:0.85rem;">🎨 Clica numa zona do desenho para pintar!</div>
-            <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem; width:auto;">Voltar</button>
+    if (slotFundo) {
+        slotFundo.className = "barrita-fundo-cartao";
+        const textoInstrucao = DADOS.animacaoCapa ? DADOS.animacaoCapa.instrucaoTexto : "🎨 Clica numa zona do desenho para pintar!";
+        slotFundo.innerHTML = `
+            <div style="color:white; font-weight:800; font-size:0.85rem;">${textoInstrucao}</div>
         `;
     }
 
@@ -694,8 +719,10 @@ function concluirDesenho() {
             </div>
             <div class="feedback-bottom-bar"></div>`;
     }
-    const barra = document.getElementById('barra-inferior');
-    if (barra) barra.style.display = "none";
+    const slotTopo = document.getElementById('slot-topo');
+    const slotFundo = document.getElementById('slot-fundo');
+    if (slotTopo) slotTopo.innerHTML = "";
+    if (slotFundo) slotFundo.innerHTML = "";
 }
 
 // Iniciar com a capa e a animação
