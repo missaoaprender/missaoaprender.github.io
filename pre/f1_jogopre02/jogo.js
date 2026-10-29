@@ -39,7 +39,7 @@ styleJogo.innerHTML = `
     .jogo-layout-principal {
         display: flex; flex-direction: row; align-items: stretch; justify-content: space-between;
         width: 100%; height: 100%; flex: 1; gap: 12px; animation: cardPop 0.3s ease; padding: 4px 0;
-        box-sizing: border-box; overflow: hidden;
+        box-sizing: border-box; overflow: hidden; position: relative;
     }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
@@ -117,7 +117,7 @@ styleJogo.innerHTML = `
     /* Estilos da Capa Limpa */
     .capa-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        flex: 1; width: 100%; height: 100%; gap: 14px; text-align: center;
+        flex: 1; width: 100%; height: 100%; gap: 14px; text-align: center; position: relative;
     }
     .animacao-capa-area {
         position: relative; width: 260px; height: 195px; background: white;
@@ -151,33 +151,34 @@ styleJogo.innerHTML = `
     }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
+    /* Ecrã de Feedback Absoluto cobrindo todo o espaço do contentor */
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-        background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(6px); 
+        background: #FFFFFF; backdrop-filter: blur(6px); 
         z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; 
-        border-radius: 35px; overflow: hidden;
+        border-radius: 20px; overflow: hidden; box-sizing: border-box; padding: 20px;
     }
     
     .feedback-bottom-bar {
-        position: absolute; bottom: 20px; left: 24px; right: 24px; height: 14px;
+        position: absolute; bottom: 16px; left: 24px; right: 24px; height: 14px;
         background: #ECA607; border-radius: 7px;
     }
 
     .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 25px; width: 100%; max-width: 480px; }
     
-    .btn-final-roxo {
-        background: #ECA607; color: white; border: none; padding: 12px 20px;
-        border-radius: 25px; font-weight: 900; font-size: 0.95rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(236,166,7,0.3); text-transform: capitalize; transition: transform 0.1s;
-        white-space: nowrap; flex: 1; text-align: center;
+    .btn-final-amarelo {
+        background: #ECA607; color: white; border: none; padding: 14px 24px;
+        border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer;
+        box-shadow: 0 6px 15px rgba(236,166,7,0.35); transition: transform 0.1s;
+        white-space: nowrap; flex: 1; text-align: center; text-transform: capitalize;
     }
-    .btn-final-roxo:active { transform: scale(0.95); }
+    .btn-final-amarelo:active { transform: scale(0.95); }
 
     .btn-final-branco {
-        background: white; color: #C2890B; border: 2px solid #ECA607; padding: 12px 20px;
-        border-radius: 25px; font-weight: 900; font-size: 0.95rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.08); text-transform: capitalize; transition: transform 0.1s;
-        white-space: nowrap; flex: 1; text-align: center;
+        background: white; color: #C2890B; border: 2.5px solid #ECA607; padding: 14px 24px;
+        border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.08); transition: transform 0.1s;
+        white-space: nowrap; flex: 1; text-align: center; text-transform: capitalize;
     }
     .btn-final-branco:active { transform: scale(0.95); }
 
@@ -212,12 +213,6 @@ document.head.appendChild(styleJogo);
 function mostrarCapa() {
     clearTimeout(timerAnimacaoCapa);
 
-    const feedbackEl = document.getElementById('round-feedback');
-    if (feedbackEl) {
-        feedbackEl.style.display = 'none';
-        feedbackEl.innerHTML = '';
-    }
-
     const slotTopo = document.getElementById('slot-topo');
     const slotFundo = document.getElementById('slot-fundo');
 
@@ -230,14 +225,14 @@ function mostrarCapa() {
     if (area) {
         const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Estojo Mágico - Livro de Colorir";
         area.innerHTML = `
-            <div class="capa-container" style="position:relative;">
+            <div class="capa-container">
                 <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; text-transform: uppercase;">${tituloAnimacao}</div>
                 
                 <div class="animacao-capa-area" onclick="tocarSomInstrucao()" title="Clica para ouvir a instrução!">
                     <canvas id="capaCanvas" width="260" height="195"></canvas>
                     <div id="capaMao" style="position:absolute; font-size:2.2rem; pointer-events:none; transition: all 0.2s ease;">🖌️</div>
                 </div>
-                
+
                 <div id="round-feedback"></div>
             </div>
         `;
@@ -401,7 +396,7 @@ function iniciarJogoDesenho() {
 
     if (area) {
         area.innerHTML = `
-            <div class="jogo-layout-principal" style="position:relative;">
+            <div class="jogo-layout-principal">
                 <!-- Esquerda: Desenho / Pintura -->
                 <div class="canvas-wrapper" id="canvasWrapper">
                     <canvas id="paintCanvas"></canvas>
@@ -452,7 +447,7 @@ function iniciarJogoDesenho() {
                     </div>
                 </div>
 
-                <!-- Ecrã de Feedback -->
+                <!-- Ecrã de Feedback integrado e isolado no layout principal -->
                 <div id="round-feedback"></div>
             </div>
         `;
@@ -711,11 +706,11 @@ function concluirDesenho() {
         overlay.style.display = 'flex';
         overlay.innerHTML = `
             <div class="vitoria-card">
-                <img src="${iconeFeedback}" style="width:120px; height:120px; object-fit:contain;">
-                <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
+                <img src="${iconeFeedback}" style="width:110px; height:110px; object-fit:contain;">
+                <h1 style="color:#C2890B; font-size:1.35rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
                 <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste um desenho maravilhoso!</p>
-                <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
-                    <button class="btn-final-roxo" onclick="mostrarCapa()">Pintar Outro</button>
+                <div style="display:flex; justify-content:center; gap:12px; margin-top:6px; width:100%; max-width:440px;">
+                    <button class="btn-final-amarelo" onclick="mostrarCapa()">Pintar Outro</button>
                     <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
                 </div>
             </div>
