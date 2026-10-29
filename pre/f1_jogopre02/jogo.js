@@ -1,33 +1,12 @@
 // ============================================================
-// 1. ESTADO GLOBAL E SONS (Lidos de DADOS)
-// ============================================================
-const JOGO_CONFIG = {
-    nomeDoJogo: DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Desenho Criativo",
-    caminhoSons: DADOS.sons ? DADOS.sons.caminho : "",
-    caminhoIconsMenu: "../../icons/"
-};
-
-let corAtual = "#000000";
-let ferramentaAtual = "lapis"; 
-let tamanhoPincel = 10;
-let isDrawing = false;
-let ctx = null;
-let canvas = null;
-let historicoCanvas = []; 
-
-const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
-const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
-const somInstrucao = new Audio(DADOS.sons && DADOS.sons.instrucao ? DADOS.sons.instrucao : "f1_jogo01pre.mp3");
-
-
-// ============================================================
-// 2. CONFIGURAÇÃO VISUAL
+// 2. CONFIGURAÇÃO VISUAL (CORRIGIDA PARA EVITAR SOBREPOSIÇÕES)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
     .desenho-container {
         display: flex; flex-direction: row; align-items: stretch; justify-content: space-between;
         width: 100%; height: 100%; flex: 1; gap: 16px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
+        position: relative;
     }
     @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
@@ -190,11 +169,12 @@ style.innerHTML = `
         100% { top: 105px; left: 25px; transform: rotate(-20deg); }
     }
 
+    /* Ecrã de feedback sólido e absoluto para tapar completamente o fundo anterior */
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-        background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px); 
-        z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: space-between; 
-        border-radius: 35px; overflow: hidden; padding: 20px;
+        background: #ffffff; 
+        z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: space-between; 
+        border-radius: 16px; overflow: hidden; padding: 20px; box-sizing: border-box;
         animation: fadeInFeedback 0.3s ease forwards;
     }
     @keyframes fadeInFeedback { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
@@ -243,10 +223,14 @@ document.head.appendChild(style);
 // 3. CAPA E REPRODUÇÃO DE SOM
 // ============================================================
 function mostrarCapa() {
-    if(!document.getElementById('round-feedback')) {
-        const feedback = document.createElement('div');
+    let feedback = document.getElementById('round-feedback');
+    if(!feedback) {
+        feedback = document.createElement('div');
         feedback.id = 'round-feedback';
-        document.querySelector('.botao-ano').appendChild(feedback);
+        const area = document.getElementById('contentor-jogo');
+        if (area) area.appendChild(feedback);
+    } else {
+        feedback.style.display = 'none';
     }
 
     const slotTopo = document.getElementById('slot-topo');
@@ -261,6 +245,7 @@ function mostrarCapa() {
     if (area) {
         const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Desenho Criativo";
         
+        // Mantém o contentor limpo mas garante que o elemento de feedback existe lá dentro
         area.innerHTML = `
             <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 6px; text-transform: uppercase; animation: cardPop 0.4s ease;">${tituloAnimacao}</div>
             
@@ -283,6 +268,7 @@ function mostrarCapa() {
                     <rect class="linha-desenho" x="55" y="52" width="12" height="12" rx="1" />
                 </svg>
             </div>
+            <div id="round-feedback"></div>
         `;
     }
 
@@ -416,6 +402,8 @@ function iniciarJogoDesenho() {
 
                     <button class="btn-ferramenta-texto" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                 </div>
+                
+                <div id="round-feedback"></div>
             </div>
         `;
     }
