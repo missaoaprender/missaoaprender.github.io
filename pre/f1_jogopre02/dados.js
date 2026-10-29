@@ -2,8 +2,8 @@ const DADOS = {
   pagina: {
     browserTitulo: "Pré-Escolar - Desenho Criativo",
     titulo: "Pré-Escolar",
-    subtitulo: "Desenho Criativo",
-    tituloMenu: "Desenho Criativo",
+    subtitulo: "Colorir Criativo",
+    tituloMenu: "Colorir Criativo",
     mensagem: "Diverte-te a aprender!",
     informacao: "Jogos Pré",
     tituloMenuAcordeao: "Menu",
@@ -13,8 +13,8 @@ const DADOS = {
   },
 
   animacaoCapa: {
-    titulo: "Estojo Mágico - Livro de Colorir",
-    instrucaoTexto: "🎨 Clica numa zona do desenho para pintar!"
+    titulo: "Desenho Criativo",
+    instrucaoTexto: "Cria a tua obra de arte!"
   },
 
   icons: {
