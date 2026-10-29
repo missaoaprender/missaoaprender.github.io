@@ -212,11 +212,10 @@ document.head.appendChild(styleJogo);
 function mostrarCapa() {
     clearTimeout(timerAnimacaoCapa);
 
-    if(!document.getElementById('round-feedback')) {
-        const feedback = document.createElement('div');
-        feedback.id = 'round-feedback';
-        const parentBtn = document.querySelector('.botao-ano');
-        if (parentBtn) parentBtn.appendChild(feedback);
+    const feedbackEl = document.getElementById('round-feedback');
+    if (feedbackEl) {
+        feedbackEl.style.display = 'none';
+        feedbackEl.innerHTML = '';
     }
 
     const slotTopo = document.getElementById('slot-topo');
@@ -719,10 +718,6 @@ function concluirDesenho() {
             </div>
             <div class="feedback-bottom-bar"></div>`;
     }
-    const slotTopo = document.getElementById('slot-topo');
-    const slotFundo = document.getElementById('slot-fundo');
-    if (slotTopo) slotTopo.innerHTML = "";
-    if (slotFundo) slotFundo.innerHTML = "";
 }
 
 // Iniciar com a capa e a animação
