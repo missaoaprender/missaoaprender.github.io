@@ -6,7 +6,7 @@ style.innerHTML = `
     .desenho-container {
         display: flex; flex-direction: row; align-items: stretch; justify-content: space-between;
         width: 100%; height: 100%; flex: 1; gap: 16px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
-        position: relative;
+        position: relative; box-sizing: border-box;
     }
     @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
@@ -116,7 +116,6 @@ style.innerHTML = `
         padding: 8px 26px; border-radius: 18px; font-weight: 900; font-size: 1rem;
         cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
         text-transform: uppercase;
-        position: relative; z-index: 10;
     }
     .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
@@ -258,8 +257,7 @@ function mostrarCapa() {
                     <rect class="linha-desenho" x="55" y="52" width="12" height="12" rx="1" />
                 </svg>
             </div>
-            <!-- Feedback começa escondido e fora do caminho na capa -->
-            <div id="round-feedback" style="display: none;"></div>
+            <div id="round-feedback"></div>
         `;
     }
 
@@ -392,7 +390,6 @@ function iniciarJogoDesenho() {
                     <button class="btn-ferramenta-texto" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                 </div>
                 
-                <!-- Elemento de feedback pronto a ser ativado no fim -->
                 <div id="round-feedback" style="display: none;"></div>
             </div>
         `;
