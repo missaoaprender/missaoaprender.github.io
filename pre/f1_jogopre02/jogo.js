@@ -238,7 +238,6 @@ function mostrarCapa() {
                     <div id="capaMao" style="position:absolute; font-size:2.2rem; pointer-events:none; transition: all 0.2s ease;">🖌️</div>
                 </div>
                 
-                <!-- Contentor de feedback garantido dentro da área principal -->
                 <div id="round-feedback"></div>
             </div>
         `;
@@ -453,7 +452,7 @@ function iniciarJogoDesenho() {
                     </div>
                 </div>
 
-                <!-- Ecrã de Feedback garantido no jogo -->
+                <!-- Ecrã de Feedback -->
                 <div id="round-feedback"></div>
             </div>
         `;
@@ -713,10 +712,10 @@ function concluirDesenho() {
         overlay.innerHTML = `
             <div class="vitoria-card">
                 <img src="${iconeFeedback}" style="width:120px; height:120px; object-fit:contain;">
-                <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">QUE PINTURA MARAVILHOSA!</h1>
-                <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste uma obra de arte incrível!</p>
+                <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
+                <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste um desenho maravilhoso!</p>
                 <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
-                    <button class="btn-final-roxo" onclick="mostrarCapa()">Novo Desenho</button>
+                    <button class="btn-final-roxo" onclick="mostrarCapa()">Pintar Outro</button>
                     <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
                 </div>
             </div>
