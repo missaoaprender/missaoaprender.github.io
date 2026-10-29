@@ -253,6 +253,9 @@ document.head.appendChild(style);
 // 3. CAPA COM ANIMAÇÃO
 // ============================================================
 function mostrarCapa() {
+    const feedbackEl = document.getElementById('round-feedback');
+    if (feedbackEl) feedbackEl.style.display = 'none';
+
     if(!document.getElementById('round-feedback')) {
         const feedback = document.createElement('div');
         feedback.id = 'round-feedback';
