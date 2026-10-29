@@ -1,5 +1,5 @@
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (CORRIGIDA PARA EVITAR SOBREPOSIÇÕES)
+// 2. CONFIGURAÇÃO VISUAL (CORRIGIDA)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
@@ -116,6 +116,7 @@ style.innerHTML = `
         padding: 8px 26px; border-radius: 18px; font-weight: 900; font-size: 1rem;
         cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
         text-transform: uppercase;
+        position: relative; z-index: 10;
     }
     .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
@@ -223,16 +224,6 @@ document.head.appendChild(style);
 // 3. CAPA E REPRODUÇÃO DE SOM
 // ============================================================
 function mostrarCapa() {
-    let feedback = document.getElementById('round-feedback');
-    if(!feedback) {
-        feedback = document.createElement('div');
-        feedback.id = 'round-feedback';
-        const area = document.getElementById('contentor-jogo');
-        if (area) area.appendChild(feedback);
-    } else {
-        feedback.style.display = 'none';
-    }
-
     const slotTopo = document.getElementById('slot-topo');
     const slotFundo = document.getElementById('slot-fundo');
 
@@ -245,7 +236,6 @@ function mostrarCapa() {
     if (area) {
         const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Desenho Criativo";
         
-        // Mantém o contentor limpo mas garante que o elemento de feedback existe lá dentro
         area.innerHTML = `
             <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 6px; text-transform: uppercase; animation: cardPop 0.4s ease;">${tituloAnimacao}</div>
             
@@ -268,7 +258,8 @@ function mostrarCapa() {
                     <rect class="linha-desenho" x="55" y="52" width="12" height="12" rx="1" />
                 </svg>
             </div>
-            <div id="round-feedback"></div>
+            <!-- Feedback começa escondido e fora do caminho na capa -->
+            <div id="round-feedback" style="display: none;"></div>
         `;
     }
 
@@ -331,8 +322,6 @@ function iniciarJogoDesenho() {
     const slotTopo = document.getElementById('slot-topo');
     const slotFundo = document.getElementById('slot-fundo');
     const area = document.getElementById('contentor-jogo');
-    const feedbackEl = document.getElementById('round-feedback');
-    if (feedbackEl) feedbackEl.style.display = 'none';
 
     if (slotTopo) {
         slotTopo.className = "barra-jogo-topo";
@@ -403,7 +392,8 @@ function iniciarJogoDesenho() {
                     <button class="btn-ferramenta-texto" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                 </div>
                 
-                <div id="round-feedback"></div>
+                <!-- Elemento de feedback pronto a ser ativado no fim -->
+                <div id="round-feedback" style="display: none;"></div>
             </div>
         `;
     }
