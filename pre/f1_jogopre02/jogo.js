@@ -230,13 +230,16 @@ function mostrarCapa() {
     if (area) {
         const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Estojo Mágico - Livro de Colorir";
         area.innerHTML = `
-            <div class="capa-container">
+            <div class="capa-container" style="position:relative;">
                 <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; text-transform: uppercase;">${tituloAnimacao}</div>
                 
                 <div class="animacao-capa-area" onclick="tocarSomInstrucao()" title="Clica para ouvir a instrução!">
                     <canvas id="capaCanvas" width="260" height="195"></canvas>
                     <div id="capaMao" style="position:absolute; font-size:2.2rem; pointer-events:none; transition: all 0.2s ease;">🖌️</div>
                 </div>
+                
+                <!-- Contentor de feedback garantido dentro da área principal -->
+                <div id="round-feedback"></div>
             </div>
         `;
     }
@@ -388,8 +391,6 @@ function iniciarJogoDesenho() {
     const slotTopo = document.getElementById('slot-topo');
     const slotFundo = document.getElementById('slot-fundo');
     const area = document.getElementById('contentor-jogo');
-    const feedbackEl = document.getElementById('round-feedback');
-    if (feedbackEl) feedbackEl.style.display = 'none';
 
     if (slotTopo) {
         slotTopo.className = "barra-jogo-topo";
@@ -401,7 +402,7 @@ function iniciarJogoDesenho() {
 
     if (area) {
         area.innerHTML = `
-            <div class="jogo-layout-principal">
+            <div class="jogo-layout-principal" style="position:relative;">
                 <!-- Esquerda: Desenho / Pintura -->
                 <div class="canvas-wrapper" id="canvasWrapper">
                     <canvas id="paintCanvas"></canvas>
@@ -451,6 +452,9 @@ function iniciarJogoDesenho() {
                         <button class="btn-ferramenta-texto" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                     </div>
                 </div>
+
+                <!-- Ecrã de Feedback garantido no jogo -->
+                <div id="round-feedback"></div>
             </div>
         `;
     }
