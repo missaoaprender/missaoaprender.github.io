@@ -106,20 +106,24 @@ style.innerHTML = `
     .btn-ferramenta-img.ativo { background: #ECA607; border-color: #262638; transform: scale(1.08); }
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
-    /* Moldura de selecção na barra lateral */
+    /* Moldura com miniatura e setas na barra lateral */
     .moldura-barra-container {
-        display: flex; align-items: center; justify-content: space-between; background: #FFFDF0; border: 2px solid #E2D3AB; padding: 6px 8px; border-radius: 14px; width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.05); gap: 4px;
+        display: flex; align-items: center; justify-content: space-between; background: #FFFDF0; border: 2px solid #ECA607; padding: 4px 6px; border-radius: 14px; width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.05); gap: 4px;
     }
     .btn-seta-barra {
-        background: #ECA607; color: white; border: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 900; font-size: 0.85rem; transition: transform 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.15); flex-shrink: 0;
+        background: #ECA607; color: white; border: none; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 900; font-size: 0.8rem; transition: transform 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.15); flex-shrink: 0;
     }
     .btn-seta-barra:hover { transform: scale(1.1); }
     .btn-seta-barra:active { transform: scale(0.92); }
+    
     .moldura-barra-info {
-        display: flex; flex-direction: column; align-items: center; gap: 2px; overflow: hidden; flex: 1;
+        display: flex; align-items: center; gap: 6px; overflow: hidden; flex: 1; justify-content: center; background: white; border: 1.5px solid #E2D3AB; border-radius: 8px; padding: 2px 4px;
+    }
+    .moldura-barra-miniatura {
+        width: 24px; height: 24px; object-fit: contain; flex-shrink: 0;
     }
     .moldura-barra-texto {
-        font-weight: 900; color: #C2890B; font-size: 0.7rem; text-transform: uppercase; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;
+        font-weight: 900; color: #C2890B; font-size: 0.65rem; text-transform: uppercase; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
     }
 
     .btn-ferramenta-texto {
@@ -140,15 +144,6 @@ style.innerHTML = `
     .btn-capa-som:active { transform: scale(0.92); }
     .btn-capa-som img { width: 22px; height: 22px; object-fit: contain; }
 
-    .btn-menu-topo {
-        height: 44px; background: white; color: #C2890B; border: 2px solid #E2D3AB;
-        padding: 0 16px; border-radius: 22px; font-weight: 900; font-size: 0.85rem;
-        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease;
-    }
-    .btn-menu-topo:hover { transform: scale(1.05); background: #FFF9E6; }
-    .btn-menu-topo:active { transform: scale(0.95); }
-
     .btn-capa-jogar {
         background: white; color: #C2890B; border: none;
         padding: 8px 26px; border-radius: 18px; font-weight: 900; font-size: 1rem;
@@ -158,23 +153,55 @@ style.innerHTML = `
     .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
-    /* Moldura central na capa inicial */
-    .moldura-desenho-capa {
-        width: 210px; height: 210px; background: white; border: 3px solid #E2D3AB; border-radius: 24px;
-        display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;
-        box-shadow: 0 10px 25px rgba(236,166,7,0.25); padding: 15px; gap: 8px;
+    /* Animação da Capa */
+    .animacao-casa-container {
+        width: 190px; height: 190px; background: white; border: 3px solid #E2D3AB; border-radius: 24px;
+        display: flex; align-items: center; justify-content: center; position: relative;
+        box-shadow: 0 10px 25px rgba(236,166,7,0.25); animation: cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        overflow: hidden; margin-bottom: 12px;
     }
-    .moldura-img { width: 130px; height: 130px; object-fit: contain; pointer-events: none; }
-    .moldura-titulo { font-weight: 900; color: #C2890B; font-size: 0.9rem; text-transform: uppercase; text-align: center; }
+    .casa-svg { width: 145px; height: 145px; position: relative; z-index: 2; }
 
-    .seletor-capa-container {
-        display: flex; align-items: center; gap: 20px; justify-content: center; margin-bottom: 10px;
+    .linha-desenho {
+        stroke: #262638; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round;
+        stroke-dasharray: 450; stroke-dashoffset: 450;
+        animation: desenharTracoLento 6s infinite ease-in-out;
     }
-    .btn-seta-capa {
-        background: #ECA607; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s ease;
+
+    .preenchimento-cor {
+        opacity: 0;
+        animation: colorirCasaLento 6s infinite ease-in-out;
     }
-    .btn-seta-capa:hover { transform: scale(1.1); }
-    .btn-seta-capa:active { transform: scale(0.92); }
+
+    .pincel-animado {
+        position: absolute; width: 40px; height: 40px; object-fit: contain;
+        z-index: 10; pointer-events: none;
+        animation: moverPincelLento 6s infinite ease-in-out;
+        filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+    }
+
+    @keyframes desenharTracoLento {
+        0% { stroke-dashoffset: 450; }
+        60% { stroke-dashoffset: 0; }
+        100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes colorirCasaLento {
+        0% { opacity: 0; }
+        60% { opacity: 0; }
+        80% { opacity: 1; }
+        100% { opacity: 1; }
+    }
+
+    @keyframes moverPincelLento {
+        0%   { top: 105px; left: 25px; transform: rotate(-20deg); }
+        15%  { top: 30px; left: 90px; transform: rotate(10deg); }
+        30%  { top: 105px; left: 145px; transform: rotate(30deg); }
+        45%  { top: 135px; left: 85px; transform: rotate(-5deg); }
+        60%  { top: 80px; left: 85px; transform: rotate(0deg); }
+        80%  { top: 65px; left: 65px; transform: scale(1.1); }
+        100% { top: 105px; left: 25px; transform: rotate(-20deg); }
+    }
 
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
@@ -226,7 +253,7 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA E SELEÇÃO INICIAL
+// 3. CAPA COM ANIMAÇÃO
 // ============================================================
 function mostrarCapa() {
     if(!document.getElementById('round-feedback')) {
@@ -243,7 +270,34 @@ function mostrarCapa() {
         slotTopo.innerHTML = "";
     }
 
-    renderizarCapaComMoldura();
+    const area = document.getElementById('contentor-jogo');
+    if (area) {
+        const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Desenho Criativo";
+        
+        area.innerHTML = `
+            <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 6px; text-transform: uppercase; animation: cardPop 0.4s ease;">${tituloAnimacao}</div>
+            
+            <div class="animacao-casa-container">
+                <img src="${DADOS.icons.pincel}" alt="Pincel" class="pincel-animado">
+
+                <svg class="casa-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <g class="preenchimento-cor">
+                        <rect x="26" y="46" width="48" height="43" fill="#ffeb00" />
+                        <polygon points="17,45 50,17 83,45" fill="#d91424" />
+                        <rect x="42" y="65" width="16" height="24" fill="#9c4820" />
+                        <rect x="33" y="52" width="12" height="12" fill="#009fe3" />
+                        <rect x="55" y="52" width="12" height="12" fill="#009fe3" />
+                    </g>
+
+                    <rect class="linha-desenho" x="25" y="45" width="50" height="45" rx="2" />
+                    <polygon class="linha-desenho" points="15,45 50,15 85,45" />
+                    <rect class="linha-desenho" x="42" y="65" width="16" height="25" rx="1" />
+                    <rect class="linha-desenho" x="33" y="52" width="12" height="12" rx="1" />
+                    <rect class="linha-desenho" x="55" y="52" width="12" height="12" rx="1" />
+                </svg>
+            </div>
+        `;
+    }
 
     if (slotFundo) {
         slotFundo.className = "barra-jogo-topo";
@@ -263,36 +317,8 @@ function mudarDesenho(direcao) {
     if (indiceDesenhoAtual < 0) indiceDesenhoAtual = lista.length - 1;
     if (indiceDesenhoAtual >= lista.length) indiceDesenhoAtual = 0;
 
-    // Atualiza a vista dependendo de estarmos na capa ou já a pintar
-    if (document.querySelector('.moldura-desenho-capa')) {
-        renderizarCapaComMoldura();
-    } else {
-        configurarCanvas();
-    }
-}
-
-function renderizarCapaComMoldura() {
-    const lista = DADOS.desenhosParaColorir || [];
-    const desenhoObj = lista[indiceDesenhoAtual] || { nome: "Desenho", arquivo: "" };
-    const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Desenho Criativo";
-
-    const area = document.getElementById('contentor-jogo');
-    if (area) {
-        area.innerHTML = `
-            <div style="font-size: 1.3rem; font-weight: 900; color: #C2890B; margin-bottom: 12px; text-transform: uppercase;">${tituloAnimacao}</div>
-            
-            <div class="seletor-capa-container">
-                <button class="btn-seta-capa" onclick="mudarDesenho(-1)"><i class="fas fa-chevron-left"></i></button>
-                
-                <div class="moldura-desenho-capa">
-                    <img src="${desenhoObj.arquivo}" alt="${desenhoObj.nome}" class="moldura-img">
-                    <span class="moldura-titulo">${desenhoObj.nome}</span>
-                </div>
-
-                <button class="btn-seta-capa" onclick="mudarDesenho(1)"><i class="fas fa-chevron-right"></i></button>
-            </div>
-        `;
-    }
+    // Recarrega o canvas com o novo desenho selecionado
+    configurarCanvas();
 }
 
 function tocarSomInstrucao() {
@@ -357,7 +383,7 @@ function iniciarJogoDesenho() {
     }
 
     const lista = DADOS.desenhosParaColorir || [];
-    const desenhoAtualObj = lista[indiceDesenhoAtual] || { nome: "Desenho" };
+    const desenhoAtualObj = lista[indiceDesenhoAtual] || { nome: "Desenho", arquivo: "" };
 
     if (area) {
         area.innerHTML = `
@@ -417,10 +443,11 @@ function iniciarJogoDesenho() {
                         </div>
                     </div>
 
-                    <!-- Moldura de seleção colocada na barra lateral antes do botão Pronto! -->
+                    <!-- Moldura com miniatura e setas na barra lateral -->
                     <div class="moldura-barra-container">
                         <button class="btn-seta-barra" onclick="mudarDesenho(-1)"><i class="fas fa-chevron-left"></i></button>
                         <div class="moldura-barra-info">
+                            <img src="${desenhoAtualObj.arquivo}" alt="" class="moldura-barra-miniatura" id="miniaturaDesenhoBarra">
                             <span class="moldura-barra-texto" id="nomeDesenhoBarra">${desenhoAtualObj.nome}</span>
                         </div>
                         <button class="btn-seta-barra" onclick="mudarDesenho(1)"><i class="fas fa-chevron-right"></i></button>
@@ -484,8 +511,11 @@ function configurarCanvas() {
     const lista = DADOS.desenhosParaColorir || [];
     const desenhoObj = lista[indiceDesenhoAtual];
     
+    // Atualizar a miniatura e o nome na barra lateral se já estiver criada
     const spanBarra = document.getElementById('nomeDesenhoBarra');
+    const imgMiniatura = document.getElementById('miniaturaDesenhoBarra');
     if (spanBarra && desenhoObj) spanBarra.textContent = desenhoObj.nome;
+    if (imgMiniatura && desenhoObj) imgMiniatura.src = desenhoObj.arquivo;
 
     if (desenhoObj && desenhoObj.arquivo) {
         const imgDesenho = new Image();
