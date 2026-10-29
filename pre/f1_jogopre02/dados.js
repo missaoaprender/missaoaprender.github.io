@@ -1,15 +1,20 @@
 const DADOS = {
   pagina: {
-    browserTitulo: "Pré-Escolar",
+    browserTitulo: "Pré-Escolar - Desenho Criativo",
     titulo: "Pré-Escolar",
-    subtitulo: "Atividades Criativas",
-    tituloMenu: "Estojo Mágico",
+    subtitulo: "Desenho Criativo",
+    tituloMenu: "Desenho Criativo",
     mensagem: "Diverte-te a aprender!",
     informacao: "Jogos Pré",
     tituloMenuAcordeao: "Menu",
     urlVoltar: "../", 
     iconeEstrela: "★",
     iconeInfo: "i"
+  },
+
+  animacaoCapa: {
+    titulo: "Estojo Mágico - Livro de Colorir",
+    instrucaoTexto: "🎨 Clica numa zona do desenho para pintar!"
   },
 
   icons: {
@@ -19,6 +24,7 @@ const DADOS = {
     som: "../../icons/som.png",
     lampada: "../../icons/lampada.png",
     info: "../../icons/info.png",
+    pincel: "../../icons/pincel.png",
     feedbacks: {
       feedback1: "../../icons/feedback_1.png",
       feedback2: "../../icons/feedback_2.png",
@@ -35,33 +41,34 @@ const DADOS = {
     }
   },
 
-  // Lista de desenhos para colorir (a apontar para a pasta imagens/colorir/)
   desenhosParaColorir: [
-    { id: 1, nome: "Desenho 1", arquivo: "../../imagens/colorir/desenho1.png" },
-    { id: 2, nome: "Desenho 2", arquivo: "../../imagens/colorir/desenho2.png" },
+    { id: 1, nome: "Desenho 5", arquivo: "../../imagens/colorir/desenho5.png" },
+    { id: 2, nome: "Desenho 6", arquivo: "../../imagens/colorir/desenho6.png" },
     { id: 3, nome: "Desenho 3", arquivo: "../../imagens/colorir/desenho3.png" },
     { id: 4, nome: "Desenho 4", arquivo: "../../imagens/colorir/desenho4.png" }
   ],
 
   sons: {
     certo: "",
-    errado: ""
+    errado: "",
+    clique: "",
+    instrucao: "f1_jogo01pre.mp3"
   },
 
-   cores: {
-    fundo: "#FFFDF4",
-    ceu1: "#FCECC2",
-    ceu2: "#FFF5D6",
-    header: "#FFF5D6",
-    headerTopo: "#FCECC2",
-    azulHeader: "#E7A000",
-    texto: "#684500",
-    textoEscuro: "#362400",
+  cores: {
+    fundo: "#F3F3F8",
+    ceu1: "#FDF7E5",
+    ceu2: "#FBF0CC",
+    header: "#FBF0CC",
+    headerTopo: "#FDF7E5",
+    azulHeader: "#ECA607",
+    texto: "#3E3E59",
+    textoEscuro: "#262638",
     branco: "#FFFFFF",
-    creme: "#FCEFCE",
-    linha: "#F7D896",
-    sombra: "rgba(231,160,0,.18)",
-    sombraForte: "rgba(231,160,0,.28)"
+    creme: "#ECECEF",
+    linha: "#E2D3AB",
+    sombra: "rgba(236,166,7,.18)",
+    sombraForte: "rgba(236,166,7,.28)"
   },
 
   dimensoes: {
