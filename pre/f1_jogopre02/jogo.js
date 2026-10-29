@@ -14,7 +14,7 @@ let isDrawing = false;
 let ctx = null;
 let canvas = null;
 let historicoCanvas = []; 
-let indiceDesenhoAtual = 0; // Índice para o carrossel de desenhos para colorir
+let indiceDesenhoAtual = 0; // Índice para o carrossel de desenhos
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
@@ -40,23 +40,23 @@ style.innerHTML = `
     canvas { display: block; width: 100%; height: 100%; }
 
     .painel-estojo {
-        display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 10px; flex: 0.9; max-width: 220px; background: rgba(255,255,255,0.95); padding: 12px; border-radius: 16px; border: 2px solid #E2D3AB; flex-shrink: 0;
+        display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 8px; flex: 0.9; max-width: 220px; background: rgba(255,255,255,0.95); padding: 10px; border-radius: 16px; border: 2px solid #E2D3AB; flex-shrink: 0;
         box-shadow: 0 4px 15px rgba(0,0,0,0.04);
     }
 
     .painel-cores-box {
-        width: 100%; background: #FFFDF7; border: 2px solid #E2D3AB; border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+        width: 100%; background: #FFFDF7; border: 2px solid #E2D3AB; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 6px;
     }
     .titulo-cores {
-        font-size: 0.75rem; font-weight: 900; color: #C2890B; letter-spacing: 1px; text-transform: uppercase; margin: 0;
+        font-size: 0.7rem; font-weight: 900; color: #C2890B; letter-spacing: 1px; text-transform: uppercase; margin: 0;
     }
 
     .grid-cores {
-        display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; justify-items: center;
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 100%; justify-items: center;
     }
     
     .lapis-btn {
-        width: 32px; height: 32px; border-radius: 50%; border: 2.5px solid white; cursor: pointer;
+        width: 28px; height: 28px; border-radius: 50%; border: 2.5px solid white; cursor: pointer;
         box-shadow: 0 2px 5px rgba(0,0,0,0.12); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
     }
     .lapis-btn:hover { transform: translateY(-2px) scale(1.1); }
@@ -70,14 +70,14 @@ style.innerHTML = `
         position: relative; display: inline-block;
     }
     .lapis-dropdown-btn {
-        background: white; border: 2px solid #ECA607; width: 40px; height: 40px;
+        background: white; border: 2px solid #ECA607; width: 38px; height: 38px;
         border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease;
         padding: 4px;
     }
     .lapis-dropdown-btn:hover { transform: scale(1.08); }
     .lapis-dropdown-btn.ativo { background: #FFF9E6; border-color: #262638; box-shadow: 0 4px 12px rgba(236,166,7,0.4); }
-    .lapis-dropdown-btn img { width: 20px; height: 26px; object-fit: contain; pointer-events: none; }
+    .lapis-dropdown-btn img { width: 18px; height: 24px; object-fit: contain; pointer-events: none; }
 
     .dropdown-content {
         display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
@@ -97,7 +97,7 @@ style.innerHTML = `
     .linha-amostra { display: block; background: #C2890B; border-radius: 4px; width: 45px; }
 
     .btn-ferramenta-img {
-        background: white; border: 2px solid #ECA607; width: 40px; height: 40px;
+        background: white; border: 2px solid #ECA607; width: 38px; height: 38px;
         border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease; padding: 4px;
     }
@@ -105,6 +105,19 @@ style.innerHTML = `
     .btn-ferramenta-img:active { transform: scale(0.92); }
     .btn-ferramenta-img.ativo { background: #ECA607; border-color: #262638; transform: scale(1.08); }
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+
+    /* Seletor de desenhos na barra lateral */
+    .seletor-desenhos-barra {
+        display: flex; align-items: center; justify-content: space-between; background: #FFFDF0; border: 2px solid #ECA607; padding: 4px 8px; border-radius: 14px; width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .btn-seta-barra {
+        background: #ECA607; color: white; border: none; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 900; font-size: 0.8rem; transition: transform 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    .btn-seta-barra:hover { transform: scale(1.1); }
+    .btn-seta-barra:active { transform: scale(0.92); }
+    .nome-desenho-barra {
+        font-weight: 900; color: #C2890B; font-size: 0.75rem; text-transform: uppercase; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100px;
+    }
 
     .btn-ferramenta-texto {
         background: #ECA607; color: white; border: 2.5px solid #F4D06F; padding: 10px 14px;
@@ -124,15 +137,6 @@ style.innerHTML = `
     .btn-capa-som:active { transform: scale(0.92); }
     .btn-capa-som img { width: 22px; height: 22px; object-fit: contain; }
 
-    .btn-menu-topo {
-        height: 44px; background: white; color: #C2890B; border: 2px solid #E2D3AB;
-        padding: 0 16px; border-radius: 22px; font-weight: 900; font-size: 0.85rem;
-        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease;
-    }
-    .btn-menu-topo:hover { transform: scale(1.05); background: #FFF9E6; }
-    .btn-menu-topo:active { transform: scale(0.95); }
-
     .btn-capa-jogar {
         background: white; color: #C2890B; border: none;
         padding: 8px 26px; border-radius: 18px; font-weight: 900; font-size: 1rem;
@@ -141,19 +145,6 @@ style.innerHTML = `
     }
     .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
-
-    /* Estilos do Seletor de Desenhos na Capa */
-    .seletor-desenhos-capa {
-        display: flex; align-items: center; justify-content: center; gap: 12px; background: white; border: 2px solid #E2D3AB; padding: 6px 16px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .btn-seta-desenho {
-        background: #ECA607; color: white; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 900; font-size: 0.9rem; transition: transform 0.2s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-    .btn-seta-desenho:hover { transform: scale(1.1); }
-    .btn-seta-desenho:active { transform: scale(0.92); }
-    .info-desenho-escolhido {
-        font-weight: 900; color: #C2890B; font-size: 0.95rem; text-transform: uppercase; min-width: 130px; text-align: center;
-    }
 
     .preview-desenho-container {
         width: 190px; height: 190px; background: white; border: 3px solid #E2D3AB; border-radius: 24px;
@@ -213,7 +204,7 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA E CARROSSEL DE SELEÇÃO DE DESENHOS
+// 3. CAPA E SELEÇÃO INICIAL
 // ============================================================
 function mostrarCapa() {
     if(!document.getElementById('round-feedback')) {
@@ -229,11 +220,7 @@ function mostrarCapa() {
         slotTopo.className = "barra-jogo-topo";
         slotTopo.innerHTML = `
             <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
-            <div class="seletor-desenhos-capa">
-                <button class="btn-seta-desenho" onclick="mudarDesenhoCapa(-1)"><i class="fas fa-chevron-left"></i></button>
-                <span class="info-desenho-escolhido" id="infoNomeDesenho">Desenho</span>
-                <button class="btn-seta-desenho" onclick="mudarDesenhoCapa(1)"><i class="fas fa-chevron-right"></i></button>
-            </div>
+            <div style="font-weight: 900; color: white; font-size: 1rem; text-transform: uppercase;">Escolhe o teu desenho!</div>
         `;
     }
 
@@ -249,7 +236,7 @@ function mostrarCapa() {
     }
 }
 
-function mudarDesenhoCapa(direcao) {
+function mudarDesenho(direcao) {
     if (somClique.src) somClique.play().catch(()=>{});
     const lista = DADOS.desenhosParaColorir || [];
     if (lista.length === 0) return;
@@ -258,16 +245,19 @@ function mudarDesenhoCapa(direcao) {
     if (indiceDesenhoAtual < 0) indiceDesenhoAtual = lista.length - 1;
     if (indiceDesenhoAtual >= lista.length) indiceDesenhoAtual = 0;
 
-    renderizarPreviewCapa();
+    // Se estiver na capa, atualiza a pré-visualização grande
+    if (document.querySelector('.preview-desenho-container')) {
+        renderizarPreviewCapa();
+    } else {
+        // Se já estiver a jogar, recarrega o canvas com o novo desenho selecionado
+        configurarCanvas();
+    }
 }
 
 function renderizarPreviewCapa() {
     const lista = DADOS.desenhosParaColorir || [];
     const desenhoObj = lista[indiceDesenhoAtual] || { nome: "Desenho", arquivo: "" };
     
-    const spanNome = document.getElementById('infoNomeDesenho');
-    if (spanNome) spanNome.textContent = desenhoObj.nome;
-
     const area = document.getElementById('contentor-jogo');
     if (area) {
         const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Desenho Criativo";
@@ -278,6 +268,7 @@ function renderizarPreviewCapa() {
             <div class="preview-desenho-container">
                 <img src="${desenhoObj.arquivo}" alt="${desenhoObj.nome}" class="preview-desenho-img">
             </div>
+            <div style="font-weight: 900; color: #C2890B; font-size: 0.95rem; text-transform: uppercase;">${desenhoObj.nome}</div>
         `;
     }
 }
@@ -290,7 +281,7 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO ESTOJO MÁGICO E CARREGAMENTO DO DESENHO NO CANVAS
+// 4. LÓGICA DO ESTOJO MÁGICO E CANVAS
 // ============================================================
 function atualizarCursorPincel() {
     const canvasEl = document.getElementById('paintCanvas');
@@ -336,12 +327,12 @@ function iniciarJogoDesenho() {
     if (feedbackEl) feedbackEl.style.display = 'none';
 
     if (slotTopo) {
-        slotTopo.className = "barra-jogo-topo";
-        slotTopo.innerHTML = `
-            <div class="btn-capa-som" style="width:44px; height:44px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:22px; height:22px;"></div>
-            <button class="btn-menu-topo" onclick="mostrarCapa()"><i class="fas fa-bars"></i> Menu</button>
-        `;
+        slotTopo.className = "barrita-fundo-cartao";
+        slotTopo.innerHTML = "";
     }
+
+    const lista = DADOS.desenhosParaColorir || [];
+    const desenhoAtualObj = lista[indiceDesenhoAtual] || { nome: "Desenho" };
 
     if (area) {
         area.innerHTML = `
@@ -401,6 +392,13 @@ function iniciarJogoDesenho() {
                         </div>
                     </div>
 
+                    <!-- Seletor de desenhos colocado na barra lateral antes do botão Pronto! -->
+                    <div class="seletor-desenhos-barra">
+                        <button class="btn-seta-barra" onclick="mudarDesenho(-1)"><i class="fas fa-chevron-left"></i></button>
+                        <span class="nome-desenho-barra" id="nomeDesenhoBarra">${desenhoAtualObj.nome}</span>
+                        <button class="btn-seta-barra" onclick="mudarDesenho(1)"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+
                     <button class="btn-ferramenta-texto" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                 </div>
             </div>
@@ -456,23 +454,27 @@ function configurarCanvas() {
     ctx.fillStyle = "#FFFFFF";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Carregar a imagem selecionada para colorir por cima do fundo branco
     const lista = DADOS.desenhosParaColorir || [];
     const desenhoObj = lista[indiceDesenhoAtual];
+    
+    // Atualizar o nome do desenho na barra lateral se já estiver criada
+    const spanBarra = document.getElementById('nomeDesenhoBarra');
+    if (spanBarra && desenhoObj) spanBarra.textContent = desenhoObj.nome;
+
     if (desenhoObj && desenhoObj.arquivo) {
         const imgDesenho = new Image();
         imgDesenho.crossOrigin = "anonymous";
         imgDesenho.src = desenhoObj.arquivo;
         imgDesenho.onload = function() {
-            // Desenhar mantendo proporção e centralizado no canvas
             const hRatio = canvas.width / imgDesenho.width;
             const vRatio = canvas.height / imgDesenho.height;
-            const ratio = Math.min(hRatio, vRatio) * 0.9; // 90% do espaço para margem
+            const ratio = Math.min(hRatio, vRatio) * 0.9;
             const centerShiftX = (canvas.width - imgDesenho.width * ratio) / 2;
             const centerShiftY = (canvas.height - imgDesenho.height * ratio) / 2;
 
             ctx.drawImage(imgDesenho, 0, 0, imgDesenho.width, imgDesenho.height, centerShiftX, centerShiftY, imgDesenho.width * ratio, imgDesenho.height * ratio);
             
+            historicoCanvas = []; // Limpa o histórico ao mudar de desenho
             salvarEstadoHistorico();
         };
     } else {
