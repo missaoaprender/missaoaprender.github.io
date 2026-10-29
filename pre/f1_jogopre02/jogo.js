@@ -15,7 +15,6 @@ let historicoCanvas = [];
 let indiceDesenhoAtual = 0;
 let timerAnimacaoCapa = null;
 
-// Obter lista de desenhos a partir de DADOS ou fallback
 function obterListaDesenhos() {
     if (DADOS && DADOS.desenhosParaColorir && DADOS.desenhosParaColorir.length > 0) {
         return DADOS.desenhosParaColorir;
@@ -32,23 +31,23 @@ const somInstrucao = new Audio(DADOS.sons && DADOS.sons.instrucao ? DADOS.sons.i
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (OTIMIZADA PARA PC E TELEMÓVEL HORIZONTAL)
+// 2. CONFIGURAÇÃO VISUAL (OTIMIZADA E CORRIGIDA)
 // ============================================================
 const styleJogo = document.createElement('style');
 styleJogo.innerHTML = `
     .jogo-layout-principal {
         display: flex; flex-direction: row; align-items: stretch; justify-content: space-between;
-        width: 100%; height: 100%; flex: 1; gap: 12px; animation: cardPop 0.3s ease; padding: 4px 0;
+        width: 100%; height: 100%; flex: 1; gap: 12px; animation: cardPop 0.3s ease; padding: 0;
         box-sizing: border-box; overflow: hidden; position: relative;
     }
     @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* Lado Esquerdo: Área de Desenho */
+    /* Lado Esquerdo: Área de Desenho com Altura Original Rigorosa */
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
         flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;
-        padding: 0; box-sizing: border-box;
+        padding: 0; box-sizing: border-box; max-height: 100%;
     }
     canvas { display: block; cursor: crosshair; width: 100%; height: 100%; object-fit: fill; }
 
@@ -96,7 +95,6 @@ styleJogo.innerHTML = `
     }
     .btn-ferramenta-texto:active { transform: scale(0.95); }
 
-    /* Moldura Seletora BEM MAIS ALTA para PC (130px de altura) */
     .moldura-selecao-desenho {
         display: flex; align-items: center; justify-content: space-between; width: 100%; height: 130px;
         background: white; border: 2.5px solid #ECA607; border-radius: 14px; padding: 8px;
@@ -114,7 +112,6 @@ styleJogo.innerHTML = `
     }
     .visor-desenho img { width: 100%; height: 105px; object-fit: contain; pointer-events: none; }
 
-    /* Estilos da Capa Limpa */
     .capa-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         flex: 1; width: 100%; height: 100%; gap: 14px; text-align: center; position: relative;
@@ -151,7 +148,7 @@ styleJogo.innerHTML = `
     }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
-    /* Ecrã de Feedback Absoluto cobrindo todo o espaço do contentor */
+    /* Ecrã de Feedback limpo com apenas UMA barra no fundo */
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
         background: #FFFFFF; backdrop-filter: blur(6px); 
@@ -161,7 +158,7 @@ styleJogo.innerHTML = `
     
     .feedback-bottom-bar {
         position: absolute; bottom: 16px; left: 24px; right: 24px; height: 14px;
-        background: #ECA607; border-radius: 7px;
+        background: #ECA607; border-radius: 7px; pointer-events: none;
     }
 
     .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 25px; width: 100%; max-width: 480px; }
@@ -183,7 +180,7 @@ styleJogo.innerHTML = `
     .btn-final-branco:active { transform: scale(0.95); }
 
     @media (max-height: 550px) or (max-width: 850px) and (orientation: landscape) {
-        .jogo-layout-principal { gap: 6px; padding: 2px 0; }
+        .jogo-layout-principal { gap: 6px; }
         .painel-estojo-vertical { width: 180px; padding: 4px; gap: 4px; }
         .grid-cores { gap: 3px; }
         .lapis-btn { width: 22px; height: 22px; }
@@ -195,20 +192,12 @@ styleJogo.innerHTML = `
         .capa-container { gap: 6px; }
         .animacao-capa-area { width: 200px; height: 140px; }
     }
-
-    @media (max-width: 600px) and (orientation: portrait) {
-        .jogo-layout-principal { flex-direction: column; overflow: auto; }
-        .painel-estojo-vertical { width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; justify-content: center; }
-        .canvas-wrapper { height: 250px; }
-        .seccao-cores { width: auto; flex: 1; }
-        .seccao-ferramentas { width: auto; flex: 2; }
-    }
 `;
 document.head.appendChild(styleJogo);
 
 
 // ============================================================
-// 3. CAPA COM ANIMAÇÃO REAL DE PINTURA E BARRAS DINÂMICAS
+// 3. CAPA COM ANIMAÇÃO REAL DE PINTURA
 // ============================================================
 function mostrarCapa() {
     clearTimeout(timerAnimacaoCapa);
@@ -397,7 +386,7 @@ function iniciarJogoDesenho() {
     if (area) {
         area.innerHTML = `
             <div class="jogo-layout-principal">
-                <!-- Esquerda: Desenho / Pintura -->
+                <!-- Esquerda: Desenho / Pintura com Altura Original -->
                 <div class="canvas-wrapper" id="canvasWrapper">
                     <canvas id="paintCanvas"></canvas>
                 </div>
@@ -436,7 +425,6 @@ function iniciarJogoDesenho() {
                             </div>
                         </div>
 
-                        <!-- Moldura Seletora mais alta para PC e otimizada -->
                         <div class="moldura-selecao-desenho">
                             <button class="seta-desenho-btn" onclick="mudarDesenhoJogo(-1)">❮</button>
                             <div class="visor-desenho" id="visorDesenhoJogo"></div>
@@ -447,18 +435,15 @@ function iniciarJogoDesenho() {
                     </div>
                 </div>
 
-                <!-- Ecrã de Feedback integrado e isolado no layout principal -->
                 <div id="round-feedback"></div>
             </div>
         `;
     }
 
+    // Barra de baixo totalmente limpa (sem texto)
     if (slotFundo) {
         slotFundo.className = "barrita-fundo-cartao";
-        const textoInstrucao = DADOS.animacaoCapa ? DADOS.animacaoCapa.instrucaoTexto : "🎨 Clica numa zona do desenho para pintar!";
-        slotFundo.innerHTML = `
-            <div style="color:white; font-weight:800; font-size:0.85rem;">${textoInstrucao}</div>
-        `;
+        slotFundo.innerHTML = "";
     }
 
     atualizarVisorJogo();
@@ -490,7 +475,7 @@ function mudarDesenhoJogo(direcao) {
 
 
 // ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS E DESENHO A 100%
+// 5. CONFIGURAÇÃO DO CANVAS
 // ============================================================
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
