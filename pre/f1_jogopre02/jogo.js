@@ -106,24 +106,21 @@ style.innerHTML = `
     .btn-ferramenta-img.ativo { background: #ECA607; border-color: #262638; transform: scale(1.08); }
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
-    /* Moldura com miniatura e setas na barra lateral */
+    /* Moldura quadrada, maior e sem legenda na barra lateral */
     .moldura-barra-container {
-        display: flex; align-items: center; justify-content: space-between; background: #FFFDF0; border: 2px solid #ECA607; padding: 4px 6px; border-radius: 14px; width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.05); gap: 4px;
+        display: flex; align-items: center; justify-content: space-between; background: #FFFDF0; border: 2px solid #E2D3AB; padding: 6px; border-radius: 14px; width: 100%; box-shadow: 0 2px 6px rgba(0,0,0,0.05); gap: 6px;
     }
     .btn-seta-barra {
-        background: #ECA607; color: white; border: none; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 900; font-size: 0.8rem; transition: transform 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.15); flex-shrink: 0;
+        background: #ECA607; color: white; border: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: 900; font-size: 0.85rem; transition: transform 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.15); flex-shrink: 0;
     }
     .btn-seta-barra:hover { transform: scale(1.1); }
     .btn-seta-barra:active { transform: scale(0.92); }
     
-    .moldura-barra-info {
-        display: flex; align-items: center; gap: 6px; overflow: hidden; flex: 1; justify-content: center; background: white; border: 1.5px solid #E2D3AB; border-radius: 8px; padding: 2px 4px;
+    .moldura-barra-quadrada {
+        width: 75px; height: 75px; background: white; border: 2px solid #E2D3AB; border-radius: 10px; display: flex; align-items: center; justify-content: center; padding: 6px; flex-shrink: 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.03);
     }
     .moldura-barra-miniatura {
-        width: 24px; height: 24px; object-fit: contain; flex-shrink: 0;
-    }
-    .moldura-barra-texto {
-        font-weight: 900; color: #C2890B; font-size: 0.65rem; text-transform: uppercase; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
+        width: 100%; height: 100%; object-fit: contain; pointer-events: none;
     }
 
     .btn-ferramenta-texto {
@@ -317,7 +314,6 @@ function mudarDesenho(direcao) {
     if (indiceDesenhoAtual < 0) indiceDesenhoAtual = lista.length - 1;
     if (indiceDesenhoAtual >= lista.length) indiceDesenhoAtual = 0;
 
-    // Recarrega o canvas com o novo desenho selecionado
     configurarCanvas();
 }
 
@@ -383,7 +379,7 @@ function iniciarJogoDesenho() {
     }
 
     const lista = DADOS.desenhosParaColorir || [];
-    const desenhoAtualObj = lista[indiceDesenhoAtual] || { nome: "Desenho", arquivo: "" };
+    const desenhoAtualObj = lista[indiceDesenhoAtual] || { arquivo: "" };
 
     if (area) {
         area.innerHTML = `
@@ -443,12 +439,11 @@ function iniciarJogoDesenho() {
                         </div>
                     </div>
 
-                    <!-- Moldura com miniatura e setas na barra lateral -->
+                    <!-- Moldura quadrada, maior e sem legenda na barra lateral -->
                     <div class="moldura-barra-container">
                         <button class="btn-seta-barra" onclick="mudarDesenho(-1)"><i class="fas fa-chevron-left"></i></button>
-                        <div class="moldura-barra-info">
+                        <div class="moldura-barra-quadrada">
                             <img src="${desenhoAtualObj.arquivo}" alt="" class="moldura-barra-miniatura" id="miniaturaDesenhoBarra">
-                            <span class="moldura-barra-texto" id="nomeDesenhoBarra">${desenhoAtualObj.nome}</span>
                         </div>
                         <button class="btn-seta-barra" onclick="mudarDesenho(1)"><i class="fas fa-chevron-right"></i></button>
                     </div>
@@ -511,10 +506,8 @@ function configurarCanvas() {
     const lista = DADOS.desenhosParaColorir || [];
     const desenhoObj = lista[indiceDesenhoAtual];
     
-    // Atualizar a miniatura e o nome na barra lateral se já estiver criada
-    const spanBarra = document.getElementById('nomeDesenhoBarra');
+    // Atualizar a miniatura na moldura lateral
     const imgMiniatura = document.getElementById('miniaturaDesenhoBarra');
-    if (spanBarra && desenhoObj) spanBarra.textContent = desenhoObj.nome;
     if (imgMiniatura && desenhoObj) imgMiniatura.src = desenhoObj.arquivo;
 
     if (desenhoObj && desenhoObj.arquivo) {
