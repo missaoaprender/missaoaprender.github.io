@@ -1,29 +1,19 @@
 // ============================================================
-// 1. ESTADO GLOBAL E SONS
+// 1. ESTADO GLOBAL E SONS (Lidos de DADOS)
 // ============================================================
 const JOGO_CONFIG = {
-    nomeDoJogo: DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Estojo Mágico - Livro de Colorir",
+    nomeDoJogo: DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Desenho Criativo",
     caminhoSons: DADOS.sons ? DADOS.sons.caminho : "",
     caminhoIconsMenu: "../../icons/"
 };
 
-let corAtual = "#ECA607";
+let corAtual = "#000000";
+let ferramentaAtual = "lapis"; 
+let tamanhoPincel = 10;
+let isDrawing = false;
 let ctx = null;
 let canvas = null;
-let imgDesenho = null;
 let historicoCanvas = []; 
-let indiceDesenhoAtual = 0;
-let timerAnimacaoCapa = null;
-
-function obterListaDesenhos() {
-    if (DADOS && DADOS.desenhosParaColorir && DADOS.desenhosParaColorir.length > 0) {
-        return DADOS.desenhosParaColorir;
-    }
-    return [
-        { nome: "Desenho 1", arquivo: "desenho1.png" },
-        { nome: "Desenho 2", arquivo: "desenho2.png" }
-    ];
-}
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
@@ -31,103 +21,105 @@ const somInstrucao = new Audio(DADOS.sons && DADOS.sons.instrucao ? DADOS.sons.i
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (OTIMIZADA E CORRIGIDA)
+// 2. CONFIGURAÇÃO VISUAL
 // ============================================================
-const styleJogo = document.createElement('style');
-styleJogo.innerHTML = `
-    .jogo-layout-principal {
+const style = document.createElement('style');
+style.innerHTML = `
+    .desenho-container {
         display: flex; flex-direction: row; align-items: stretch; justify-content: space-between;
-        width: 100%; height: 100%; flex: 1; gap: 12px; animation: cardPop 0.3s ease; padding: 0;
-        box-sizing: border-box; overflow: hidden; position: relative;
+        width: 100%; height: 100%; flex: 1; gap: 16px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
     }
-    @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* Lado Esquerdo: Área de Desenho com Altura Original Rigorosa */
     .canvas-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
-        flex: 1; height: 100%; display: flex; align-items: center; justify-content: center; position: relative;
-        padding: 0; box-sizing: border-box; max-height: 100%;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06); overflow: hidden; touch-action: none;
+        flex: 3.5; width: 100%; display: flex; align-items: center; justify-content: center;
     }
-    canvas { display: block; cursor: crosshair; width: 100%; height: 100%; object-fit: fill; }
+    canvas { display: block; width: 100%; height: 100%; }
 
-    /* Lado Direito: Estojo com Ferramentas e Seletor */
-    .painel-estojo-vertical {
-        display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        width: 240px; height: 100%; background: rgba(255,255,255,0.9); padding: 8px; border-radius: 16px; 
-        border: 2px solid #E2D3AB; flex-shrink: 0; gap: 6px; box-sizing: border-box; overflow-y: auto;
+    .painel-estojo {
+        display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 10px; flex: 0.9; max-width: 220px; background: rgba(255,255,255,0.95); padding: 12px; border-radius: 16px; border: 2px solid #E2D3AB; flex-shrink: 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
     }
 
-    .seccao-cores {
-        display: flex; flex-direction: column; align-items: center; width: 100%; gap: 4px;
-        background: #FFF7E3; padding: 6px; border-radius: 12px; border: 1.5px solid #F3E0B5; box-sizing: border-box;
+    .painel-cores-box {
+        width: 100%; background: #FFFDF7; border: 2px solid #E2D3AB; border-radius: 12px; padding: 10px 8px; display: flex; flex-direction: column; align-items: center; gap: 8px;
     }
+    .titulo-cores {
+        font-size: 0.75rem; font-weight: 900; color: #C2890B; letter-spacing: 1px; text-transform: uppercase; margin: 0;
+    }
+
     .grid-cores {
-        display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; width: 100%; justify-items: center;
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; width: 100%; justify-items: center;
     }
     
     .lapis-btn {
-        width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid white; cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: transform 0.1s;
+        width: 32px; height: 32px; border-radius: 50%; border: 2.5px solid white; cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.12); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
     }
-    .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.15); border-color: #262638; }
+    .lapis-btn:hover { transform: translateY(-2px) scale(1.1); }
+    .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.18); border-color: #262638; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
 
-    .seccao-ferramentas {
-        display: flex; flex-direction: column; align-items: center; width: 100%; gap: 8px; flex: 1; justify-content: center;
-    }
     .linha-ferramentas {
-        display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; width: 100%;
+        display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;
     }
+
+    .dropdown-container {
+        position: relative; display: inline-block;
+    }
+    .lapis-dropdown-btn {
+        background: white; border: 2px solid #ECA607; width: 40px; height: 40px;
+        border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease;
+        padding: 4px;
+    }
+    .lapis-dropdown-btn:hover { transform: scale(1.08); }
+    .lapis-dropdown-btn.ativo { background: #FFF9E6; border-color: #262638; box-shadow: 0 4px 12px rgba(236,166,7,0.4); }
+    .lapis-dropdown-btn img { width: 20px; height: 26px; object-fit: contain; pointer-events: none; }
+
+    .dropdown-content {
+        display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+        background: white; min-width: 120px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border-radius: 14px;
+        border: 2px solid #E2D3AB; z-index: 100; padding: 8px; flex-direction: column; gap: 6px;
+        animation: popUpDropdown 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    .dropdown-content.mostrar { display: flex; }
+    @keyframes popUpDropdown { from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.9); } to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); } }
+
+    .opcao-traco {
+        background: #FFFDF0; border: 1.5px solid #ECA607; border-radius: 10px; padding: 5px 8px;
+        display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+        transition: background 0.15s ease, transform 0.15s ease; font-weight: 800; font-size: 0.75rem; color: #C2890B;
+    }
+    .opcao-traco:hover { background: #FFF3CC; transform: scale(1.03); }
+    .linha-amostra { display: block; background: #C2890B; border-radius: 4px; width: 45px; }
 
     .btn-ferramenta-img {
-        background: white; border: 2px solid #ECA607; width: 34px; height: 34px;
-        border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; padding: 3px;
+        background: white; border: 2px solid #ECA607; width: 40px; height: 40px;
+        border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease; padding: 4px;
     }
+    .btn-ferramenta-img:hover { transform: translateY(-2px) scale(1.05); }
     .btn-ferramenta-img:active { transform: scale(0.92); }
     .btn-ferramenta-img.ativo { background: #ECA607; border-color: #262638; transform: scale(1.08); }
     .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
     .btn-ferramenta-texto {
-        background: #ECA607; color: white; border: none; padding: 8px 12px; width: 100%;
-        border-radius: 12px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
-        box-shadow: 0 3px 8px rgba(236,166,7,0.3); transition: transform 0.1s; text-align: center;
+        background: #ECA607; color: white; border: 2.5px solid #F4D06F; padding: 10px 14px;
+        border-radius: 16px; font-weight: 900; font-size: 0.9rem; cursor: pointer;
+        box-shadow: 0 4px 12px rgba(236,166,7,0.35); transition: transform 0.2s ease, background 0.2s ease;
+        display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; text-transform: uppercase;
     }
+    .btn-ferramenta-texto:hover { transform: translateY(-2px); background: #d99605; }
     .btn-ferramenta-texto:active { transform: scale(0.95); }
-
-    .moldura-selecao-desenho {
-        display: flex; align-items: center; justify-content: space-between; width: 100%; height: 130px;
-        background: white; border: 2.5px solid #ECA607; border-radius: 14px; padding: 8px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08); gap: 6px; box-sizing: border-box;
-    }
-    .seta-desenho-btn {
-        background: #ECA607; color: white; border: none; width: 34px; height: 34px;
-        border-radius: 50%; font-size: 0.95rem; font-weight: 900; cursor: pointer;
-        display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-        transition: transform 0.1s; flex-shrink: 0;
-    }
-    .seta-desenho-btn:active { transform: scale(0.9); }
-    .visor-desenho {
-        display: flex; align-items: center; justify-content: center; flex: 1; height: 100%; overflow: hidden;
-    }
-    .visor-desenho img { width: 100%; height: 105px; object-fit: contain; pointer-events: none; }
-
-    .capa-container {
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        flex: 1; width: 100%; height: 100%; gap: 14px; text-align: center; position: relative;
-    }
-    .animacao-capa-area {
-        position: relative; width: 260px; height: 195px; background: white;
-        border: 3px solid #ECA607; border-radius: 18px; overflow: hidden;
-        box-shadow: 0 8px 20px rgba(236,166,7,0.25); display: flex; align-items: center; justify-content: center;
-        cursor: pointer;
-    }
 
     .btn-capa-som {
         width: 44px; height: 44px; background: rgba(255,255,255,0.8); border: 2px solid rgba(255,255,255,0.95);
         border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
-        transition: transform 0.1s; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 3px 10px rgba(0,0,0,0.1);
     }
+    .btn-capa-som:hover { transform: scale(1.1); }
     .btn-capa-som:active { transform: scale(0.92); }
     .btn-capa-som img { width: 22px; height: 22px; object-fit: contain; }
 
@@ -143,64 +135,119 @@ styleJogo.innerHTML = `
     .btn-capa-jogar {
         background: white; color: #C2890B; border: none;
         padding: 8px 26px; border-radius: 18px; font-weight: 900; font-size: 1rem;
-        cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: transform 0.2s ease;
+        cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
         text-transform: uppercase;
     }
+    .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
-    /* Ecrã de Feedback limpo com apenas UMA barra no fundo */
+    .animacao-casa-container {
+        width: 190px; height: 190px; background: white; border: 3px solid #E2D3AB; border-radius: 24px;
+        display: flex; align-items: center; justify-content: center; position: relative;
+        box-shadow: 0 10px 25px rgba(236,166,7,0.25); animation: cardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        overflow: hidden; margin-bottom: 12px;
+    }
+    .casa-svg { width: 145px; height: 145px; position: relative; z-index: 2; }
+
+    .linha-desenho {
+        stroke: #262638; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round;
+        stroke-dasharray: 450; stroke-dashoffset: 450;
+        animation: desenharTracoLento 6s infinite ease-in-out;
+    }
+
+    .preenchimento-cor {
+        opacity: 0;
+        animation: colorirCasaLento 6s infinite ease-in-out;
+    }
+
+    .pincel-animado {
+        position: absolute; width: 40px; height: 40px; object-fit: contain;
+        z-index: 10; pointer-events: none;
+        animation: moverPincelLento 6s infinite ease-in-out;
+        filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3));
+    }
+
+    @keyframes desenharTracoLento {
+        0% { stroke-dashoffset: 450; }
+        60% { stroke-dashoffset: 0; }
+        100% { stroke-dashoffset: 0; }
+    }
+
+    @keyframes colorirCasaLento {
+        0% { opacity: 0; }
+        60% { opacity: 0; }
+        80% { opacity: 1; }
+        100% { opacity: 1; }
+    }
+
+    @keyframes moverPincelLento {
+        0%   { top: 105px; left: 25px; transform: rotate(-20deg); }
+        15%  { top: 30px; left: 90px; transform: rotate(10deg); }
+        30%  { top: 105px; left: 145px; transform: rotate(30deg); }
+        45%  { top: 135px; left: 85px; transform: rotate(-5deg); }
+        60%  { top: 80px; left: 85px; transform: rotate(0deg); }
+        80%  { top: 65px; left: 65px; transform: scale(1.1); }
+        100% { top: 105px; left: 25px; transform: rotate(-20deg); }
+    }
+
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-        background: #FFFFFF; backdrop-filter: blur(6px); 
-        z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; 
-        border-radius: 20px; overflow: hidden; box-sizing: border-box; padding: 20px;
+        background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px); 
+        z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: space-between; 
+        border-radius: 35px; overflow: hidden; padding: 20px;
+        animation: fadeInFeedback 0.3s ease forwards;
     }
+    @keyframes fadeInFeedback { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
     
     .feedback-bottom-bar {
-        position: absolute; bottom: 16px; left: 24px; right: 24px; height: 14px;
-        background: #ECA607; border-radius: 7px; pointer-events: none;
+        width: 100%; height: 14px;
+        background: #ECA607; border-radius: 7px; flex-shrink: 0;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); margin-bottom: 25px; width: 100%; max-width: 480px; }
-    
-    .btn-final-amarelo {
-        background: #ECA607; color: white; border: none; padding: 14px 24px;
-        border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(236,166,7,0.35); transition: transform 0.1s;
-        white-space: nowrap; flex: 1; text-align: center; text-transform: capitalize;
+    .vitoria-card { 
+        background: transparent; padding: 10px 20px; text-align: center; 
+        display: flex; flex-direction: column; align-items: center; gap: 12px; 
+        animation: cardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+        width: 100%; max-width: 480px; margin: auto 0;
     }
-    .btn-final-amarelo:active { transform: scale(0.95); }
+    
+    .btn-final-roxo {
+        background: #ECA607; color: white; border: none; padding: 14px 22px;
+        border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
+        box-shadow: 0 6px 18px rgba(236,166,7,0.35); text-transform: capitalize; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        white-space: nowrap; flex: 1; text-align: center;
+    }
+    .btn-final-roxo:hover { transform: translateY(-3px) scale(1.03); }
+    .btn-final-roxo:active { transform: scale(0.95); }
 
     .btn-final-branco {
-        background: white; color: #C2890B; border: 2.5px solid #ECA607; padding: 14px 24px;
-        border-radius: 30px; font-weight: 900; font-size: 1rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.08); transition: transform 0.1s;
-        white-space: nowrap; flex: 1; text-align: center; text-transform: capitalize;
+        background: white; color: #C2890B; border: 2px solid #ECA607; padding: 14px 22px;
+        border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.08); text-transform: capitalize; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        white-space: nowrap; flex: 1; text-align: center;
     }
+    .btn-final-branco:hover { transform: translateY(-3px) scale(1.03); background: #FFF9E6; }
     .btn-final-branco:active { transform: scale(0.95); }
 
-    @media (max-height: 550px) or (max-width: 850px) and (orientation: landscape) {
-        .jogo-layout-principal { gap: 6px; }
-        .painel-estojo-vertical { width: 180px; padding: 4px; gap: 4px; }
-        .grid-cores { gap: 3px; }
-        .lapis-btn { width: 22px; height: 22px; }
-        .btn-ferramenta-img { width: 28px; height: 28px; }
-        .moldura-selecao-desenho { height: 75px; padding: 4px; }
-        .visor-desenho img { height: 55px; }
-        .seta-desenho-btn { width: 26px; height: 26px; font-size: 0.75rem; }
-        .btn-ferramenta-texto { padding: 5px 8px; font-size: 0.75rem; }
-        .capa-container { gap: 6px; }
-        .animacao-capa-area { width: 200px; height: 140px; }
+    @media (max-width: 768px) {
+        .desenho-container { flex-direction: column; }
+        .painel-estojo { max-width: 100%; width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+        .grid-cores { display: flex; flex-wrap: wrap; justify-content: center; }
     }
 `;
-document.head.appendChild(styleJogo);
+document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA COM ANIMAÇÃO REAL DE PINTURA
+// 3. CAPA E REPRODUÇÃO DE SOM
 // ============================================================
 function mostrarCapa() {
-    clearTimeout(timerAnimacaoCapa);
+    if(!document.getElementById('round-feedback')) {
+        const feedback = document.createElement('div');
+        feedback.id = 'round-feedback';
+        document.querySelector('.botao-ano').appendChild(feedback);
+    }
 
     const slotTopo = document.getElementById('slot-topo');
     const slotFundo = document.getElementById('slot-fundo');
@@ -212,17 +259,29 @@ function mostrarCapa() {
 
     const area = document.getElementById('contentor-jogo');
     if (area) {
-        const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Estojo Mágico - Livro de Colorir";
+        const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Desenho Criativo";
+        
         area.innerHTML = `
-            <div class="capa-container">
-                <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; text-transform: uppercase;">${tituloAnimacao}</div>
-                
-                <div class="animacao-capa-area" onclick="tocarSomInstrucao()" title="Clica para ouvir a instrução!">
-                    <canvas id="capaCanvas" width="260" height="195"></canvas>
-                    <div id="capaMao" style="position:absolute; font-size:2.2rem; pointer-events:none; transition: all 0.2s ease;">🖌️</div>
-                </div>
+            <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 6px; text-transform: uppercase; animation: cardPop 0.4s ease;">${tituloAnimacao}</div>
+            
+            <div class="animacao-casa-container">
+                <img src="${DADOS.icons.pincel}" alt="Pincel" class="pincel-animado">
 
-                <div id="round-feedback"></div>
+                <svg class="casa-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <g class="preenchimento-cor">
+                        <rect x="26" y="46" width="48" height="43" fill="#ffeb00" />
+                        <polygon points="17,45 50,17 83,45" fill="#d91424" />
+                        <rect x="42" y="65" width="16" height="24" fill="#9c4820" />
+                        <rect x="33" y="52" width="12" height="12" fill="#009fe3" />
+                        <rect x="55" y="52" width="12" height="12" fill="#009fe3" />
+                    </g>
+
+                    <rect class="linha-desenho" x="25" y="45" width="50" height="45" rx="2" />
+                    <polygon class="linha-desenho" points="15,45 50,15 85,45" />
+                    <rect class="linha-desenho" x="42" y="65" width="16" height="25" rx="1" />
+                    <rect class="linha-desenho" x="33" y="52" width="12" height="12" rx="1" />
+                    <rect class="linha-desenho" x="55" y="52" width="12" height="12" rx="1" />
+                </svg>
             </div>
         `;
     }
@@ -231,130 +290,9 @@ function mostrarCapa() {
         slotFundo.className = "barra-jogo-topo";
         slotFundo.innerHTML = `
             <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
-            <button class="btn-capa-jogar" onclick="iniciarJogoDesenho()">JOGAR</button>
+            <button class="btn-capa-jogar" onclick="iniciarJogoDesenho()">COMEÇAR</button>
         `;
     }
-
-    setTimeout(iniciarAnimacaoCapaRealista, 100);
-}
-
-function iniciarAnimacaoCapaRealista() {
-    const cCanvas = document.getElementById('capaCanvas');
-    const cMao = document.getElementById('capaMao');
-    if (!cCanvas || !cMao) return;
-    const cCtx = cCanvas.getContext('2d', { willReadFrequently: true });
-
-    cCtx.fillStyle = "#FFFFFF";
-    cCtx.fillRect(0, 0, cCanvas.width, cCanvas.height);
-
-    const desenhos = obterListaDesenhos();
-    const atual = desenhos[indiceDesenhoAtual] || desenhos[0];
-    
-    if (atual && atual.arquivo) {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => {
-            cCtx.drawImage(img, 0, 0, cCanvas.width, cCanvas.height);
-            executarSimulacaoPintura(cCtx, cMao, cCanvas.width, cCanvas.height);
-        };
-        img.src = atual.arquivo;
-    } else {
-        executarSimulacaoPintura(cCtx, cMao, cCanvas.width, cCanvas.height);
-    }
-}
-
-function executarSimulacaoPintura(cCtx, cMao, w, h) {
-    const coresSimulacao = ["#ff5a5f", "#3a86ff", "#8cc63f", "#ff9f1c", "#9b5de5"];
-    const passosPintura = [
-        { x: w * 0.45, y: h * 0.35, cor: coresSimulacao[0] },
-        { x: w * 0.55, y: h * 0.70, cor: coresSimulacao[1] },
-        { x: w * 0.30, y: h * 0.50, cor: coresSimulacao[2] },
-        { x: w * 0.70, y: h * 0.50, cor: coresSimulacao[3] }
-    ];
-
-    let indexPasso = 0;
-
-    function proximoPassoAnimacao() {
-        if (!document.getElementById('capaCanvas')) return;
-
-        if (indexPasso < passosPintura.length) {
-            const p = passosPintura[indexPasso];
-            
-            cMao.style.left = (p.x - 12) + "px";
-            cMao.style.top = (p.y - 28) + "px";
-
-            simularPreenchimentoCapa(cCtx, Math.floor(p.x), Math.floor(p.y), p.cor, w, h);
-
-            indexPasso++;
-            timerAnimacaoCapa = setTimeout(proximoPassoAnimacao, 800);
-        } else {
-            indexPasso = 0;
-            timerAnimacaoCapa = setTimeout(proximoPassoAnimacao, 1000);
-        }
-    }
-
-    proximoPassoAnimacao();
-}
-
-function simularPreenchimentoCapa(ctx, startX, startY, hexCor, width, height) {
-    const imgData = ctx.getImageData(0, 0, width, height);
-    const data = imgData.data;
-
-    function hexToRgba(hex) {
-        let c = hex.replace('#', '');
-        if (c.length === 3) c = c.split('').map(x => x + x).join('');
-        const num = parseInt(c, 16);
-        return [(num >> 16) & 255, (num >> 8) & 255, num & 255, 255];
-    }
-
-    const fillColor = hexToRgba(hexCor);
-    const pos = (startY * width + startX) * 4;
-    const targetColor = [data[pos], data[pos + 1], data[pos + 2], data[pos + 3]];
-
-    if (targetColor[0] === fillColor[0] && targetColor[1] === fillColor[1] && targetColor[2] === fillColor[2]) return;
-
-    function colorMatch(idx) {
-        const r = data[idx], g = data[idx + 1], b = data[idx + 2];
-        if (r < 70 && g < 70 && b < 70) return false;
-        const diff = Math.abs(r - targetColor[0]) + Math.abs(g - targetColor[1]) + Math.abs(b - targetColor[2]);
-        return diff < 80;
-    }
-
-    const pixelStack = [[startX, startY]];
-    while (pixelStack.length > 0) {
-        const [x, yCoord] = pixelStack.pop();
-        let y = yCoord;
-        let pixelPos = (y * width + x) * 4;
-
-        while (y >= 0 && colorMatch(pixelPos)) {
-            y--;
-            pixelPos -= width * 4;
-        }
-        pixelPos += width * 4;
-        y++;
-
-        let reachLeft = false, reachRight = false;
-        while (y < height && colorMatch(pixelPos)) {
-            data[pixelPos] = fillColor[0];
-            data[pixelPos + 1] = fillColor[1];
-            data[pixelPos + 2] = fillColor[2];
-            data[pixelPos + 3] = fillColor[3];
-
-            if (x > 0) {
-                if (colorMatch(pixelPos - 4)) {
-                    if (!reachLeft) { pixelStack.push([x - 1, y]); reachLeft = true; }
-                } else if (reachLeft) { reachLeft = false; }
-            }
-            if (x < width - 1) {
-                if (colorMatch(pixelPos + 4)) {
-                    if (!reachRight) { pixelStack.push([x + 1, y]); reachRight = true; }
-                } else if (reachRight) { reachRight = false; }
-            }
-            y++;
-            pixelPos += width * 4;
-        }
-    }
-    ctx.putImageData(imgData, 0, 0);
 }
 
 function tocarSomInstrucao() {
@@ -365,15 +303,50 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO ECRÃ DE JOGO DE COLORIR
+// 4. LÓGICA DO ESTOJO MÁGICO E CURSOR DINÂMICO
 // ============================================================
-function iniciarJogoDesenho() {
-    clearTimeout(timerAnimacaoCapa);
-    if (somClique.src) somClique.play().catch(()=>{});
+function atualizarCursorPincel() {
+    const canvasEl = document.getElementById('paintCanvas');
+    if (!canvasEl) return;
 
+    const imgPincel = new Image();
+    imgPincel.src = DADOS.icons.pincel;
+    
+    imgPincel.onload = function() {
+        const cTemp = document.createElement('canvas');
+        cTemp.width = 32;
+        cTemp.height = 32;
+        const ctxTemp = cTemp.getContext('2d');
+
+        ctxTemp.drawImage(imgPincel, 0, 0, 32, 32);
+
+        if (ferramentaAtual === 'lapis' || ferramentaAtual === 'balde') {
+            ctxTemp.globalCompositeOperation = 'source-in';
+            ctxTemp.fillStyle = corAtual;
+            ctxTemp.fillRect(0, 0, 32, 32);
+        } else if (ferramentaAtual === 'borracha') {
+            ctxTemp.globalCompositeOperation = 'source-in';
+            ctxTemp.fillStyle = '#FFFFFF';
+            ctxTemp.fillRect(0, 0, 32, 32);
+        }
+
+        const urlCursor = cTemp.toDataURL();
+        canvasEl.style.cursor = `url(${urlCursor}) 2 29, crosshair`;
+    };
+
+    imgPincel.onerror = function() {
+        canvasEl.style.cursor = 'crosshair';
+    };
+}
+
+function iniciarJogoDesenho() {
+    if (somClique.src) somClique.play().catch(()=>{});
+    
     const slotTopo = document.getElementById('slot-topo');
     const slotFundo = document.getElementById('slot-fundo');
     const area = document.getElementById('contentor-jogo');
+    const feedbackEl = document.getElementById('round-feedback');
+    if (feedbackEl) feedbackEl.style.display = 'none';
 
     if (slotTopo) {
         slotTopo.className = "barra-jogo-topo";
@@ -385,154 +358,191 @@ function iniciarJogoDesenho() {
 
     if (area) {
         area.innerHTML = `
-            <div class="jogo-layout-principal">
-                <!-- Esquerda: Desenho / Pintura com Altura Original -->
+            <div class="desenho-container">
                 <div class="canvas-wrapper" id="canvasWrapper">
                     <canvas id="paintCanvas"></canvas>
                 </div>
 
-                <!-- Direita: Estojo de Ferramentas e Seletor -->
-                <div class="painel-estojo-vertical">
-                    <div class="seccao-cores">
-                        <span style="font-size:0.6rem; font-weight:900; color:#C2890B; text-transform:uppercase;">Cores</span>
+                <div class="painel-estojo">
+                    <div class="painel-cores-box">
+                        <span class="titulo-cores">Cores</span>
                         <div class="grid-cores">
-                            <div class="lapis-btn ativo" style="background:#ECA607;" onclick="mudarCor('#ECA607', this)" title="Amarelo Ouro"></div>
-                            <div class="lapis-btn" style="background:#ffd166;" onclick="mudarCor('#ffd166', this)" title="Amarelo Claro"></div>
-                            <div class="lapis-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)" title="Vermelho"></div>
-                            <div class="lapis-btn" style="background:#ff9f1c;" onclick="mudarCor('#ff9f1c', this)" title="Laranja"></div>
-                            <div class="lapis-btn" style="background:#8cc63f;" onclick="mudarCor('#8cc63f', this)" title="Verde Claro"></div>
-                            <div class="lapis-btn" style="background:#06d6a0;" onclick="mudarCor('#06d6a0', this)" title="Verde Menta"></div>
-                            <div class="lapis-btn" style="background:#2ec4b6;" onclick="mudarCor('#2ec4b6', this)" title="Verde Água"></div>
-                            <div class="lapis-btn" style="background:#3a86ff;" onclick="mudarCor('#3a86ff', this)" title="Azul"></div>
-                            <div class="lapis-btn" style="background:#4361ee;" onclick="mudarCor('#4361ee', this)" title="Azul Escuro"></div>
-                            <div class="lapis-btn" style="background:#7209b7;" onclick="mudarCor('#7209b7', this)" title="Roxo"></div>
-                            <div class="lapis-btn" style="background:#9b5de5;" onclick="mudarCor('#9b5de5', this)" title="Lilás"></div>
-                            <div class="lapis-btn" style="background:#ff007f;" onclick="mudarCor('#ff007f', this)" title="Rosa Choque"></div>
-                            <div class="lapis-btn" style="background:#ff70a6;" onclick="mudarCor('#ff70a6', this)" title="Rosa Pastel"></div>
-                            <div class="lapis-btn" style="background:#8d5524;" onclick="mudarCor('#8d5524', this)" title="Castanho"></div>
-                            <div class="lapis-btn" style="background:#262638;" onclick="mudarCor('#262638', this)" title="Preto"></div>
-                            <div class="lapis-btn" style="background:#FFFFFF; border:2px solid #E2D3AB;" onclick="mudarCor('#FFFFFF', this)" title="Branco"></div>
+                            <div class="lapis-btn ativo" style="background:#000000;" onclick="mudarCor('#000000', this)" title="Preto"></div>
+                            <div class="lapis-btn" style="background:#fbb1bd;" onclick="mudarCor('#fbb1bd', this)" title="Rosa Claro"></div>
+                            <div class="lapis-btn" style="background:#f272a1;" onclick="mudarCor('#f272a1', this)" title="Rosa Chiclete"></div>
+                            <div class="lapis-btn" style="background:#d91424;" onclick="mudarCor('#d91424', this)" title="Vermelho"></div>
+                            <div class="lapis-btn" style="background:#f37022;" onclick="mudarCor('#f37022', this)" title="Laranja"></div>
+                            <div class="lapis-btn" style="background:#ffeb00;" onclick="mudarCor('#ffeb00', this)" title="Amarelo Canário"></div>
+                            <div class="lapis-btn" style="background:#23aa45;" onclick="mudarCor('#23aa45', this)" title="Verde"></div>
+                            <div class="lapis-btn" style="background:#0a683e;" onclick="mudarCor('#0a683e', this)" title="Verde Escuro"></div>
+                            <div class="lapis-btn" style="background:#009fe3;" onclick="mudarCor('#009fe3', this)" title="Azul Claro"></div>
+                            <div class="lapis-btn" style="background:#1d3d88;" onclick="mudarCor('#1d3d88', this)" title="Azul Escuro"></div>
+                            <div class="lapis-btn" style="background:#752358;" onclick="mudarCor('#752358', this)" title="Roxo"></div>
+                            <div class="lapis-btn" style="background:#9c4820;" onclick="mudarCor('#9c4820', this)" title="Castanho"></div>
                         </div>
                     </div>
 
-                    <div class="seccao-ferramentas">
-                        <div class="linha-ferramentas">
-                            <div class="btn-ferramenta-img" id="btnBorracha" onclick="ativarBorracha(this)" title="Borracha">
-                                <img src="../../icons/borracha.png" alt="Borracha">
+                    <div class="linha-ferramentas">
+                        <div class="dropdown-container">
+                            <div class="lapis-dropdown-btn ativo" id="btnMenuGrossura" onclick="toggleDropdownGrossura(event)" title="Escolher Traço">
+                                <img src="../../icons/lapiscolorir.png" alt="Lápis Traço" style="filter: drop-shadow(0 0 0 ${corAtual});">
                             </div>
-                            <div class="btn-ferramenta-img" id="btnAnular" onclick="anularUltimaAcao()" title="Anular">
-                                <img src="../../icons/anular.png" alt="Anular">
+                            <div class="dropdown-content" id="dropdownGrossura">
+                                <div class="opcao-traco" onclick="selecionarTraco(4, this)">
+                                    <span>Fino</span>
+                                    <span class="linha-amostra" style="height: 3px;"></span>
+                                </div>
+                                <div class="opcao-traco" onclick="selecionarTraco(10, this)">
+                                    <span>Médio</span>
+                                    <span class="linha-amostra" style="height: 6px;"></span>
+                                </div>
+                                <div class="opcao-traco" onclick="selecionarTraco(18, this)">
+                                    <span>Grosso</span>
+                                    <span class="linha-amostra" style="height: 10px;"></span>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="moldura-selecao-desenho">
-                            <button class="seta-desenho-btn" onclick="mudarDesenhoJogo(-1)">❮</button>
-                            <div class="visor-desenho" id="visorDesenhoJogo"></div>
-                            <button class="seta-desenho-btn" onclick="mudarDesenhoJogo(1)">❯</button>
+                        
+                        <div class="btn-ferramenta-img" id="btnBorracha" onclick="ativarBorracha(this)" title="Borracha">
+                            <img src="../../icons/borracha.png" alt="Borracha">
                         </div>
-
-                        <button class="btn-ferramenta-texto" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
+                        <div class="btn-ferramenta-img" id="btnBalde" onclick="ativarBalde(this)" title="Balde de Tinta">
+                            <img src="../../icons/balde_tinta.png" alt="Balde de Tinta">
+                        </div>
+                        <div class="btn-ferramenta-img" id="btnAnular" onclick="anularUltimaAcao()" title="Anular">
+                            <img src="../../icons/anular.png" alt="Anular">
+                        </div>
                     </div>
+
+                    <button class="btn-ferramenta-texto" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                 </div>
-
-                <div id="round-feedback"></div>
             </div>
         `;
     }
 
-    // Barra de baixo totalmente limpa (sem texto)
     if (slotFundo) {
         slotFundo.className = "barrita-fundo-cartao";
         slotFundo.innerHTML = "";
     }
 
-    atualizarVisorJogo();
+    window.onclick = function(event) {
+        if (!event.target.closest('.dropdown-container')) {
+            const drop = document.getElementById('dropdownGrossura');
+            if (drop) drop.classList.remove('mostrar');
+        }
+    };
+
     configurarCanvas();
 }
 
-function atualizarVisorJogo() {
-    const visor = document.getElementById('visorDesenhoJogo');
-    if (!visor) return;
-    const lista = obterListaDesenhos();
-    const atual = lista[indiceDesenhoAtual] || { arquivo: "" };
-    visor.innerHTML = `
-        <img src="${atual.arquivo}" alt="Desenho">
-    `;
-}
-
-function mudarDesenhoJogo(direcao) {
+function toggleDropdownGrossura(e) {
+    e.stopPropagation();
     if (somClique.src) somClique.play().catch(()=>{});
-    const lista = obterListaDesenhos();
-    if (lista.length === 0) return;
-
-    indiceDesenhoAtual += direcao;
-    if (indiceDesenhoAtual < 0) indiceDesenhoAtual = lista.length - 1;
-    if (indiceDesenhoAtual >= lista.length) indiceDesenhoAtual = 0;
-
-    atualizarVisorJogo();
-    configurarCanvas();
+    const drop = document.getElementById('dropdownGrossura');
+    if (drop) drop.classList.toggle('mostrar');
 }
 
+function selecionarTraco(tamanho, el) {
+    if (somClique.src) somClique.play().catch(()=>{});
+    tamanhoPincel = tamanho;
+    if (ctx) ctx.lineWidth = tamanhoPincel;
 
-// ============================================================
-// 5. CONFIGURAÇÃO DO CANVAS
-// ============================================================
+    const drop = document.getElementById('dropdownGrossura');
+    if (drop) drop.classList.remove('mostrar');
+
+    ferramentaAtual = 'lapis';
+    document.getElementById('btnBorracha').classList.remove('ativo');
+    document.getElementById('btnBalde').classList.remove('ativo');
+    document.getElementById('btnMenuGrossura').classList.add('ativo');
+    atualizarCursorPincel();
+}
+
 function configurarCanvas() {
     canvas = document.getElementById('paintCanvas');
     const wrapper = document.getElementById('canvasWrapper');
     if (!canvas || !wrapper) return;
 
-    canvas.width = 1000;
-    canvas.height = 800;
-    ctx = canvas.getContext('2d', { willReadFrequently: true });
-    historicoCanvas = [];
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width || wrapper.clientWidth;
+    tempCanvas.height = canvas.height || wrapper.clientHeight;
+    const tempCtx = tempCanvas.getContext('2d');
+    if (ctx) {
+        tempCtx.drawImage(canvas, 0, 0);
+    }
 
-    const lista = obterListaDesenhos();
-    const atual = lista[indiceDesenhoAtual];
+    canvas.width = wrapper.clientWidth;
+    canvas.height = wrapper.clientHeight;
 
-    if (atual && atual.arquivo) {
-        imgDesenho = new Image();
-        imgDesenho.crossOrigin = "anonymous";
-        imgDesenho.onload = () => {
-            desenharCenarioInicial();
-            salvarEstadoHistorico();
-        };
-        imgDesenho.src = atual.arquivo;
-    } else {
+    ctx = canvas.getContext('2d');
+    if (ctx && canvas.width > 0 && tempCanvas.width > 0) {
+        ctx.drawImage(tempCanvas, 0, 0);
+    } else if (ctx) {
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        salvarEstadoHistorico();
     }
+
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = tamanhoPincel;
+    ctx.strokeStyle = corAtual;
+
+    salvarEstadoHistorico();
+    setTimeout(atualizarCursorPincel, 50);
 
     const getPos = (e) => {
         const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-
         return { 
-            x: Math.floor((clientX - rect.left) * scaleX), 
-            y: Math.floor((clientY - rect.top) * scaleY) 
+            x: Math.floor(clientX - rect.left), 
+            y: Math.floor(clientY - rect.top) 
         };
     };
 
-    const lidarComClique = (e) => {
+    const startDraw = (e) => {
         const pos = getPos(e);
-        preencherAreaComCor(pos.x, pos.y);
+        if (ferramentaAtual === 'balde') {
+            preencherAreaComCor(pos.x, pos.y);
+            e.preventDefault();
+            return;
+        }
+
+        isDrawing = true;
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
         e.preventDefault();
     };
 
-    canvas.onmousedown = lidarComClique;
-    canvas.ontouchstart = lidarComClique;
-}
+    const draw = (e) => {
+        if (!isDrawing || ferramentaAtual === 'balde') return;
+        const pos = getPos(e);
+        
+        if (ferramentaAtual === 'borracha') {
+            ctx.strokeStyle = '#FFFFFF';
+        } else {
+            ctx.strokeStyle = corAtual;
+        }
 
-function desenharCenarioInicial() {
-    if (!ctx || !imgDesenho) return;
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(imgDesenho, 0, 0, canvas.width, canvas.height);
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        e.preventDefault();
+    };
+
+    const endDraw = () => {
+        if (isDrawing) {
+            isDrawing = false;
+            salvarEstadoHistorico();
+        }
+    };
+
+    canvas.onmousedown = startDraw;
+    canvas.onmousemove = draw;
+    canvas.onmouseup = endDraw;
+    canvas.onmouseleave = endDraw;
+
+    canvas.ontouchstart = startDraw;
+    canvas.ontouchmove = draw;
+    canvas.ontouchend = endDraw;
 }
 
 function salvarEstadoHistorico() {
@@ -555,25 +565,43 @@ function anularUltimaAcao() {
 function mudarCor(novaCor, el) {
     if (somClique.src) somClique.play().catch(()=>{});
     corAtual = novaCor;
+    ferramentaAtual = 'lapis';
+    if (ctx) ctx.strokeStyle = corAtual;
     
     document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
-    const btnBorracha = document.getElementById('btnBorracha');
-    if (btnBorracha) btnBorracha.classList.remove('ativo');
+    document.getElementById('btnBorracha').classList.remove('ativo');
+    document.getElementById('btnBalde').classList.remove('ativo');
     
     if (el) el.classList.add('ativo');
+
+    const iconeLapis = document.querySelector('#btnMenuGrossura img');
+    if (iconeLapis) {
+        iconeLapis.style.filter = `drop-shadow(0 0 0 ${corAtual})`;
+    }
+
+    atualizarCursorPincel();
 }
 
 function ativarBorracha(el) {
     if (somClique.src) somClique.play().catch(()=>{});
-    corAtual = "#FFFFFF"; 
+    ferramentaAtual = 'borracha';
     document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
+    document.getElementById('btnBalde').classList.remove('ativo');
+    document.getElementById('btnMenuGrossura').classList.remove('ativo');
     if (el) el.classList.add('ativo');
+    atualizarCursorPincel();
 }
 
+function ativarBalde(el) {
+    if (somClique.src) somClique.play().catch(()=>{});
+    ferramentaAtual = 'balde';
+    document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
+    document.getElementById('btnBorracha').classList.remove('ativo');
+    document.getElementById('btnMenuGrossura').classList.remove('ativo');
+    if (el) el.classList.add('ativo');
+    atualizarCursorPincel();
+}
 
-// ============================================================
-// 6. ALGORITMO DE PREENCHIMENTO RÁPIDO (FLOOD FILL)
-// ============================================================
 function hexToRgba(hex) {
     let c = hex.replace('#', '');
     if (c.length === 3) {
@@ -613,16 +641,11 @@ function preencherAreaComCor(startX, startY) {
     }
 
     function colorMatch(idx) {
-        const r = data[idx];
-        const g = data[idx + 1];
-        const b = data[idx + 2];
-        
-        if (r < 70 && g < 70 && b < 70) return false;
-
-        const diff = Math.abs(r - targetColor[0]) +
-                     Math.abs(g - targetColor[1]) +
-                     Math.abs(b - targetColor[2]);
-        return diff < 75;
+        const diff = Math.abs(data[idx] - targetColor[0]) +
+                     Math.abs(data[idx + 1] - targetColor[1]) +
+                     Math.abs(data[idx + 2] - targetColor[2]) +
+                     Math.abs(data[idx + 3] - targetColor[3]);
+        return diff < 60;
     }
 
     const pixelStack = [[startX, startY]];
@@ -690,13 +713,15 @@ function concluirDesenho() {
     if (overlay) {
         overlay.style.display = 'flex';
         overlay.innerHTML = `
-            <div class="vitoria-card">
-                <img src="${iconeFeedback}" style="width:110px; height:110px; object-fit:contain;">
-                <h1 style="color:#C2890B; font-size:1.35rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
-                <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste um desenho maravilhoso!</p>
-                <div style="display:flex; justify-content:center; gap:12px; margin-top:6px; width:100%; max-width:440px;">
-                    <button class="btn-final-amarelo" onclick="mostrarCapa()">Pintar Outro</button>
-                    <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
+            <div style="width: 100%; display: flex; justify-content: center; align-items: center; flex: 1;">
+                <div class="vitoria-card">
+                    <img src="${iconeFeedback}" style="width:170px; height:170px; object-fit:contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15));">
+                    <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
+                    <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste um desenho maravilhoso!</p>
+                    <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
+                        <button class="btn-final-roxo" onclick="iniciarJogoDesenho()">Desenhar Outro</button>
+                        <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
+                    </div>
                 </div>
             </div>
             <div class="feedback-bottom-bar"></div>`;
@@ -707,5 +732,4 @@ function concluirDesenho() {
     if (slotFundo) slotFundo.innerHTML = "";
 }
 
-// Iniciar com a capa e a animação
 mostrarCapa();
