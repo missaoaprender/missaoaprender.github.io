@@ -14,7 +14,7 @@ let isDrawing = false;
 let ctx = null;
 let canvas = null;
 let historicoCanvas = []; 
-let indiceDesenhoAtual = 0;
+let indiceDesenhoAtual = 0; // Índice inicial para o carrossel (ou bloco)
 
 let imgDesenhoOriginal = null; 
 
@@ -144,6 +144,7 @@ style.innerHTML = `
     .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
+    /* Estilos do Seletor de Capa */
     .seletor-capa-container {
         display: flex; align-items: center; gap: 15px; justify-content: center; margin-top: 6px;
     }
@@ -153,6 +154,7 @@ style.innerHTML = `
     .btn-seta-capa:hover { transform: scale(1.1); }
     .btn-seta-capa:active { transform: scale(0.92); }
 
+    /* Moldura Padrão (Ecrãs pequenos / Telemóvel vertical: 1 desenho) */
     .moldura-capa-quadrada {
         width: 150px; height: 150px; background: white; border: 3px solid #E2D3AB; border-radius: 20px; display: flex; align-items: center; justify-content: center; padding: 12px; box-shadow: 0 8px 20px rgba(236,166,7,0.2); cursor: pointer; transition: transform 0.2s ease;
     }
@@ -161,6 +163,7 @@ style.innerHTML = `
         width: 100%; height: 100%; object-fit: contain; pointer-events: none;
     }
 
+    /* Grelha para Ecrãs Maiores (4 desenhos em simultâneo) */
     .moldura-capa-grelha {
         display: none; width: 280px; height: 280px; background: white; border: 3px solid #E2D3AB; border-radius: 20px; padding: 12px; box-shadow: 0 8px 20px rgba(236,166,7,0.2); grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 10px;
     }
@@ -170,6 +173,7 @@ style.innerHTML = `
     .miniatura-grid-item:hover { transform: scale(1.06); background: #FFF3CC; border-color: #ECA607; }
     .miniatura-grid-item img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 
+    /* Media Query: Em ecrãs mais largos (tablets/PCs), mostra a grelha de 4 e oculta a moldura unitária */
     @media (min-width: 768px) {
         .moldura-capa-quadrada { display: none !important; }
         .moldura-capa-grelha { display: grid !important; }
@@ -225,7 +229,7 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA COM SELETOR ADAPTATIVO
+// 3. CAPA COM SELETOR ADAPTATIVO (1 ou 4 DESENHOS)
 // ============================================================
 function mostrarCapa() {
     const feedbackEl = document.getElementById('round-feedback');
@@ -261,7 +265,9 @@ function mudarDesenho(direcao) {
     const lista = DADOS.desenhosParaColorir || [];
     if (lista.length === 0) return;
 
+    // Em ecrãs grandes avança de 4 em 4, em telemóveis de 1 em 1
     const salto = window.innerWidth >= 768 ? 4 : 1;
+
     indiceDesenhoAtual += direcao * salto;
     if (indiceDesenhoAtual < 0) indiceDesenhoAtual = Math.max(0, lista.length - salto);
     if (indiceDesenhoAtual >= lista.length) indiceDesenhoAtual = 0;
@@ -282,6 +288,7 @@ function renderizarCapaComMoldura() {
 
     const area = document.getElementById('contentor-jogo');
     if (area) {
+        // Gerar os 4 itens para a grelha de ecrãs grandes
         let itensGrelhaHtml = '';
         for (let i = 0; i < 4; i++) {
             const idxReal = (indiceDesenhoAtual + i) % lista.length;
@@ -301,10 +308,12 @@ function renderizarCapaComMoldura() {
             <div class="seletor-capa-container">
                 <button class="btn-seta-capa" onclick="mudarDesenho(-1)"><i class="fas fa-chevron-left"></i></button>
                 
+                <!-- Moldura Unitária (Telemóveis / Ecrãs Pequenos) -->
                 <div class="moldura-capa-quadrada" onclick="iniciarJogoDesenho()" title="Começar a Pintar">
                     <img src="${desenhoObj.arquivo}" alt="" class="moldura-capa-miniatura">
                 </div>
 
+                <!-- Grelha de 4 Desenhos (Tablets / Computadores / Ecrãs Grandes) -->
                 <div class="moldura-capa-grelha">
                     ${itensGrelhaHtml}
                 </div>
@@ -323,7 +332,7 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO ESTOJO MÁGICO E CANVAS (BALDE OTIMIZADO)
+// 4. LÓGICA DO ESTOJO MÁGICO E CANVAS
 // ============================================================
 function atualizarCursorPincel() {
     const canvasEl = document.getElementById('paintCanvas');
@@ -695,7 +704,6 @@ function hexToRgba(hex) {
     ];
 }
 
-// BALDE OTIMIZADO PARA IGNORAR BORDAS SUAVES (ANTI-ALIASING) E ENCOSTAR À LINHA
 function preencherAreaComCor(startX, startY) {
     if (!ctx || !canvas) return;
     if (somClique.src) somClique.play().catch(()=>{});
@@ -720,28 +728,12 @@ function preencherAreaComCor(startX, startY) {
         return;
     }
 
-    // Criar mapa de referência do desenho original para detetar as linhas pretas com precisão
-    const cTemp = document.createElement('canvas');
-    cTemp.width = width;
-    cTemp.height = height;
-    const ctxTemp = cTemp.getContext('2d');
-    ctxTemp.fillStyle = "#FFFFFF";
-    ctxTemp.fillRect(0, 0, width, height);
-    if (imgDesenhoOriginal) {
-        ctxTemp.drawImage(imgDesenhoOriginal.img, 0, 0, imgDesenhoOriginal.img.width, imgDesenhoOriginal.img.height, imgDesenhoOriginal.x, imgDesenhoOriginal.y, imgDesenhoOriginal.w, imgDesenhoOriginal.h);
-    }
-    const originalData = ctxTemp.getImageData(0, 0, width, height).data;
-
     function colorMatch(idx) {
-        // Se for linha preta original (ou tom escuro do contorno), parar o preenchimento para não atravessar
-        const isLine = originalData[idx] < 80 && originalData[idx + 1] < 80 && originalData[idx + 2] < 80;
-        if (isLine) return false;
-
-        // Tolerância ajustada para abranger variações de cor na área a preencher
         const diff = Math.abs(data[idx] - targetColor[0]) +
                      Math.abs(data[idx + 1] - targetColor[1]) +
-                     Math.abs(data[idx + 2] - targetColor[2]);
-        return diff < 90;
+                     Math.abs(data[idx + 2] - targetColor[2]) +
+                     Math.abs(data[idx + 3] - targetColor[3]);
+        return diff < 60;
     }
 
     const pixelStack = [[startX, startY]];
@@ -768,7 +760,7 @@ function preencherAreaComCor(startX, startY) {
             data[pixelPos] = fillColor[0];
             data[pixelPos + 1] = fillColor[1];
             data[pixelPos + 2] = fillColor[2];
-            data[pixelPos + 3] = 255;
+            data[pixelPos + 3] = fillColor[3];
 
             if (x > 0) {
                 if (colorMatch(pixelPos - 4)) {
