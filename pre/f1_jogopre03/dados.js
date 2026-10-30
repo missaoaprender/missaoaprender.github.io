@@ -1,15 +1,20 @@
 const DADOS = {
   pagina: {
-    browserTitulo: "Pré-Escolar",
+    browserTitulo: "Pré-Escolar - Desenho Criativo",
     titulo: "Pré-Escolar",
-    subtitulo: "Atividades Criativas",
-    tituloMenu: "Estojo Mágico",
+    subtitulo: "Colorir Criativo",
+    tituloMenu: "Colorir Criativo",
     mensagem: "Diverte-te a aprender!",
     informacao: "Jogos Pré",
     tituloMenuAcordeao: "Menu",
-    urlVoltar: "../../", 
+    urlVoltar: "../", 
     iconeEstrela: "★",
     iconeInfo: "i"
+  },
+
+  animacaoCapa: {
+    titulo: "Desenho Criativo",
+    instrucaoTexto: "Cria a tua obra de arte!"
   },
 
   icons: {
@@ -19,6 +24,7 @@ const DADOS = {
     som: "../../icons/som.png",
     lampada: "../../icons/lampada.png",
     info: "../../icons/info.png",
+    pincel: "../../icons/pincel.png",
     feedbacks: {
       feedback1: "../../icons/feedback_1.png",
       feedback2: "../../icons/feedback_2.png",
@@ -35,9 +41,8 @@ const DADOS = {
     }
   },
 
-  // Lista de desenhos para colorir (a apontar para a pasta imagens/colorir/)
   desenhosParaColorir: [
-    { id: 1, nome: "Desenho 5", arquivo: "../../imagens/colorir/desenho5.png" },
+    { id: 1, nome: "Desenho 5", arquivo: "../../imagens/colorir/desenho1.png" },
     { id: 2, nome: "Desenho 6", arquivo: "../../imagens/colorir/desenho6.png" },
     { id: 3, nome: "Desenho 3", arquivo: "../../imagens/colorir/desenho3.png" },
     { id: 4, nome: "Desenho 4", arquivo: "../../imagens/colorir/desenho4.png" }
@@ -45,7 +50,9 @@ const DADOS = {
 
   sons: {
     certo: "",
-    errado: ""
+    errado: "",
+    clique: "",
+    instrucao: "f1_jogopre02.mp3"
   },
 
   cores: {
