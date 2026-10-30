@@ -1,139 +1,189 @@
 // ============================================================
-// 1. ESTADO GLOBAL E SONS
+// 1. ESTADO GLOBAL E SONS (Lidos de DADOS)
 // ============================================================
 const JOGO_CONFIG = {
-    nomeDoJogo: "Estojo Mágico",
+    nomeDoJogo: DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Pixel Art Criativo",
     caminhoSons: DADOS.sons ? DADOS.sons.caminho : "",
     caminhoIconsMenu: "../../icons/"
 };
 
-let corAtual = "#ECA607";
-let ferramentaAtual = "lapis"; 
-let tamanhoPincel = 10;
-let isDrawing = false;
-let ctx = null;
-let canvas = null;
-let historicoCanvas = []; 
+let corAtualPixel = "#8B4513"; // Cor inicial predefinida
+let tamanhoGrelha = 8; // Grelha de 8x8 por predefinição
+let matrizJogador = [];
+let indiceDesenhoPixelAtual = 0;
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
-const somInstrucao = new Audio("f1_jogo01pre.mp3");
+const somInstrucao = new Audio(DADOS.sons && DADOS.sons.instrucao ? DADOS.sons.instrucao : "f1_jogo01pre.mp3");
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (DESIGN PREMIUM)
+// 2. CONFIGURAÇÃO VISUAL (CSS)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
-    .desenho-container {
-        display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-        width: 100%; height: 100%; flex: 1; gap: 8px; animation: cardPop 0.3s ease; padding: 2px 0;
+    .pixel-container {
+        display: flex; flex-direction: row; align-items: stretch; justify-content: space-between;
+        width: 100%; height: 100%; flex: 1; gap: 16px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
     }
-    @keyframes cardPop { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    .canvas-wrapper {
+    .grelha-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; touch-action: none;
-        flex: 1; width: 100%; display: flex; align-items: center; justify-content: center; min-height: 0;
-    }
-    canvas { display: block; cursor: crosshair; width: 100%; height: 100%; }
-
-    .painel-estojo {
-        display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; background: rgba(255,255,255,0.85); padding: 8px 12px; border-radius: 16px; border: 2px solid #E2D3AB; flex-shrink: 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06); padding: 12px;
+        flex: 3.5; display: flex; align-items: center; justify-content: center; overflow: hidden;
     }
 
-    .linha-lapis {
-        display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; width: 100%;
+    .matriz-pixels {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        grid-template-rows: repeat(8, 1fr);
+        width: 100%; max-width: 380px; aspect-ratio: 1;
+        border: 2.5px solid #262638; background: #fff;
+        border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
-    
-    .lapis-btn {
-        width: 36px; height: 36px; border-radius: 50%; border: 3px solid white; cursor: pointer;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.15); transition: transform 0.1s;
-    }
-    .lapis-btn:active, .lapis-btn.ativo { transform: scale(1.15); border-color: #262638; }
 
-    .grossura-btn {
-        background: white; color: #C2890B; border: 2px solid #ECA607; width: 32px; height: 32px;
-        border-radius: 50%; font-weight: 900; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.08); transition: transform 0.1s;
+    .pixel-celula {
+        background: #F9F9F9; border: 1px solid #D5D5D5; cursor: pointer;
+        transition: background 0.1s ease;
     }
-    .grossura-btn.ativo { background: #ECA607; color: white; transform: scale(1.1); }
+    .pixel-celula:hover { opacity: 0.8; }
 
-    .btn-ferramenta-img {
-        background: white; border: 2px solid #ECA607; width: 40px; height: 40px;
-        border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; padding: 4px;
+    .painel-estojo-pixel {
+        display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 8px; flex: 1; max-width: 220px; background: rgba(255,255,255,0.95); padding: 10px; border-radius: 16px; border: 2px solid #E2D3AB; flex-shrink: 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
     }
-    .btn-ferramenta-img:active { transform: scale(0.92); }
-    .btn-ferramenta-img.ativo { background: #ECA607; border-color: #262638; transform: scale(1.08); }
-    .btn-ferramenta-img img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+
+    .painel-cores-box {
+        width: 100%; background: #FFFDF7; border: 2px solid #E2D3AB; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+    }
+    .titulo-cores {
+        font-size: 0.7rem; font-weight: 900; color: #C2890B; letter-spacing: 1px; text-transform: uppercase; margin: 0;
+    }
+
+    .grid-cores-pixel {
+        display: flex; flex-direction: column; gap: 6px; width: 100%; align-items: center;
+    }
+    .cor-palete-btn {
+        width: 100%; height: 32px; border-radius: 8px; border: 2.5px solid white; cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.12); transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .cor-palete-btn:hover { transform: scale(1.05); }
+    .cor-palete-btn.ativo { transform: scale(1.08); border-color: #262638; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
+
+    /* Miniatura de Referência */
+    .referencia-box {
+        width: 100%; background: white; border: 2px solid #E2D3AB; border-radius: 12px; padding: 6px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+    }
+    .referencia-titulo {
+        font-size: 0.65rem; font-weight: 900; color: #C2890B; text-transform: uppercase; margin: 0;
+    }
+    .referencia-grid {
+        display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
+        width: 80px; aspect-ratio: 1; border: 1.5px solid #262638; border-radius: 4px; overflow: hidden;
+    }
+    .ref-celula { width: 100%; height: 100%; }
+
+    /* Moldura de navegação na capa */
+    .seletor-capa-container {
+        display: flex; align-items: center; gap: 15px; justify-content: center; margin-top: 6px;
+    }
+    .btn-seta-capa {
+        background: #ECA607; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s ease; flex-shrink: 0;
+    }
+    .btn-seta-capa:hover { transform: scale(1.1); }
+    .btn-seta-capa:active { transform: scale(0.92); }
+
+    .moldura-capa-quadrada {
+        width: 150px; height: 150px; background: white; border: 3px solid #E2D3AB; border-radius: 20px; display: flex; align-items: center; justify-content: center; padding: 12px; box-shadow: 0 8px 20px rgba(236,166,7,0.2); cursor: pointer; transition: transform 0.2s ease;
+    }
+    .moldura-capa-quadrada:hover { transform: scale(1.03); }
+    .moldura-capa-miniatura {
+        width: 100%; height: 100%; object-fit: contain; pointer-events: none;
+    }
 
     .btn-ferramenta-texto {
-        background: white; color: #C2890B; border: 2px solid #ECA607; padding: 6px 14px;
-        border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.1s; display: flex; align-items: center; gap: 5px;
+        background: #ECA607; color: white; border: 2.5px solid #F4D06F; padding: 10px 14px;
+        border-radius: 16px; font-weight: 900; font-size: 0.9rem; cursor: pointer;
+        box-shadow: 0 4px 12px rgba(236,166,7,0.35); transition: transform 0.2s ease, background 0.2s ease;
+        display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; text-transform: uppercase;
     }
+    .btn-ferramenta-texto:hover { transform: translateY(-2px); background: #d99605; }
     .btn-ferramenta-texto:active { transform: scale(0.95); }
-    .btn-ferramenta-texto.destaque { background: #ECA607; color: white; }
 
     .btn-capa-som {
-        width: 44px; height: 44px; background: rgba(255,255,255,0.4); border: 2px solid rgba(255,255,255,0.8);
+        width: 44px; height: 44px; background: rgba(255,255,255,0.8); border: 2px solid rgba(255,255,255,0.95);
         border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
-        transition: transform 0.1s; box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 3px 10px rgba(0,0,0,0.1);
     }
+    .btn-capa-som:hover { transform: scale(1.1); }
     .btn-capa-som:active { transform: scale(0.92); }
-    .btn-capa-som img { width: 24px; height: 24px; object-fit: contain; }
+    .btn-capa-som img { width: 22px; height: 22px; object-fit: contain; }
+
+    .btn-menu-topo {
+        height: 44px; background: white; color: #C2890B; border: 2px solid #E2D3AB;
+        padding: 0 20px; border-radius: 22px; font-weight: 900; font-size: 0.85rem;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .btn-menu-topo:hover { transform: scale(1.05); background: #FFF9E6; }
+    .btn-menu-topo:active { transform: scale(0.95); }
 
     .btn-capa-jogar {
         background: white; color: #C2890B; border: none;
         padding: 8px 26px; border-radius: 18px; font-weight: 900; font-size: 1rem;
-        cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.1s;
+        cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
         text-transform: uppercase;
     }
+    .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-        background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(6px); 
+        background: rgba(255, 255, 255, 0.96); backdrop-filter: blur(8px); 
         z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: space-between; 
         border-radius: 35px; overflow: hidden; padding: 20px;
+        animation: fadeInFeedback 0.3s ease forwards;
     }
+    @keyframes fadeInFeedback { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
     
     .feedback-bottom-bar {
-        width: 100%; height: 14px;
-        background: #ECA607; border-radius: 7px; flex-shrink: 0;
+        width: 100%; height: 14px; background: #ECA607; border-radius: 7px; flex-shrink: 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     }
-
     .vitoria-card { 
         background: transparent; padding: 10px 20px; text-align: center; 
         display: flex; flex-direction: column; align-items: center; gap: 12px; 
-        animation: cardPop 0.4s cubic-bezier(0.17, 0.89, 0.32, 1.28); 
+        animation: cardPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
         width: 100%; max-width: 480px; margin: auto 0;
     }
-    
     .btn-final-roxo {
-        background: #ECA607; color: white; border: none; padding: 14px 20px;
+        background: #ECA607; color: white; border: none; padding: 14px 22px;
         border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(236,166,7,0.3); text-transform: capitalize; transition: transform 0.1s;
-        white-space: nowrap; flex: 1; text-align: center;
+        box-shadow: 0 6px 18px rgba(236,166,7,0.35); text-transform: capitalize; transition: transform 0.2s ease; white-space: nowrap; flex: 1; text-align: center;
     }
-    .btn-final-roxo:active { transform: scale(0.95); }
-
     .btn-final-branco {
-        background: white; color: #C2890B; border: 2px solid #ECA607; padding: 14px 20px;
+        background: white; color: #C2890B; border: 2px solid #ECA607; padding: 14px 22px;
         border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.08); text-transform: capitalize; transition: transform 0.1s;
-        white-space: nowrap; flex: 1; text-align: center;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.08); text-transform: capitalize; transition: transform 0.2s ease; white-space: nowrap; flex: 1; text-align: center;
     }
-    .btn-final-branco:active { transform: scale(0.95); }
+    .btn-final-roxo:hover, .btn-final-branco:hover { transform: translateY(-3px) scale(1.03); }
+
+    @media (max-width: 768px) {
+        .pixel-container { flex-direction: column; }
+        .painel-estojo-pixel { max-width: 100%; width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+        .grid-cores-pixel { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    }
 `;
 document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA E REPRODUÇÃO DE SOM (Barrita em cima, botões em baixo)
+// 3. CAPA E SELEÇÃO DE DESENHOS PIXEL ART
 // ============================================================
 function mostrarCapa() {
+    const feedbackEl = document.getElementById('round-feedback');
+    if (feedbackEl) feedbackEl.style.display = 'none';
+
     if(!document.getElementById('round-feedback')) {
         const feedback = document.createElement('div');
         feedback.id = 'round-feedback';
@@ -148,19 +198,49 @@ function mostrarCapa() {
         slotTopo.innerHTML = "";
     }
 
-    const area = document.getElementById('contentor-jogo');
-    if (area) {
-        area.innerHTML = `
-            <div style="font-size: 1.4rem; font-weight: 900; color: #C2890B; margin-bottom: 8px; text-transform: uppercase;">Estojo de Desenho Mágico</div>
-            <div style="background: rgba(236,166,7,0.15); width: 110px; height: 110px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.2rem; margin-bottom: 10px; box-shadow: 0 8px 20px rgba(236,166,7,0.2);">✏️✨</div>
-        `;
-    }
+    renderizarCapaComMoldura();
 
     if (slotFundo) {
         slotFundo.className = "barra-jogo-topo";
         slotFundo.innerHTML = `
             <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
-            <button class="btn-capa-jogar" onclick="iniciarJogoDesenho()">COMEÇAR</button>
+            <button class="btn-capa-jogar" onclick="iniciarJogoPixel()">COMEÇAR</button>
+        `;
+    }
+}
+
+function mudarDesenhoPixel(direcao) {
+    if (somClique.src) somClique.play().catch(()=>{});
+    const lista = DADOS.pixelArtModelos || [
+        { nome: "Personagem", paleta: ["#8B4513", "#FFDAB9", "#333333", "#FFA500", "#FFFFFF"], matriz: Array(64).fill("#FFFFFF") }
+    ];
+
+    indiceDesenhoPixelAtual += direcao;
+    if (indiceDesenhoPixelAtual < 0) indiceDesenhoPixelAtual = lista.length - 1;
+    if (indiceDesenhoPixelAtual >= lista.length) indiceDesenhoPixelAtual = 0;
+
+    renderizarCapaComMoldura();
+}
+
+function renderizarCapaComMoldura() {
+    const lista = DADOS.pixelArtModelos || [{ arquivo: "" }];
+    const modelo = lista[indiceDesenhoPixelAtual] || { arquivo: "" };
+    const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Pixel Art";
+
+    const area = document.getElementById('contentor-jogo');
+    if (area) {
+        area.innerHTML = `
+            <div style="font-size: 1.3rem; font-weight: 900; color: #C2890B; margin-bottom: 8px; text-transform: uppercase;">${tituloAnimacao}</div>
+            
+            <div class="seletor-capa-container">
+                <button class="btn-seta-capa" onclick="mudarDesenhoPixel(-1)"><i class="fas fa-chevron-left"></i></button>
+                
+                <div class="moldura-capa-quadrada" onclick="iniciarJogoPixel()" title="Começar a Pintar">
+                    <img src="${modelo.arquivo || ''}" alt="" class="moldura-capa-miniatura">
+                </div>
+
+                <button class="btn-seta-capa" onclick="mudarDesenhoPixel(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
         `;
     }
 }
@@ -173,9 +253,9 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO ESTOJO MÁGICO
+// 4. LÓGICA DO JOGO PIXEL ART
 // ============================================================
-function iniciarJogoDesenho() {
+function iniciarJogoPixel() {
     if (somClique.src) somClique.play().catch(()=>{});
     
     const slotTopo = document.getElementById('slot-topo');
@@ -186,47 +266,67 @@ function iniciarJogoDesenho() {
 
     if (slotTopo) {
         slotTopo.className = "barra-jogo-topo";
-        // Ícone de som totalmente encostado à esquerda e botão de Menu à direita
         slotTopo.innerHTML = `
-            <div class="btn-capa-som" style="width:36px; height:36px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:18px; height:18px;"></div>
-            <button class="btn-ferramenta-texto" onclick="mostrarCapa()" style="padding:4px 10px; font-size:0.75rem;">Menu</button>
+            <div class="btn-capa-som" style="width:44px; height:44px;" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som" style="width:22px; height:22px;"></div>
+            <button class="btn-menu-topo" onclick="mostrarCapa()"><i class="fas fa-bars"></i> Menu</button>
         `;
+    }
+
+    // Inicializar matriz do jogador em branco (64 células para 8x8)
+    matrizJogador = Array(tamanhoGrelha * tamanhoGrelha).fill("#FFFFFF");
+
+    const modeloAtual = (DADOS.pixelArtModelos && DADOS.pixelArtModelos[indiceDesenhoPixelAtual]) ? DADOS.pixelArtModelos[indiceDesenhoPixelAtual] : {
+        paleta: ["#8B4513", "#FFDAB9", "#333333", "#FFA500", "#FFFFFF"],
+        matrizAlvo: Array(64).fill("#FFFFFF")
+    };
+
+    corAtualPixel = modeloAtual.paleta[0] || "#000000";
+
+    // Criar HTML da Paleta de Cores
+    let paletaHtml = '';
+    modeloAtual.paleta.forEach((cor, index) => {
+        const ativoClass = index === 0 ? 'ativo' : '';
+        paletaHtml += `<div class="cor-palete-btn ${ativoClass}" style="background-color: ${cor};" onclick="selecionarCorPixel('${cor}', this)"></div>`;
+    });
+
+    // Criar HTML da Grelha de Referência (Miniatura)
+    let refHtml = '';
+    for (let i = 0; i < (tamanhoGrelha * tamanhoGrelha); i++) {
+        const corRef = (modeloAtual.matrizAlvo && modeloAtual.matrizAlvo[i]) ? modeloAtual.matrizAlvo[i] : "#FFFFFF";
+        refHtml += `<div class="ref-celula" style="background-color: ${corRef};"></div>`;
+    }
+
+    // Criar HTML da Grelha do Jogador
+    let grelhaHtml = '';
+    for (let i = 0; i < (tamanhoGrelha * tamanhoGrelha); i++) {
+        grelhaHtml += `<div class="pixel-celula" id="pixel-${i}" onclick="pintarPixel(${i})"></div>`;
     }
 
     if (area) {
         area.innerHTML = `
-            <div class="desenho-container">
-                <div class="canvas-wrapper" id="canvasWrapper">
-                    <canvas id="paintCanvas"></canvas>
+            <div class="pixel-container">
+                <div class="grelha-wrapper">
+                    <div class="matriz-pixels" id="matrizJogador">
+                        ${grelhaHtml}
+                    </div>
                 </div>
-                <div class="painel-estojo">
-                    <div class="linha-lapis">
-                        <div class="lapis-btn ativo" style="background:#ECA607;" onclick="mudarCor('#ECA607', this)"></div>
-                        <div class="lapis-btn" style="background:#ff5a5f;" onclick="mudarCor('#ff5a5f', this)"></div>
-                        <div class="lapis-btn" style="background:#8cc63f;" onclick="mudarCor('#8cc63f', this)"></div>
-                        <div class="lapis-btn" style="background:#3a86ff;" onclick="mudarCor('#3a86ff', this)"></div>
-                        <div class="lapis-btn" style="background:#9b5de5;" onclick="mudarCor('#9b5de5', this)"></div>
-                        <div class="lapis-btn" style="background:#ff007f;" onclick="mudarCor('#ff007f', this)"></div>
-                        <div class="lapis-btn" style="background:#00f5d4;" onclick="mudarCor('#00f5d4', this)"></div>
-                        <div class="lapis-btn" style="background:#262638;" onclick="mudarCor('#262638', this)"></div>
+
+                <div class="painel-estojo-pixel">
+                    <div class="painel-cores-box">
+                        <span class="titulo-cores">Paleta</span>
+                        <div class="grid-cores-pixel">
+                            ${paletaHtml}
+                        </div>
                     </div>
-                    <div class="linha-lapis">
-                        <span style="font-size:0.8rem; font-weight:800; color:#555;">Traço:</span>
-                        <button class="grossura-btn" onclick="mudarGrossura(4, this)">F</button>
-                        <button class="grossura-btn ativo" onclick="mudarGrossura(10, this)">M</button>
-                        <button class="grossura-btn" onclick="mudarGrossura(18, this)">G</button>
-                        
-                        <div class="btn-ferramenta-img" id="btnBorracha" onclick="ativarBorracha(this)" title="Borracha">
-                            <img src="../../icons/borracha.png" alt="Borracha">
+
+                    <div class="referencia-box">
+                        <span class="referencia-titulo">Modelo</span>
+                        <div class="referencia-grid">
+                            ${refHtml}
                         </div>
-                        <div class="btn-ferramenta-img" id="btnBalde" onclick="ativarBalde(this)" title="Balde de Tinta">
-                            <img src="../../icons/balde_tinta.png" alt="Balde de Tinta">
-                        </div>
-                        <div class="btn-ferramenta-img" id="btnAnular" onclick="anularUltimaAcao()" title="Anular">
-                            <img src="../../icons/anular.png" alt="Anular">
-                        </div>
-                        <button class="btn-ferramenta-texto destaque" onclick="concluirDesenho()"><i class="fas fa-check"></i> Pronto!</button>
                     </div>
+
+                    <button class="btn-ferramenta-texto" onclick="verificarPixelArt()"><i class="fas fa-check"></i> Verifique</button>
                 </div>
             </div>
         `;
@@ -236,260 +336,30 @@ function iniciarJogoDesenho() {
         slotFundo.className = "barrita-fundo-cartao";
         slotFundo.innerHTML = "";
     }
-
-    configurarCanvas();
 }
 
-function configurarCanvas() {
-    canvas = document.getElementById('paintCanvas');
-    const wrapper = document.getElementById('canvasWrapper');
-    if (!canvas || !wrapper) return;
-
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = canvas.width || wrapper.clientWidth;
-    tempCanvas.height = canvas.height || wrapper.clientHeight;
-    const tempCtx = tempCanvas.getContext('2d');
-    if (ctx) {
-        tempCtx.drawImage(canvas, 0, 0);
-    }
-
-    canvas.width = wrapper.clientWidth;
-    canvas.height = wrapper.clientHeight;
-
-    ctx = canvas.getContext('2d');
-    if (ctx && canvas.width > 0 && tempCanvas.width > 0) {
-        ctx.drawImage(tempCanvas, 0, 0);
-    } else if (ctx) {
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = tamanhoPincel;
-    ctx.strokeStyle = corAtual;
-
-    salvarEstadoHistorico();
-
-    const getPos = (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { 
-            x: Math.floor(clientX - rect.left), 
-            y: Math.floor(clientY - rect.top) 
-        };
-    };
-
-    const startDraw = (e) => {
-        const pos = getPos(e);
-        if (ferramentaAtual === 'balde') {
-            preencherAreaComCor(pos.x, pos.y);
-            e.preventDefault();
-            return;
-        }
-
-        isDrawing = true;
-        ctx.beginPath();
-        ctx.moveTo(pos.x, pos.y);
-        e.preventDefault();
-    };
-
-    const draw = (e) => {
-        if (!isDrawing || ferramentaAtual === 'balde') return;
-        const pos = getPos(e);
-        
-        if (ferramentaAtual === 'borracha') {
-            ctx.strokeStyle = '#FFFFFF';
-        } else {
-            ctx.strokeStyle = corAtual;
-        }
-
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
-        e.preventDefault();
-    };
-
-    const endDraw = () => {
-        if (isDrawing) {
-            isDrawing = false;
-            salvarEstadoHistorico();
-        }
-    };
-
-    canvas.onmousedown = startDraw;
-    canvas.onmousemove = draw;
-    canvas.onmouseup = endDraw;
-    canvas.onmouseleave = endDraw;
-
-    canvas.ontouchstart = startDraw;
-    canvas.ontouchmove = draw;
-    canvas.ontouchend = endDraw;
-}
-
-function salvarEstadoHistorico() {
-    if (!canvas || !ctx) return;
-    if (historicoCanvas.length >= 10) {
-        historicoCanvas.shift();
-    }
-    historicoCanvas.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-}
-
-function anularUltimaAcao() {
+function selecionarCorPixel(cor, el) {
     if (somClique.src) somClique.play().catch(()=>{});
-    if (historicoCanvas.length > 1) {
-        historicoCanvas.pop();
-        const estadoAnterior = historicoCanvas[historicoCanvas.length - 1];
-        ctx.putImageData(estadoAnterior, 0, 0);
-    }
-}
-
-function mudarCor(novaCor, el) {
-    if (somClique.src) somClique.play().catch(()=>{});
-    corAtual = novaCor;
-    ferramentaAtual = 'lapis';
-    if (ctx) ctx.strokeStyle = corAtual;
-    
-    document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
-    document.getElementById('btnBorracha').classList.remove('ativo');
-    document.getElementById('btnBalde').classList.remove('ativo');
-    
+    corAtualPixel = cor;
+    document.querySelectorAll('.cor-palete-btn').forEach(b => b.classList.remove('ativo'));
     if (el) el.classList.add('ativo');
 }
 
-function mudarGrossura(tamanho, el) {
+function pintarPixel(index) {
     if (somClique.src) somClique.play().catch(()=>{});
-    tamanhoPincel = tamanho;
-    if (ctx) ctx.lineWidth = tamanhoPincel;
-    
-    document.querySelectorAll('.grossura-btn').forEach(b => b.classList.remove('ativo'));
-    if (el) el.classList.add('ativo');
-}
-
-function ativarBorracha(el) {
-    if (somClique.src) somClique.play().catch(()=>{});
-    ferramentaAtual = 'borracha';
-    document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
-    document.getElementById('btnBalde').classList.remove('ativo');
-    if (el) el.classList.add('ativo');
-}
-
-function ativarBalde(el) {
-    if (somClique.src) somClique.play().catch(()=>{});
-    ferramentaAtual = 'balde';
-    document.querySelectorAll('.lapis-btn').forEach(b => b.classList.remove('ativo'));
-    document.getElementById('btnBorracha').classList.remove('ativo');
-    if (el) el.classList.add('ativo');
-}
-
-// ============================================================
-// ALGORITMO DE PREENCHIMENTO POR INUNDAÇÃO (FLOOD FILL)
-// ============================================================
-function hexToRgba(hex) {
-    let c = hex.replace('#', '');
-    if (c.length === 3) {
-        c = c.split('').map(x => x + x).join('');
+    matrizJogador[index] = corAtualPixel;
+    const celula = document.getElementById(`pixel-${index}`);
+    if (celula) {
+        celula.style.backgroundColor = corAtualPixel;
     }
-    const num = parseInt(c, 16);
-    return [
-        (num >> 16) & 255,
-        (num >> 8) & 255,
-        num & 255,
-        255
-    ];
 }
 
-function preencherAreaComCor(startX, startY) {
-    if (!ctx || !canvas) return;
-    if (somClique.src) somClique.play().catch(()=>{});
-
-    const width = canvas.width;
-    const height = canvas.height;
-    if (startX < 0 || startX >= width || startY < 0 || startY >= height) return;
-
-    const imgData = ctx.getImageData(0, 0, width, height);
-    const data = imgData.data;
-
-    const fillColor = hexToRgba(corAtual);
-    const pos = (startY * width + startX) * 4;
-    const targetColor = [data[pos], data[pos + 1], data[pos + 2], data[pos + 3]];
-
-    if (
-        targetColor[0] === fillColor[0] &&
-        targetColor[1] === fillColor[1] &&
-        targetColor[2] === fillColor[2] &&
-        targetColor[3] === fillColor[3]
-    ) {
-        return;
-    }
-
-    function colorMatch(idx) {
-        const diff = Math.abs(data[idx] - targetColor[0]) +
-                     Math.abs(data[idx + 1] - targetColor[1]) +
-                     Math.abs(data[idx + 2] - targetColor[2]) +
-                     Math.abs(data[idx + 3] - targetColor[3]);
-        return diff < 60;
-    }
-
-    const pixelStack = [[startX, startY]];
-
-    while (pixelStack.length > 0) {
-        const newPos = pixelStack.pop();
-        const x = newPos[0];
-        let y = newPos[1];
-
-        let pixelPos = (y * width + x) * 4;
-
-        while (y >= 0 && colorMatch(pixelPos)) {
-            y--;
-            pixelPos -= width * 4;
-        }
-
-        pixelPos += width * 4;
-        y++;
-
-        let reachLeft = false;
-        let reachRight = false;
-
-        while (y < height && colorMatch(pixelPos)) {
-            data[pixelPos] = fillColor[0];
-            data[pixelPos + 1] = fillColor[1];
-            data[pixelPos + 2] = fillColor[2];
-            data[pixelPos + 3] = fillColor[3];
-
-            if (x > 0) {
-                if (colorMatch(pixelPos - 4)) {
-                    if (!reachLeft) {
-                        pixelStack.push([x - 1, y]);
-                        reachLeft = true;
-                    }
-                } else if (reachLeft) {
-                    reachLeft = false;
-                }
-            }
-
-            if (x < width - 1) {
-                if (colorMatch(pixelPos + 4)) {
-                    if (!reachRight) {
-                        pixelStack.push([x + 1, y]);
-                        reachRight = true;
-                    }
-                } else if (reachRight) {
-                    reachRight = false;
-                }
-            }
-
-            y++;
-            pixelPos += width * 4;
-        }
-    }
-
-    ctx.putImageData(imgData, 0, 0);
-    salvarEstadoHistorico();
-}
-
-function concluirDesenho() {
+function verificarPixelArt() {
     if (somAcerto.src) somAcerto.play().catch(()=>{});
+    
+    // Validação opcional com o modelo alvo
+    const modeloAtual = (DADOS.pixelArtModelos && DADOS.pixelArtModelos[indiceDesenhoPixelAtual]) ? DADOS.pixelArtModelos[indiceDesenhoPixelAtual] : null;
+    
     const overlay = document.getElementById('round-feedback');
     const iconeFeedback = DADOS.icons.feedbacks.feedback1;
 
@@ -498,11 +368,11 @@ function concluirDesenho() {
         overlay.innerHTML = `
             <div style="width: 100%; display: flex; justify-content: center; align-items: center; flex: 1;">
                 <div class="vitoria-card">
-                    <img src="${iconeFeedback}" style="width:120px; height:120px; object-fit:contain;">
-                    <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">QUE OBRA DE ARTE MÁGICA!</h1>
-                    <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste um desenho maravilhoso!</p>
+                    <img src="${iconeFeedback}" style="width:170px; height:170px; object-fit:contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15));">
+                    <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">EXCELENTE PIXEL ART!</h1>
+                    <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Criaste uma obra de arte incrível!</p>
                     <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
-                        <button class="btn-final-roxo" onclick="iniciarJogoDesenho()">Desenhar Outro</button>
+                        <button class="btn-final-roxo" onclick="mostrarCapa()">Outro Desenho</button>
                         <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
                     </div>
                 </div>
@@ -515,5 +385,4 @@ function concluirDesenho() {
     if (slotFundo) slotFundo.innerHTML = "";
 }
 
-// Iniciar a capa diretamente
 mostrarCapa();
