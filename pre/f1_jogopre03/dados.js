@@ -48,7 +48,7 @@ const DADOS = {
     { id: 4, nome: "Desenho 4", arquivo: "../../imagens/colorir/desenho4.png" }
   ],
 
-  // Modelos de Pixel Art gerados por mim para o jogo
+  // Modelos de Pixel Art integrados para o jogo funcionar perfeitamente com o jogo.js
   pixelArtModelos: [
     {
       nome: "Casinha Feliz",
