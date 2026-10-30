@@ -13,7 +13,7 @@ const DADOS = {
   },
 
   animacaoCapa: {
-    titulo: "Desenho Criativo",
+    titulo: "Pixel Art Criativo",
     instrucaoTexto: "Cria a tua obra de arte!"
   },
 
@@ -46,6 +46,40 @@ const DADOS = {
     { id: 2, nome: "Desenho 6", arquivo: "../../imagens/colorir/desenho6.png" },
     { id: 3, nome: "Desenho 3", arquivo: "../../imagens/colorir/desenho3.png" },
     { id: 4, nome: "Desenho 4", arquivo: "../../imagens/colorir/desenho4.png" }
+  ],
+
+  // Modelos de Pixel Art gerados por mim para o jogo
+  pixelArtModelos: [
+    {
+      nome: "Casinha Feliz",
+      arquivo: "../../imagens/colorir/desenho1.png",
+      paleta: ["#D91424", "#FFEB00", "#9C4820", "#009FE3", "#FFFFFF"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF",
+        "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424",
+        "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00",
+        "#FFEB00", "#009FE3", "#FFEB00", "#FFEB00", "#FFEB00", "#009FE3", "#FFEB00", "#FFEB00",
+        "#FFEB00", "#FFEB00", "#FFEB00", "#9C4820", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00",
+        "#FFEB00", "#FFEB00", "#FFEB00", "#9C4820", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00",
+        "#FFEB00", "#FFEB00", "#FFEB00", "#9C4820", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00"
+      ]
+    },
+    {
+      nome: "Coração Mágico",
+      arquivo: "../../imagens/colorir/desenho6.png",
+      paleta: ["#D91424", "#FBB1BD", "#FFFFFF", "#262638"],
+      matrizAlvo: [
+        "#FFFFFF", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#FFFFFF",
+        "#D91424", "#FBB1BD", "#D91424", "#D91424", "#D91424", "#D91424", "#FBB1BD", "#D91424",
+        "#D91424", "#FBB1BD", "#FBB1BD", "#D91424", "#D91424", "#FBB1BD", "#FBB1BD", "#D91424",
+        "#D91424", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#D91424",
+        "#FFFFFF", "#D91424", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#D91424", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#D91424", "#FBB1BD", "#FBB1BD", "#D91424", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+      ]
+    }
   ],
 
   sons: {
