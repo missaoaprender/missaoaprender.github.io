@@ -14,9 +14,8 @@ let isDrawing = false;
 let ctx = null;
 let canvas = null;
 let historicoCanvas = []; 
-let indiceDesenhoAtual = 0; // Índice para o carrossel de desenhos
+let indiceDesenhoAtual = 0; // Índice inicial para o carrossel (ou bloco)
 
-// Referência guardada da imagem do desenho original para a borracha inteligente
 let imgDesenhoOriginal = null; 
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
@@ -145,7 +144,7 @@ style.innerHTML = `
     .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
     .btn-capa-jogar:active { transform: scale(0.95); }
 
-    /* Moldura central na capa para escolher o desenho */
+    /* Estilos do Seletor de Capa */
     .seletor-capa-container {
         display: flex; align-items: center; gap: 15px; justify-content: center; margin-top: 6px;
     }
@@ -155,11 +154,29 @@ style.innerHTML = `
     .btn-seta-capa:hover { transform: scale(1.1); }
     .btn-seta-capa:active { transform: scale(0.92); }
 
+    /* Moldura Padrão (Ecrãs pequenos / Telemóvel vertical: 1 desenho) */
     .moldura-capa-quadrada {
-        width: 150px; height: 150px; background: white; border: 3px solid #E2D3AB; border-radius: 20px; display: flex; align-items: center; justify-content: center; padding: 12px; box-shadow: 0 8px 20px rgba(236,166,7,0.2);
+        width: 150px; height: 150px; background: white; border: 3px solid #E2D3AB; border-radius: 20px; display: flex; align-items: center; justify-content: center; padding: 12px; box-shadow: 0 8px 20px rgba(236,166,7,0.2); cursor: pointer; transition: transform 0.2s ease;
     }
+    .moldura-capa-quadrada:hover { transform: scale(1.03); }
     .moldura-capa-miniatura {
         width: 100%; height: 100%; object-fit: contain; pointer-events: none;
+    }
+
+    /* Grelha para Ecrãs Maiores (4 desenhos em simultâneo) */
+    .moldura-capa-grelha {
+        display: none; width: 280px; height: 280px; background: white; border: 3px solid #E2D3AB; border-radius: 20px; padding: 12px; box-shadow: 0 8px 20px rgba(236,166,7,0.2); grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 10px;
+    }
+    .miniatura-grid-item {
+        background: #FFFDF0; border: 2px solid #E2D3AB; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 8px; cursor: pointer; transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .miniatura-grid-item:hover { transform: scale(1.06); background: #FFF3CC; border-color: #ECA607; }
+    .miniatura-grid-item img { width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+
+    /* Media Query: Em ecrãs mais largos (tablets/PCs), mostra a grelha de 4 e oculta a moldura unitária */
+    @media (min-width: 768px) {
+        .moldura-capa-quadrada { display: none !important; }
+        .moldura-capa-grelha { display: grid !important; }
     }
 
     #round-feedback { 
@@ -212,7 +229,7 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA COM SELETOR DE DESENHOS
+// 3. CAPA COM SELETOR ADAPTATIVO (1 ou 4 DESENHOS)
 // ============================================================
 function mostrarCapa() {
     const feedbackEl = document.getElementById('round-feedback');
@@ -248,16 +265,20 @@ function mudarDesenho(direcao) {
     const lista = DADOS.desenhosParaColorir || [];
     if (lista.length === 0) return;
 
-    indiceDesenhoAtual += direcao;
-    if (indiceDesenhoAtual < 0) indiceDesenhoAtual = lista.length - 1;
+    // Em ecrãs grandes avança de 4 em 4, em telemóveis de 1 em 1
+    const salto = window.innerWidth >= 768 ? 4 : 1;
+
+    indiceDesenhoAtual += direcao * salto;
+    if (indiceDesenhoAtual < 0) indiceDesenhoAtual = Math.max(0, lista.length - salto);
     if (indiceDesenhoAtual >= lista.length) indiceDesenhoAtual = 0;
 
-    // Atualiza a vista na capa ou no canvas dependendo de onde o utilizador se encontra
-    if (document.querySelector('.seletor-capa-container')) {
-        renderizarCapaComMoldura();
-    } else {
-        configurarCanvas();
-    }
+    renderizarCapaComMoldura();
+}
+
+function selecionarDesenhoDireto(index) {
+    if (somClique.src) somClique.play().catch(()=>{});
+    indiceDesenhoAtual = index;
+    iniciarJogoDesenho();
 }
 
 function renderizarCapaComMoldura() {
@@ -267,14 +288,34 @@ function renderizarCapaComMoldura() {
 
     const area = document.getElementById('contentor-jogo');
     if (area) {
+        // Gerar os 4 itens para a grelha de ecrãs grandes
+        let itensGrelhaHtml = '';
+        for (let i = 0; i < 4; i++) {
+            const idxReal = (indiceDesenhoAtual + i) % lista.length;
+            const item = lista[idxReal];
+            if (item) {
+                itensGrelhaHtml += `
+                    <div class="miniatura-grid-item" onclick="selecionarDesenhoDireto(${idxReal})" title="${item.nome || 'Desenho'}">
+                        <img src="${item.arquivo}" alt="">
+                    </div>
+                `;
+            }
+        }
+
         area.innerHTML = `
             <div style="font-size: 1.3rem; font-weight: 900; color: #C2890B; margin-bottom: 8px; text-transform: uppercase;">${tituloAnimacao}</div>
             
             <div class="seletor-capa-container">
                 <button class="btn-seta-capa" onclick="mudarDesenho(-1)"><i class="fas fa-chevron-left"></i></button>
                 
-                <div class="moldura-capa-quadrada">
+                <!-- Moldura Unitária (Telemóveis / Ecrãs Pequenos) -->
+                <div class="moldura-capa-quadrada" onclick="iniciarJogoDesenho()" title="Começar a Pintar">
                     <img src="${desenhoObj.arquivo}" alt="" class="moldura-capa-miniatura">
+                </div>
+
+                <!-- Grelha de 4 Desenhos (Tablets / Computadores / Ecrãs Grandes) -->
+                <div class="moldura-capa-grelha">
+                    ${itensGrelhaHtml}
                 </div>
 
                 <button class="btn-seta-capa" onclick="mudarDesenho(1)"><i class="fas fa-chevron-right"></i></button>
