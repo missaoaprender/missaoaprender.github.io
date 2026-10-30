@@ -52,7 +52,7 @@ const DADOS = {
     certo: "",
     errado: "",
     clique: "",
-    instrucao: "f1_jogo01pre.mp3"
+    instrucao: "f1_jogopre02.mp3"
   },
 
   cores: {
