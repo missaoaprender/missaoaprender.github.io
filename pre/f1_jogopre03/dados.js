@@ -1,9 +1,9 @@
 const DADOS = {
   pagina: {
-    browserTitulo: "Pré-Escolar - Desenho Criativo",
+    browserTitulo: "Pré-Escolar - Pixel Art Criativo",
     titulo: "Pré-Escolar",
-    subtitulo: "Colorir Criativo",
-    tituloMenu: "Colorir Criativo",
+    subtitulo: "Pixel Art Criativo",
+    tituloMenu: "Pixel Art Criativo",
     mensagem: "Diverte-te a aprender!",
     informacao: "Jogos Pré",
     tituloMenuAcordeao: "Menu",
@@ -14,7 +14,7 @@ const DADOS = {
 
   animacaoCapa: {
     titulo: "Pixel Art Criativo",
-    instrucaoTexto: "Cria a tua obra de arte!"
+    instrucaoTexto: "Escolhe o teu modelo e cria a tua obra de arte!"
   },
 
   icons: {
@@ -42,13 +42,13 @@ const DADOS = {
   },
 
   desenhosParaColorir: [
-    { id: 1, nome: "Desenho 5", arquivo: "../../imagens/colorir/desenho1.png" },
-    { id: 2, nome: "Desenho 6", arquivo: "../../imagens/colorir/desenho6.png" },
+    { id: 1, nome: "Desenho 1", arquivo: "../../imagens/colorir/desenho1.png" },
+    { id: 2, nome: "Desenho 2", arquivo: "../../imagens/colorir/desenho6.png" },
     { id: 3, nome: "Desenho 3", arquivo: "../../imagens/colorir/desenho3.png" },
     { id: 4, nome: "Desenho 4", arquivo: "../../imagens/colorir/desenho4.png" }
   ],
 
-  // Modelos de Pixel Art integrados para o jogo funcionar perfeitamente com o jogo.js
+  // Vários modelos de Pixel Art criados por mim (8x8)
   pixelArtModelos: [
     {
       nome: "Casinha Feliz",
@@ -78,6 +78,51 @@ const DADOS = {
         "#FFFFFF", "#FFFFFF", "#D91424", "#FBB1BD", "#FBB1BD", "#D91424", "#FFFFFF", "#FFFFFF",
         "#FFFFFF", "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF", "#FFFFFF",
         "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Estrela Brilhante",
+      arquivo: "../../imagens/colorir/desenho3.png",
+      paleta: ["#FFEB00", "#F37022", "#FFFFFF"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFEB00", "#FFEB00", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFFFFF", "#FFFFFF",
+        "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00",
+        "#FFFFFF", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFEB00", "#FFEB00", "#FFFFFF", "#FFFFFF", "#FFEB00", "#FFEB00", "#FFFFFF",
+        "#FFEB00", "#FFEB00", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFEB00", "#FFEB00",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Maçã Colorida",
+      arquivo: "../../imagens/colorir/desenho4.png",
+      paleta: ["#D91424", "#23AA45", "#9C4820", "#FFFFFF"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#9C4820", "#23AA45", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#9C4820", "#23AA45", "#23AA45", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF",
+        "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF",
+        "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424",
+        "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424",
+        "#FFFFFF", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Gatinho Fofo",
+      arquivo: "../../imagens/colorir/desenho1.png",
+      paleta: ["#F37022", "#FFFFFF", "#262638", "#FBB1BD"],
+      matrizAlvo: [
+        "#F37022", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#F37022",
+        "#F37022", "#F37022", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#F37022", "#F37022",
+        "#F37022", "#F37022", "#F37022", "#F37022", "#F37022", "#F37022", "#F37022", "#F37022",
+        "#F37022", "#262638", "#F37022", "#FFFFFF", "#FFFFFF", "#F37022", "#262638", "#F37022",
+        "#F37022", "#F37022", "#F37022", "#FBB1BD", "#FBB1BD", "#F37022", "#F37022", "#F37022",
+        "#FFFFFF", "#F37022", "#F37022", "#F37022", "#F37022", "#F37022", "#F37022", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#F37022", "#F37022", "#F37022", "#F37022", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#F37022", "#FFFFFF", "#FFFFFF", "#F37022", "#FFFFFF", "#FFFFFF"
       ]
     }
   ],
