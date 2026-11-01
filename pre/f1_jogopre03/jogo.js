@@ -20,7 +20,7 @@ const somInstrucao = new Audio(DADOS.sons && DADOS.sons.instrucao ? DADOS.sons.i
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (CSS RESPONSIVO)
+// 2. CONFIGURAÇÃO VISUAL (CSS)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
@@ -82,7 +82,7 @@ style.innerHTML = `
     .cor-palete-btn:hover { transform: scale(1.05); }
     .cor-palete-btn.ativo { transform: scale(1.08); border-color: #262638; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
 
-    /* Área Inferior do Painel para Ecrãs Verticais (Cores e Modelo lado a lado) */
+    /* Área Inferior do Painel para Ecrãs Verticais */
     .painel-inferior-vertical {
         display: flex; flex-direction: column; width: 100%; gap: 8px; align-items: center;
     }
@@ -93,7 +93,7 @@ style.innerHTML = `
     }
     .referencia-grid {
         display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
-        width: 80px; aspect-ratio: 1; border: 2px solid #262638; border-radius: 6px; overflow: hidden;
+        width: 110px; aspect-ratio: 1; border: 2px solid #262638; border-radius: 6px; overflow: hidden;
     }
     .ref-celula { width: 100%; height: 100%; border: 0.5px solid rgba(0,0,0,0.15); }
 
@@ -197,32 +197,38 @@ style.innerHTML = `
     }
     .btn-final-roxo:hover, .btn-final-branco:hover { transform: translateY(-3px) scale(1.03); }
 
-    /* MEDIA QUERIES PARA ECRÃS VETICAIS (Telemóveis e Tablets na Vertical) */
+    /* MEDIA QUERIES PARA ECRÃS VETICAIS: PALETA DE CORES E IMAGEM MODELO LADO A LADO */
     @media (max-width: 768px), (orientation: portrait) {
-        .pixel-container { flex-direction: column; align-items: center; gap: 8px; }
-        .grelha-wrapper { width: 100%; flex: none; padding: 8px; }
-        .matriz-pixels { max-width: 310px; }
+        .pixel-container { flex-direction: column; align-items: center; gap: 6px; }
+        .grelha-wrapper { width: 100%; flex: none; padding: 6px; }
+        .matriz-pixels { max-width: 290px; }
         
         .painel-estojo-pixel {
-            max-width: 100%; width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 8px 12px; gap: 6px;
+            max-width: 100%; width: 100%; flex-direction: row; flex-wrap: nowrap; justify-content: space-between; align-items: center; padding: 6px 10px; gap: 8px;
         }
         .painel-cores-box {
-            width: auto; flex: 1; padding: 4px;
+            width: auto; flex: 1.5; padding: 4px; display: flex; flex-direction: row; align-items: center; gap: 6px;
         }
         .grid-cores-pixel {
-            flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px;
+            flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 3px;
         }
         .cor-palete-btn {
-            width: 24px; height: 24px; border-radius: 50%;
+            width: 20px; height: 20px; border-radius: 50%; border-width: 2px;
+        }
+        .titulo-cores {
+            display: none; /* Oculta título pequeno para poupar espaço vertical */
         }
         .painel-inferior-vertical {
-            flex-direction: row; width: auto; gap: 8px; align-items: center;
+            display: flex; flex-direction: row; width: auto; flex: 1.5; gap: 8px; align-items: center; justify-content: flex-end;
+        }
+        .referencia-box {
+            padding: 4px; border-radius: 8px; display: flex; flex-direction: row; align-items: center;
         }
         .referencia-grid {
-            width: 60px;
+            width: 48px;
         }
         .btn-ferramenta-texto {
-            width: auto; padding: 8px 16px; font-size: 0.8rem;
+            width: auto; padding: 8px 12px; font-size: 0.75rem; border-radius: 12px;
         }
     }
 `;
@@ -340,7 +346,7 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO JOGO COM PAINEL ADAPTADO PARA ECRÃS VETICAIS
+// 4. LÓGICA DO JOGO
 // ============================================================
 function iniciarJogoPixel() {
     if (somClique.src) somClique.play().catch(()=>{});
