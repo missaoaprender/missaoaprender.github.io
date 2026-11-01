@@ -189,7 +189,7 @@ const DADOS = {
     certo: "",
     errado: "",
     clique: "",
-    instrucao: "f1_jogopre02.mp3"
+    instrucao: "f1_jogopre03.mp3"
   },
 
   cores: {
