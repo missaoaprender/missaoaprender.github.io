@@ -11,7 +11,7 @@ let corAtualPixel = "#8B4513";
 let tamanhoGrelha = 8; 
 let matrizJogador = [];
 let indiceDesenhoPixelAtual = 0;
-let aVerificar = false; // Evita cliques duplos durante a animação de verificação
+let aVerificar = false; 
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somErrado = new Audio(DADOS.sons && DADOS.sons.errado ? DADOS.sons.errado : "");
@@ -20,7 +20,7 @@ const somInstrucao = new Audio(DADOS.sons && DADOS.sons.instrucao ? DADOS.sons.i
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (CSS)
+// 2. CONFIGURAÇÃO VISUAL (CSS RESPONSIVO)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
@@ -82,13 +82,18 @@ style.innerHTML = `
     .cor-palete-btn:hover { transform: scale(1.05); }
     .cor-palete-btn.ativo { transform: scale(1.08); border-color: #262638; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
 
+    /* Área Inferior do Painel para Ecrãs Verticais (Cores e Modelo lado a lado) */
+    .painel-inferior-vertical {
+        display: flex; flex-direction: column; width: 100%; gap: 8px; align-items: center;
+    }
+
     /* Miniatura de Referencia */
     .referencia-box {
-        width: 100%; background: white; border: 2px solid #E2D3AB; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+        background: white; border: 2px solid #E2D3AB; border-radius: 12px; padding: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
     .referencia-grid {
         display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
-        width: 110px; aspect-ratio: 1; border: 2px solid #262638; border-radius: 6px; overflow: hidden;
+        width: 80px; aspect-ratio: 1; border: 2px solid #262638; border-radius: 6px; overflow: hidden;
     }
     .ref-celula { width: 100%; height: 100%; border: 0.5px solid rgba(0,0,0,0.15); }
 
@@ -192,10 +197,33 @@ style.innerHTML = `
     }
     .btn-final-roxo:hover, .btn-final-branco:hover { transform: translateY(-3px) scale(1.03); }
 
-    @media (max-width: 768px) {
-        .pixel-container { flex-direction: column; }
-        .painel-estojo-pixel { max-width: 100%; width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
-        .grid-cores-pixel { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    /* MEDIA QUERIES PARA ECRÃS VETICAIS (Telemóveis e Tablets na Vertical) */
+    @media (max-width: 768px), (orientation: portrait) {
+        .pixel-container { flex-direction: column; align-items: center; gap: 8px; }
+        .grelha-wrapper { width: 100%; flex: none; padding: 8px; }
+        .matriz-pixels { max-width: 310px; }
+        
+        .painel-estojo-pixel {
+            max-width: 100%; width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: center; padding: 8px 12px; gap: 6px;
+        }
+        .painel-cores-box {
+            width: auto; flex: 1; padding: 4px;
+        }
+        .grid-cores-pixel {
+            flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 4px;
+        }
+        .cor-palete-btn {
+            width: 24px; height: 24px; border-radius: 50%;
+        }
+        .painel-inferior-vertical {
+            flex-direction: row; width: auto; gap: 8px; align-items: center;
+        }
+        .referencia-grid {
+            width: 60px;
+        }
+        .btn-ferramenta-texto {
+            width: auto; padding: 8px 16px; font-size: 0.8rem;
+        }
     }
 `;
 document.head.appendChild(style);
@@ -312,7 +340,7 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO JOGO COM VERIFICAÇÃO LENTA E LINHA A LINHA
+// 4. LÓGICA DO JOGO COM PAINEL ADAPTADO PARA ECRÃS VETICAIS
 // ============================================================
 function iniciarJogoPixel() {
     if (somClique.src) somClique.play().catch(()=>{});
@@ -375,13 +403,15 @@ function iniciarJogoPixel() {
                         </div>
                     </div>
 
-                    <div class="referencia-box">
-                        <div class="referencia-grid">
-                            ${refHtml}
+                    <div class="painel-inferior-vertical">
+                        <div class="referencia-box">
+                            <div class="referencia-grid">
+                                ${refHtml}
+                            </div>
                         </div>
-                    </div>
 
-                    <button class="btn-ferramenta-texto" onclick="verificarPixelArt()"><i class="fas fa-check"></i> Verifique</button>
+                        <button class="btn-ferramenta-texto" onclick="verificarPixelArt()"><i class="fas fa-check"></i> Verifique</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -401,7 +431,7 @@ function selecionarCorPixel(cor, el) {
 }
 
 function pintarPixel(index) {
-    if (aVerificar) return; // Bloqueia cliques enquanto está a animar a verificação
+    if (aVerificar) return; 
     if (somClique.src) somClique.play().catch(()=>{});
     matrizJogador[index] = corAtualPixel;
     const celula = document.getElementById(`pixel-${index}`);
@@ -411,7 +441,6 @@ function pintarPixel(index) {
     }
 }
 
-// Verificação Lenta e Linha a Linha
 function verificarPixelArt() {
     if (aVerificar) return;
     const modeloAtual = (DADOS.pixelArtModelos && DADOS.pixelArtModelos[indiceDesenhoPixelAtual]) ? DADOS.pixelArtModelos[indiceDesenhoPixelAtual] : null;
@@ -425,7 +454,6 @@ function verificarPixelArt() {
     let temErrosTotal = false;
     let linhaAtual = 0;
 
-    // Função auxiliar para verificar cada linha de forma progressiva e lenta
     function verificarProximaLinha() {
         if (linhaAtual >= tamanhoGrelha) {
             aVerificar = false;
@@ -442,7 +470,6 @@ function verificarPixelArt() {
         const inicio = linhaAtual * tamanhoGrelha;
         const fim = inicio + tamanhoGrelha;
 
-        // Verificar todos os píxeis da linha atual
         for (let i = inicio; i < fim; i++) {
             const corEsperada = modeloAtual.matrizAlvo[i] ? modeloAtual.matrizAlvo[i].toUpperCase() : "#FFFFFF";
             const corPintada = matrizJogador[i] ? matrizJogador[i].toUpperCase() : "#FFFFFF";
@@ -464,7 +491,6 @@ function verificarPixelArt() {
         }
 
         linhaAtual++;
-        // Pausa lenta de 180ms entre cada linha para dar o efeito progressivo
         setTimeout(verificarProximaLinha, 180);
     }
 
@@ -482,7 +508,7 @@ function exibirVitoria() {
                 <div class="vitoria-card">
                     <img src="${iconeFeedback}" style="width:170px; height:170px; object-fit:contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15));">
                     <h1 style="color:#C2890B; font-size:1.5rem; font-weight:900; margin:0; text-transform:uppercase;">EXCELENTE PIXEL ART!</h1>
-                    <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Criaste uma obra de arte incrível!</p>
+                    <p style="color:#555; font-weight:800; margin:0; font-size:0.85rem;">Fizeste um desenho maravilhoso!</p>
                     <div style="display:flex; justify-content:center; gap:12px; margin-top:8px; width:100%; max-width:420px;">
                         <button class="btn-final-roxo" onclick="mostrarCapa()">Outro Desenho</button>
                         <button class="btn-final-branco" onclick="window.history.back()">Outro Jogo</button>
