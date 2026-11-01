@@ -41,7 +41,7 @@ const DADOS = {
     }
   },
 
-  // Modelos de Pixel Art de 8x8 gerados (sem imagens antigas)
+  // 10 Modelos de Pixel Art (8x8)
   pixelArtModelos: [
     {
       nome: "Casinha Feliz",
@@ -111,6 +111,76 @@ const DADOS = {
         "#FFFFFF", "#F37022", "#F37022", "#F37022", "#F37022", "#F37022", "#F37022", "#FFFFFF",
         "#FFFFFF", "#FFFFFF", "#F37022", "#F37022", "#F37022", "#F37022", "#FFFFFF", "#FFFFFF",
         "#FFFFFF", "#FFFFFF", "#F37022", "#FFFFFF", "#FFFFFF", "#F37022", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Árvore Verde",
+      paleta: ["#23AA45", "#9C4820", "#FFFFFF"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#FFFFFF",
+        "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#23AA45",
+        "#FFFFFF", "#FFFFFF", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#9C4820", "#9C4820", "#9C4820", "#9C4820", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#9C4820", "#9C4820", "#9C4820", "#9C4820", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#9C4820", "#9C4820", "#9C4820", "#9C4820", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Peixinho Azul",
+      paleta: ["#009FE3", "#FFEB00", "#FFFFFF", "#262638"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#009FE3", "#009FE3", "#009FE3", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#FFFFFF",
+        "#FFFFFF", "#009FE3", "#009FE3", "#FFEB00", "#009FE3", "#009FE3", "#009FE3", "#009FE3",
+        "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#262638",
+        "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#262638",
+        "#FFFFFF", "#009FE3", "#009FE3", "#FFEB00", "#009FE3", "#009FE3", "#009FE3", "#009FE3",
+        "#FFFFFF", "#FFFFFF", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#009FE3", "#009FE3", "#009FE3", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Sorvete Doce",
+      paleta: ["#FBB1BD", "#FFEB00", "#9C4820", "#FFFFFF"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FBB1BD", "#FBB1BD", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FBB1BD", "#FFEB00", "#FBB1BD", "#FBB1BD", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#9C4820", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#9C4820", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#9C4820", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#9C4820", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Flor Colorida",
+      paleta: ["#D91424", "#FFEB00", "#23AA45", "#FFFFFF"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#D91424", "#FFEB00", "#FFEB00", "#FFEB00", "#D91424", "#FFFFFF", "#FFFFFF",
+        "#D91424", "#FFEB00", "#FFEB00", "#23AA45", "#FFEB00", "#FFEB00", "#D91424", "#FFFFFF",
+        "#D91424", "#FFEB00", "#23AA45", "#23AA45", "#23AA45", "#FFEB00", "#D91424", "#FFFFFF",
+        "#D91424", "#FFEB00", "#FFEB00", "#23AA45", "#FFEB00", "#FFEB00", "#D91424", "#FFFFFF",
+        "#FFFFFF", "#D91424", "#FFEB00", "#FFEB00", "#FFEB00", "#D91424", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#D91424", "#23AA45", "#D91424", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#23AA45", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Carro Desportivo",
+      paleta: ["#009FE3", "#262638", "#FFFFFF", "#FFEB00"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#FFFFFF",
+        "#009FE3", "#009FE3", "#FFEB00", "#009FE3", "#009FE3", "#FFEB00", "#009FE3", "#009FE3",
+        "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3",
+        "#FFFFFF", "#262638", "#262638", "#FFFFFF", "#FFFFFF", "#262638", "#262638", "#FFFFFF",
+        "#FFFFFF", "#262638", "#262638", "#FFFFFF", "#FFFFFF", "#262638", "#262638", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
       ]
     }
   ],
