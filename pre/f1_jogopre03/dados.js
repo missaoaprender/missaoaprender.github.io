@@ -41,18 +41,10 @@ const DADOS = {
     }
   },
 
-  desenhosParaColorir: [
-    { id: 1, nome: "Desenho 1", arquivo: "../../imagens/colorir/desenho1.png" },
-    { id: 2, nome: "Desenho 2", arquivo: "../../imagens/colorir/desenho6.png" },
-    { id: 3, nome: "Desenho 3", arquivo: "../../imagens/colorir/desenho3.png" },
-    { id: 4, nome: "Desenho 4", arquivo: "../../imagens/colorir/desenho4.png" }
-  ],
-
-  // Vários modelos de Pixel Art criados por mim (8x8)
+  // Modelos de Pixel Art de 8x8 gerados (sem imagens antigas)
   pixelArtModelos: [
     {
       nome: "Casinha Feliz",
-      arquivo: "../../imagens/colorir/desenho1.png",
       paleta: ["#D91424", "#FFEB00", "#9C4820", "#009FE3", "#FFFFFF"],
       matrizAlvo: [
         "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF",
@@ -67,7 +59,6 @@ const DADOS = {
     },
     {
       nome: "Coração Mágico",
-      arquivo: "../../imagens/colorir/desenho6.png",
       paleta: ["#D91424", "#FBB1BD", "#FFFFFF", "#262638"],
       matrizAlvo: [
         "#FFFFFF", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#FFFFFF",
@@ -82,7 +73,6 @@ const DADOS = {
     },
     {
       nome: "Estrela Brilhante",
-      arquivo: "../../imagens/colorir/desenho3.png",
       paleta: ["#FFEB00", "#F37022", "#FFFFFF"],
       matrizAlvo: [
         "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFEB00", "#FFEB00", "#FFFFFF", "#FFFFFF", "#FFFFFF",
@@ -97,7 +87,6 @@ const DADOS = {
     },
     {
       nome: "Maçã Colorida",
-      arquivo: "../../imagens/colorir/desenho4.png",
       paleta: ["#D91424", "#23AA45", "#9C4820", "#FFFFFF"],
       matrizAlvo: [
         "#FFFFFF", "#FFFFFF", "#FFFFFF", "#9C4820", "#23AA45", "#FFFFFF", "#FFFFFF", "#FFFFFF",
@@ -112,7 +101,6 @@ const DADOS = {
     },
     {
       nome: "Gatinho Fofo",
-      arquivo: "../../imagens/colorir/desenho1.png",
       paleta: ["#F37022", "#FFFFFF", "#262638", "#FBB1BD"],
       matrizAlvo: [
         "#F37022", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#F37022",
