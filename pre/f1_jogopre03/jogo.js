@@ -7,8 +7,8 @@ const JOGO_CONFIG = {
     caminhoIconsMenu: "../../icons/"
 };
 
-let corAtualPixel = "#8B4513"; // Cor inicial predefinida
-let tamanhoGrelha = 8; // Grelha de 8x8 por predefinição
+let corAtualPixel = "#8B4513"; 
+let tamanhoGrelha = 8; 
 let matrizJogador = [];
 let indiceDesenhoPixelAtual = 0;
 
@@ -18,7 +18,7 @@ const somInstrucao = new Audio(DADOS.sons && DADOS.sons.instrucao ? DADOS.sons.i
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (CSS)
+// 2. CONFIGURAÇÃO VISUAL (CSS) - GRELHAS MAIORES E MAIS NÍTIDAS
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
@@ -30,7 +30,7 @@ style.innerHTML = `
 
     .grelha-wrapper {
         background: white; border: 3px solid #E2D3AB; border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.06); padding: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06); padding: 16px;
         flex: 3.5; display: flex; align-items: center; justify-content: center; overflow: hidden;
     }
 
@@ -38,13 +38,13 @@ style.innerHTML = `
         display: grid;
         grid-template-columns: repeat(8, 1fr);
         grid-template-rows: repeat(8, 1fr);
-        width: 100%; max-width: 380px; aspect-ratio: 1;
-        border: 2.5px solid #262638; background: #fff;
-        border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        width: 100%; max-width: 440px; aspect-ratio: 1;
+        border: 3px solid #262638; background: #fff;
+        border-radius: 10px; overflow: hidden; box-shadow: 0 6px 16px rgba(0,0,0,0.1);
     }
 
     .pixel-celula {
-        background: #F9F9F9; border: 1px solid #D5D5D5; cursor: pointer;
+        background: #F9F9F9; border: 1.5px solid #C0C0C0; cursor: pointer;
         transition: background 0.1s ease;
     }
     .pixel-celula:hover { opacity: 0.8; }
@@ -71,18 +71,15 @@ style.innerHTML = `
     .cor-palete-btn:hover { transform: scale(1.05); }
     .cor-palete-btn.ativo { transform: scale(1.08); border-color: #262638; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
 
-    /* Miniatura de Referência */
+    /* Miniatura de Referência Maior, com quadradinhos nítidos e sem a palavra modelo */
     .referencia-box {
-        width: 100%; background: white; border: 2px solid #E2D3AB; border-radius: 12px; padding: 6px; display: flex; flex-direction: column; align-items: center; gap: 4px;
-    }
-    .referencia-titulo {
-        font-size: 0.65rem; font-weight: 900; color: #C2890B; text-transform: uppercase; margin: 0;
+        width: 100%; background: white; border: 2px solid #E2D3AB; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px;
     }
     .referencia-grid {
         display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
-        width: 80px; aspect-ratio: 1; border: 1.5px solid #262638; border-radius: 4px; overflow: hidden;
+        width: 100px; aspect-ratio: 1; border: 2px solid #262638; border-radius: 6px; overflow: hidden;
     }
-    .ref-celula { width: 100%; height: 100%; }
+    .ref-celula { width: 100%; height: 100%; border: 0.5px solid rgba(0,0,0,0.15); }
 
     /* Moldura de navegação na capa */
     .seletor-capa-container {
@@ -211,9 +208,8 @@ function mostrarCapa() {
 
 function mudarDesenhoPixel(direcao) {
     if (somClique.src) somClique.play().catch(()=>{});
-    const lista = DADOS.pixelArtModelos || [
-        { nome: "Personagem", paleta: ["#8B4513", "#FFDAB9", "#333333", "#FFA500", "#FFFFFF"], matriz: Array(64).fill("#FFFFFF") }
-    ];
+    const lista = DADOS.pixelArtModelos || [];
+    if (lista.length === 0) return;
 
     indiceDesenhoPixelAtual += direcao;
     if (indiceDesenhoPixelAtual < 0) indiceDesenhoPixelAtual = lista.length - 1;
@@ -223,7 +219,7 @@ function mudarDesenhoPixel(direcao) {
 }
 
 function renderizarCapaComMoldura() {
-    const lista = DADOS.pixelArtModelos || [{ arquivo: "" }];
+    const lista = DADOS.pixelArtModelos || [];
     const modelo = lista[indiceDesenhoPixelAtual] || { arquivo: "" };
     const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Pixel Art";
 
@@ -272,7 +268,6 @@ function iniciarJogoPixel() {
         `;
     }
 
-    // Inicializar matriz do jogador em branco (64 células para 8x8)
     matrizJogador = Array(tamanhoGrelha * tamanhoGrelha).fill("#FFFFFF");
 
     const modeloAtual = (DADOS.pixelArtModelos && DADOS.pixelArtModelos[indiceDesenhoPixelAtual]) ? DADOS.pixelArtModelos[indiceDesenhoPixelAtual] : {
@@ -282,21 +277,21 @@ function iniciarJogoPixel() {
 
     corAtualPixel = modeloAtual.paleta[0] || "#000000";
 
-    // Criar HTML da Paleta de Cores
+    // Criar paleta de cores
     let paletaHtml = '';
     modeloAtual.paleta.forEach((cor, index) => {
         const ativoClass = index === 0 ? 'ativo' : '';
         paletaHtml += `<div class="cor-palete-btn ${ativoClass}" style="background-color: ${cor};" onclick="selecionarCorPixel('${cor}', this)"></div>`;
     });
 
-    // Criar HTML da Grelha de Referência (Miniatura)
+    // Criar grelha de referência lateral com os quadradinhos corretos do modelo selecionado
     let refHtml = '';
     for (let i = 0; i < (tamanhoGrelha * tamanhoGrelha); i++) {
         const corRef = (modeloAtual.matrizAlvo && modeloAtual.matrizAlvo[i]) ? modeloAtual.matrizAlvo[i] : "#FFFFFF";
         refHtml += `<div class="ref-celula" style="background-color: ${corRef};"></div>`;
     }
 
-    // Criar HTML da Grelha do Jogador
+    // Criar grelha interativa do jogador
     let grelhaHtml = '';
     for (let i = 0; i < (tamanhoGrelha * tamanhoGrelha); i++) {
         grelhaHtml += `<div class="pixel-celula" id="pixel-${i}" onclick="pintarPixel(${i})"></div>`;
@@ -320,7 +315,6 @@ function iniciarJogoPixel() {
                     </div>
 
                     <div class="referencia-box">
-                        <span class="referencia-titulo">Modelo</span>
                         <div class="referencia-grid">
                             ${refHtml}
                         </div>
@@ -356,9 +350,6 @@ function pintarPixel(index) {
 
 function verificarPixelArt() {
     if (somAcerto.src) somAcerto.play().catch(()=>{});
-    
-    // Validação opcional com o modelo alvo
-    const modeloAtual = (DADOS.pixelArtModelos && DADOS.pixelArtModelos[indiceDesenhoPixelAtual]) ? DADOS.pixelArtModelos[indiceDesenhoPixelAtual] : null;
     
     const overlay = document.getElementById('round-feedback');
     const iconeFeedback = DADOS.icons.feedbacks.feedback1;
