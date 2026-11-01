@@ -11,6 +11,7 @@ let corAtualPixel = "#8B4513";
 let tamanhoGrelha = 8; 
 let matrizJogador = [];
 let indiceDesenhoPixelAtual = 0;
+let aVerificar = false; // Evita cliques duplos durante a animação de verificação
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somErrado = new Audio(DADOS.sons && DADOS.sons.errado ? DADOS.sons.errado : "");
@@ -46,7 +47,7 @@ style.innerHTML = `
 
     .pixel-celula {
         background: #FFFFFF; border: 1.5px solid #C0C0C0; cursor: pointer;
-        transition: background 0.15s ease, transform 0.1s ease;
+        transition: background 0.2s ease, transform 0.15s ease;
     }
     .pixel-celula:hover { opacity: 0.85; }
     
@@ -204,6 +205,7 @@ document.head.appendChild(style);
 // 3. CAPA COM GALERIA DE GRELHAS PIXEL ART
 // ============================================================
 function mostrarCapa() {
+    aVerificar = false;
     const feedbackEl = document.getElementById('round-feedback');
     if (feedbackEl) feedbackEl.style.display = 'none';
 
@@ -310,10 +312,11 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO JOGO PIXEL ART COM VERIFICAÇÃO E LIMPEZA DE ERROS
+// 4. LÓGICA DO JOGO COM VERIFICAÇÃO LENTA E LINHA A LINHA
 // ============================================================
 function iniciarJogoPixel() {
     if (somClique.src) somClique.play().catch(()=>{});
+    aVerificar = false;
     
     const slotTopo = document.getElementById('slot-topo');
     const slotFundo = document.getElementById('slot-fundo');
@@ -329,7 +332,6 @@ function iniciarJogoPixel() {
         `;
     }
 
-    // Inicializar matriz do jogador em branco (64 células)
     matrizJogador = Array(tamanhoGrelha * tamanhoGrelha).fill("#FFFFFF");
 
     const modeloAtual = (DADOS.pixelArtModelos && DADOS.pixelArtModelos[indiceDesenhoPixelAtual]) ? DADOS.pixelArtModelos[indiceDesenhoPixelAtual] : {
@@ -339,21 +341,18 @@ function iniciarJogoPixel() {
 
     corAtualPixel = modeloAtual.paleta[0] || "#000000";
 
-    // Criar paleta de cores
     let paletaHtml = '';
     modeloAtual.paleta.forEach((cor, index) => {
         const ativoClass = index === 0 ? 'ativo' : '';
         paletaHtml += `<div class="cor-palete-btn ${ativoClass}" style="background-color: ${cor};" onclick="selecionarCorPixel('${cor}', this)"></div>`;
     });
 
-    // Criar grelha de referência lateral
     let refHtml = '';
     for (let i = 0; i < (tamanhoGrelha * tamanhoGrelha); i++) {
         const corRef = (modeloAtual.matrizAlvo && modeloAtual.matrizAlvo[i]) ? modeloAtual.matrizAlvo[i] : "#FFFFFF";
         refHtml += `<div class="ref-celula" style="background-color: ${corRef};"></div>`;
     }
 
-    // Criar grelha interativa do jogador
     let grelhaHtml = '';
     for (let i = 0; i < (tamanhoGrelha * tamanhoGrelha); i++) {
         grelhaHtml += `<div class="pixel-celula" id="pixel-${i}" onclick="pintarPixel(${i})"></div>`;
@@ -402,6 +401,7 @@ function selecionarCorPixel(cor, el) {
 }
 
 function pintarPixel(index) {
+    if (aVerificar) return; // Bloqueia cliques enquanto está a animar a verificação
     if (somClique.src) somClique.play().catch(()=>{});
     matrizJogador[index] = corAtualPixel;
     const celula = document.getElementById(`pixel-${index}`);
@@ -411,7 +411,9 @@ function pintarPixel(index) {
     }
 }
 
+// Verificação Lenta e Linha a Linha
 function verificarPixelArt() {
+    if (aVerificar) return;
     const modeloAtual = (DADOS.pixelArtModelos && DADOS.pixelArtModelos[indiceDesenhoPixelAtual]) ? DADOS.pixelArtModelos[indiceDesenhoPixelAtual] : null;
     
     if (!modeloAtual || !modeloAtual.matrizAlvo) {
@@ -419,37 +421,54 @@ function verificarPixelArt() {
         return;
     }
 
-    let temErros = false;
-    const totalPixels = tamanhoGrelha * tamanhoGrelha;
+    aVerificar = true;
+    let temErrosTotal = false;
+    let linhaAtual = 0;
 
-    for (let i = 0; i < totalPixels; i++) {
-        const corEsperada = modeloAtual.matrizAlvo[i] ? modeloAtual.matrizAlvo[i].toUpperCase() : "#FFFFFF";
-        const corPintada = matrizJogador[i] ? matrizJogador[i].toUpperCase() : "#FFFFFF";
+    // Função auxiliar para verificar cada linha de forma progressiva e lenta
+    function verificarProximaLinha() {
+        if (linhaAtual >= tamanhoGrelha) {
+            aVerificar = false;
+            if (temErrosTotal) {
+                if (somErrado.src) somErrado.play().catch(()=>{});
+            } else {
+                if (somAcerto.src) somAcerto.play().catch(()=>{});
+                exibirVitoria();
+            }
+            return;
+        }
 
-        // Se a cor pintada for diferente da cor esperada do modelo
-        if (corPintada !== corEsperada) {
-            temErros = true;
-            // Repor o valor na matriz para branco
-            matrizJogador[i] = "#FFFFFF";
-            
-            // Apagar a cor visualmente na célula com pequena animação
-            const celula = document.getElementById(`pixel-${i}`);
-            if (celula) {
-                celula.classList.add('pixel-erro');
-                setTimeout(() => {
-                    celula.style.backgroundColor = "#FFFFFF";
-                    celula.classList.remove('pixel-erro');
-                }, 400);
+        let erroNaLinha = false;
+        const inicio = linhaAtual * tamanhoGrelha;
+        const fim = inicio + tamanhoGrelha;
+
+        // Verificar todos os píxeis da linha atual
+        for (let i = inicio; i < fim; i++) {
+            const corEsperada = modeloAtual.matrizAlvo[i] ? modeloAtual.matrizAlvo[i].toUpperCase() : "#FFFFFF";
+            const corPintada = matrizJogador[i] ? matrizJogador[i].toUpperCase() : "#FFFFFF";
+
+            if (corPintada !== corEsperada) {
+                erroNaLinha = true;
+                temErrosTotal = true;
+                matrizJogador[i] = "#FFFFFF";
+
+                const celula = document.getElementById(`pixel-${i}`);
+                if (celula) {
+                    celula.classList.add('pixel-erro');
+                    setTimeout(() => {
+                        celula.style.backgroundColor = "#FFFFFF";
+                        celula.classList.remove('pixel-erro');
+                    }, 350);
+                }
             }
         }
+
+        linhaAtual++;
+        // Pausa lenta de 180ms entre cada linha para dar o efeito progressivo
+        setTimeout(verificarProximaLinha, 180);
     }
 
-    if (temErros) {
-        if (somErrado.src) somErrado.play().catch(()=>{});
-    } else {
-        if (somAcerto.src) somAcerto.play().catch(()=>{});
-        exibirVitoria();
-    }
+    verificarProximaLinha();
 }
 
 function exibirVitoria() {
