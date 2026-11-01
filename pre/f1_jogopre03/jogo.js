@@ -13,6 +13,7 @@ let matrizJogador = [];
 let indiceDesenhoPixelAtual = 0;
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
+const somErrado = new Audio(DADOS.sons && DADOS.sons.errado ? DADOS.sons.errado : "");
 const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
 const somInstrucao = new Audio(DADOS.sons && DADOS.sons.instrucao ? DADOS.sons.instrucao : "f1_jogo01pre.mp3");
 
@@ -44,10 +45,19 @@ style.innerHTML = `
     }
 
     .pixel-celula {
-        background: #F9F9F9; border: 1.5px solid #C0C0C0; cursor: pointer;
-        transition: background 0.1s ease;
+        background: #FFFFFF; border: 1.5px solid #C0C0C0; cursor: pointer;
+        transition: background 0.15s ease, transform 0.1s ease;
     }
-    .pixel-celula:hover { opacity: 0.8; }
+    .pixel-celula:hover { opacity: 0.85; }
+    
+    @keyframes pixelErroAnim {
+        0% { transform: scale(1); background-color: #FF8888; }
+        50% { transform: scale(0.85); }
+        100% { transform: scale(1); background-color: #FFFFFF; }
+    }
+    .pixel-erro {
+        animation: pixelErroAnim 0.4s ease-out forwards;
+    }
 
     .painel-estojo-pixel {
         display: flex; flex-direction: column; align-items: center; justify-content: space-between; gap: 8px; flex: 1; max-width: 220px; background: rgba(255,255,255,0.95); padding: 10px; border-radius: 16px; border: 2px solid #E2D3AB; flex-shrink: 0;
@@ -71,7 +81,7 @@ style.innerHTML = `
     .cor-palete-btn:hover { transform: scale(1.05); }
     .cor-palete-btn.ativo { transform: scale(1.08); border-color: #262638; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
 
-    /* Miniatura de Referência sem palavra modelo */
+    /* Miniatura de Referencia */
     .referencia-box {
         width: 100%; background: white; border: 2px solid #E2D3AB; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px;
     }
@@ -81,7 +91,7 @@ style.innerHTML = `
     }
     .ref-celula { width: 100%; height: 100%; border: 0.5px solid rgba(0,0,0,0.15); }
 
-    /* Molduras da Capa com grelha completa e suporte para ate 4 modelos em ecras grandes */
+    /* Molduras da Capa */
     .seletor-capa-container {
         display: flex; align-items: center; gap: 16px; justify-content: center; width: 100%; max-width: 900px; margin-top: 10px; padding: 0 10px;
     }
@@ -109,7 +119,6 @@ style.innerHTML = `
         width: 120px; aspect-ratio: 1; border: 2px solid #262638; border-radius: 8px; overflow: hidden; pointer-events: none;
     }
 
-    /* Em ecras pequenos/telemovel mostra 1 modelo principal */
     @media (max-width: 600px) {
         .cartao-modelo-capa { display: none; }
         .cartao-modelo-capa.selecionado { display: flex; width: 170px; }
@@ -192,7 +201,7 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA COM GALERIA DE GRELHAS PIXEL ART (ATÉ 4 VISÍVEIS)
+// 3. CAPA COM GALERIA DE GRELHAS PIXEL ART
 // ============================================================
 function mostrarCapa() {
     const feedbackEl = document.getElementById('round-feedback');
@@ -205,17 +214,21 @@ function mostrarCapa() {
     }
 
     const slotTopo = document.getElementById('slot-topo');
-    slotTopo.className = "barrita-fundo-cartao";
-    slotTopo.innerHTML = "";
+    if (slotTopo) {
+        slotTopo.className = "barrita-fundo-cartao";
+        slotTopo.innerHTML = "";
+    }
 
     renderizarCapaComMolduras();
 
     const slotFundo = document.getElementById('slot-fundo');
-    slotFundo.className = "barra-jogo-topo";
-    slotFundo.innerHTML = `
-        <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
-        <button class="btn-capa-jogar" onclick="iniciarJogoPixel()">COMEÇAR</button>
-    `;
+    if (slotFundo) {
+        slotFundo.className = "barra-jogo-topo";
+        slotFundo.innerHTML = `
+            <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
+            <button class="btn-capa-jogar" onclick="iniciarJogoPixel()">COMEÇAR</button>
+        `;
+    }
 }
 
 function mudarDesenhoPixel(direcao) {
@@ -240,14 +253,11 @@ function renderizarCapaComMolduras() {
     const lista = DADOS.pixelArtModelos || [];
     const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Pixel Art";
 
-    // Escolher até 4 modelos adjacentes para mostrar nos ecrãs grandes
     let cartoesHtml = '';
     const total = lista.length;
 
     if (total > 0) {
         let indicesParaMostrar = [indiceDesenhoPixelAtual];
-        
-        // Se houver mais modelos, adicionar até 4 visíveis
         if (total > 1) {
             for (let i = 1; i < Math.min(4, total); i++) {
                 indicesParaMostrar.push((indiceDesenhoPixelAtual + i) % total);
@@ -258,7 +268,6 @@ function renderizarCapaComMolduras() {
             const m = lista[idx];
             const estaSelecionado = idx === indiceDesenhoPixelAtual ? 'selecionado' : '';
 
-            // Gerar grelha visual com píxeis do modelo
             let grelhaMinHtml = '';
             for (let p = 0; p < (tamanhoGrelha * tamanhoGrelha); p++) {
                 const corPixel = (m.matrizAlvo && m.matrizAlvo[p]) ? m.matrizAlvo[p] : "#FFFFFF";
@@ -301,7 +310,7 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO JOGO PIXEL ART
+// 4. LÓGICA DO JOGO PIXEL ART COM VERIFICAÇÃO E LIMPEZA DE ERROS
 // ============================================================
 function iniciarJogoPixel() {
     if (somClique.src) somClique.play().catch(()=>{});
@@ -320,6 +329,7 @@ function iniciarJogoPixel() {
         `;
     }
 
+    // Inicializar matriz do jogador em branco (64 células)
     matrizJogador = Array(tamanhoGrelha * tamanhoGrelha).fill("#FFFFFF");
 
     const modeloAtual = (DADOS.pixelArtModelos && DADOS.pixelArtModelos[indiceDesenhoPixelAtual]) ? DADOS.pixelArtModelos[indiceDesenhoPixelAtual] : {
@@ -397,12 +407,52 @@ function pintarPixel(index) {
     const celula = document.getElementById(`pixel-${index}`);
     if (celula) {
         celula.style.backgroundColor = corAtualPixel;
+        celula.classList.remove('pixel-erro');
     }
 }
 
 function verificarPixelArt() {
-    if (somAcerto.src) somAcerto.play().catch(()=>{});
+    const modeloAtual = (DADOS.pixelArtModelos && DADOS.pixelArtModelos[indiceDesenhoPixelAtual]) ? DADOS.pixelArtModelos[indiceDesenhoPixelAtual] : null;
     
+    if (!modeloAtual || !modeloAtual.matrizAlvo) {
+        exibirVitoria();
+        return;
+    }
+
+    let temErros = false;
+    const totalPixels = tamanhoGrelha * tamanhoGrelha;
+
+    for (let i = 0; i < totalPixels; i++) {
+        const corEsperada = modeloAtual.matrizAlvo[i] ? modeloAtual.matrizAlvo[i].toUpperCase() : "#FFFFFF";
+        const corPintada = matrizJogador[i] ? matrizJogador[i].toUpperCase() : "#FFFFFF";
+
+        // Se a cor pintada for diferente da cor esperada do modelo
+        if (corPintada !== corEsperada) {
+            temErros = true;
+            // Repor o valor na matriz para branco
+            matrizJogador[i] = "#FFFFFF";
+            
+            // Apagar a cor visualmente na célula com pequena animação
+            const celula = document.getElementById(`pixel-${i}`);
+            if (celula) {
+                celula.classList.add('pixel-erro');
+                setTimeout(() => {
+                    celula.style.backgroundColor = "#FFFFFF";
+                    celula.classList.remove('pixel-erro');
+                }, 400);
+            }
+        }
+    }
+
+    if (temErros) {
+        if (somErrado.src) somErrado.play().catch(()=>{});
+    } else {
+        if (somAcerto.src) somAcerto.play().catch(()=>{});
+        exibirVitoria();
+    }
+}
+
+function exibirVitoria() {
     const overlay = document.getElementById('round-feedback');
     const iconeFeedback = DADOS.icons.feedbacks.feedback1;
 
