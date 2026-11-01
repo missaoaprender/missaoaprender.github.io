@@ -18,7 +18,7 @@ const somInstrucao = new Audio(DADOS.sons && DADOS.sons.instrucao ? DADOS.sons.i
 
 
 // ============================================================
-// 2. CONFIGURAÇÃO VISUAL (CSS) - GRELHAS MAIORES E MAIS NÍTIDAS
+// 2. CONFIGURAÇÃO VISUAL (CSS)
 // ============================================================
 const style = document.createElement('style');
 style.innerHTML = `
@@ -71,32 +71,49 @@ style.innerHTML = `
     .cor-palete-btn:hover { transform: scale(1.05); }
     .cor-palete-btn.ativo { transform: scale(1.08); border-color: #262638; box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
 
-    /* Miniatura de Referência Maior, com quadradinhos nítidos e sem a palavra modelo */
+    /* Miniatura de Referência sem palavra modelo */
     .referencia-box {
         width: 100%; background: white; border: 2px solid #E2D3AB; border-radius: 12px; padding: 8px; display: flex; flex-direction: column; align-items: center; gap: 4px;
     }
     .referencia-grid {
         display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
-        width: 100px; aspect-ratio: 1; border: 2px solid #262638; border-radius: 6px; overflow: hidden;
+        width: 110px; aspect-ratio: 1; border: 2px solid #262638; border-radius: 6px; overflow: hidden;
     }
     .ref-celula { width: 100%; height: 100%; border: 0.5px solid rgba(0,0,0,0.15); }
 
-    /* Moldura de navegação na capa */
+    /* Molduras da Capa com grelha completa e suporte para ate 4 modelos em ecras grandes */
     .seletor-capa-container {
-        display: flex; align-items: center; gap: 15px; justify-content: center; margin-top: 6px;
+        display: flex; align-items: center; gap: 16px; justify-content: center; width: 100%; max-width: 900px; margin-top: 10px; padding: 0 10px;
     }
     .btn-seta-capa {
-        background: #ECA607; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s ease; flex-shrink: 0;
+        background: #ECA607; color: white; border: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: transform 0.2s ease; flex-shrink: 0;
     }
     .btn-seta-capa:hover { transform: scale(1.1); }
     .btn-seta-capa:active { transform: scale(0.92); }
 
-    .moldura-capa-quadrada {
-        width: 150px; height: 150px; background: white; border: 3px solid #E2D3AB; border-radius: 20px; display: flex; align-items: center; justify-content: center; padding: 12px; box-shadow: 0 8px 20px rgba(236,166,7,0.2); cursor: pointer; transition: transform 0.2s ease;
+    .galeria-capa-modelos {
+        display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: nowrap; overflow: hidden; padding: 10px 4px;
     }
-    .moldura-capa-quadrada:hover { transform: scale(1.03); }
-    .moldura-capa-miniatura {
-        width: 100%; height: 100%; object-fit: contain; pointer-events: none;
+
+    .cartao-modelo-capa {
+        background: white; border: 3px solid #E2D3AB; border-radius: 18px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.06); width: 150px; flex-shrink: 0;
+    }
+    .cartao-modelo-capa:hover { transform: translateY(-4px) scale(1.04); border-color: #ECA607; }
+    .cartao-modelo-capa.selecionado {
+        border: 4px solid #ECA607; box-shadow: 0 8px 24px rgba(236,166,7,0.35); transform: scale(1.08); background: #FFFDF5;
+    }
+
+    .grelha-capa-miniatura {
+        display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
+        width: 120px; aspect-ratio: 1; border: 2px solid #262638; border-radius: 8px; overflow: hidden; pointer-events: none;
+    }
+
+    /* Em ecras pequenos/telemovel mostra 1 modelo principal */
+    @media (max-width: 600px) {
+        .cartao-modelo-capa { display: none; }
+        .cartao-modelo-capa.selecionado { display: flex; width: 170px; }
+        .grelha-capa-miniatura { width: 140px; }
     }
 
     .btn-ferramenta-texto {
@@ -175,7 +192,7 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA E SELEÇÃO DE DESENHOS PIXEL ART
+// 3. CAPA COM GALERIA DE GRELHAS PIXEL ART (ATÉ 4 VISÍVEIS)
 // ============================================================
 function mostrarCapa() {
     const feedbackEl = document.getElementById('round-feedback');
@@ -188,22 +205,17 @@ function mostrarCapa() {
     }
 
     const slotTopo = document.getElementById('slot-topo');
+    slotTopo.className = "barrita-fundo-cartao";
+    slotTopo.innerHTML = "";
+
+    renderizarCapaComMolduras();
+
     const slotFundo = document.getElementById('slot-fundo');
-
-    if (slotTopo) {
-        slotTopo.className = "barrita-fundo-cartao";
-        slotTopo.innerHTML = "";
-    }
-
-    renderizarCapaComMoldura();
-
-    if (slotFundo) {
-        slotFundo.className = "barra-jogo-topo";
-        slotFundo.innerHTML = `
-            <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
-            <button class="btn-capa-jogar" onclick="iniciarJogoPixel()">COMEÇAR</button>
-        `;
-    }
+    slotFundo.className = "barra-jogo-topo";
+    slotFundo.innerHTML = `
+        <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
+        <button class="btn-capa-jogar" onclick="iniciarJogoPixel()">COMEÇAR</button>
+    `;
 }
 
 function mudarDesenhoPixel(direcao) {
@@ -215,24 +227,64 @@ function mudarDesenhoPixel(direcao) {
     if (indiceDesenhoPixelAtual < 0) indiceDesenhoPixelAtual = lista.length - 1;
     if (indiceDesenhoPixelAtual >= lista.length) indiceDesenhoPixelAtual = 0;
 
-    renderizarCapaComMoldura();
+    renderizarCapaComMolduras();
 }
 
-function renderizarCapaComMoldura() {
+function selecionarModeloPelaCapa(index) {
+    if (somClique.src) somClique.play().catch(()=>{});
+    indiceDesenhoPixelAtual = index;
+    iniciarJogoPixel();
+}
+
+function renderizarCapaComMolduras() {
     const lista = DADOS.pixelArtModelos || [];
-    const modelo = lista[indiceDesenhoPixelAtual] || { arquivo: "" };
     const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Pixel Art";
+
+    // Escolher até 4 modelos adjacentes para mostrar nos ecrãs grandes
+    let cartoesHtml = '';
+    const total = lista.length;
+
+    if (total > 0) {
+        let indicesParaMostrar = [indiceDesenhoPixelAtual];
+        
+        // Se houver mais modelos, adicionar até 4 visíveis
+        if (total > 1) {
+            for (let i = 1; i < Math.min(4, total); i++) {
+                indicesParaMostrar.push((indiceDesenhoPixelAtual + i) % total);
+            }
+        }
+
+        indicesParaMostrar.forEach((idx) => {
+            const m = lista[idx];
+            const estaSelecionado = idx === indiceDesenhoPixelAtual ? 'selecionado' : '';
+
+            // Gerar grelha visual com píxeis do modelo
+            let grelhaMinHtml = '';
+            for (let p = 0; p < (tamanhoGrelha * tamanhoGrelha); p++) {
+                const corPixel = (m.matrizAlvo && m.matrizAlvo[p]) ? m.matrizAlvo[p] : "#FFFFFF";
+                grelhaMinHtml += `<div class="ref-celula" style="background-color: ${corPixel};"></div>`;
+            }
+
+            cartoesHtml += `
+                <div class="cartao-modelo-capa ${estaSelecionado}" onclick="selecionarModeloPelaCapa(${idx})" title="Pintar ${m.nome || ''}">
+                    <div class="grelha-capa-miniatura">
+                        ${grelhaMinHtml}
+                    </div>
+                </div>
+            `;
+        });
+    }
 
     const area = document.getElementById('contentor-jogo');
     if (area) {
         area.innerHTML = `
-            <div style="font-size: 1.3rem; font-weight: 900; color: #C2890B; margin-bottom: 8px; text-transform: uppercase;">${tituloAnimacao}</div>
+            <div style="font-size: 1.3rem; font-weight: 900; color: #C2890B; margin-bottom: 4px; text-transform: uppercase;">${tituloAnimacao}</div>
             
             <div class="seletor-capa-container">
                 <button class="btn-seta-capa" onclick="mudarDesenhoPixel(-1)"><i class="fas fa-chevron-left"></i></button>
                 
-                <div class="moldura-capa-quadrada" onclick="iniciarJogoPixel()" title="Começar a Pintar">
-                    <img src="${modelo.arquivo || ''}" alt="" class="moldura-capa-miniatura">
+                <div class="galeria-capa-modelos">
+                    ${cartoesHtml}
                 </div>
 
                 <button class="btn-seta-capa" onclick="mudarDesenhoPixel(1)"><i class="fas fa-chevron-right"></i></button>
@@ -284,7 +336,7 @@ function iniciarJogoPixel() {
         paletaHtml += `<div class="cor-palete-btn ${ativoClass}" style="background-color: ${cor};" onclick="selecionarCorPixel('${cor}', this)"></div>`;
     });
 
-    // Criar grelha de referência lateral com os quadradinhos corretos do modelo selecionado
+    // Criar grelha de referência lateral
     let refHtml = '';
     for (let i = 0; i < (tamanhoGrelha * tamanhoGrelha); i++) {
         const corRef = (modeloAtual.matrizAlvo && modeloAtual.matrizAlvo[i]) ? modeloAtual.matrizAlvo[i] : "#FFFFFF";
