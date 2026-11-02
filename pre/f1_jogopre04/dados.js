@@ -1,1 +1,233 @@
+const DADOS = {
+  pagina: {
+    browserTitulo: "Pré-Escolar - Pixel Art Criativo",
+    titulo: "Pré-Escolar",
+    subtitulo: "Pixel Art Criativo",
+    tituloMenu: "Pixel Art Criativo",
+    mensagem: "Diverte-te a aprender!",
+    informacao: "Jogos Pré",
+    tituloMenuAcordeao: "Menu",
+    urlVoltar: "../", 
+    iconeEstrela: "★",
+    iconeInfo: "i"
+  },
 
+  animacaoCapa: {
+    titulo: "Pixel Art Criativo",
+    instrucaoTexto: "Escolhe o teu modelo e cria a tua obra de arte!"
+  },
+
+  icons: {
+    cabecalho: "../../icons/iconpre.png",
+    menu: "../../icons/menu.png",
+    seta: "../../icons/seta.png",
+    som: "../../icons/som.png",
+    lampada: "../../icons/lampada.png",
+    info: "../../icons/info.png",
+    pincel: "../../icons/pincel.png",
+    feedbacks: {
+      feedback1: "../../icons/feedback_1.png",
+      feedback2: "../../icons/feedback_2.png",
+      feedback3: "../../icons/feedback_3.png",
+      feedback4: "../../icons/feedback_4.png"
+    },
+    menuAnos: {
+      inicio: "../../icons/inicio.png",
+      pre: "../../icons/iconpre.png",
+      ano1: "../../icons/icon1.png",
+      ano2: "../../icons/icon2.png",
+      ano3: "../../icons/icon3.png",
+      ano4: "../../icons/icon4.png"
+    }
+  },
+
+  // 10 Modelos de Pixel Art (8x8)
+  pixelArtModelos: [
+    {
+      nome: "Casinha Feliz",
+      paleta: ["#D91424", "#FFEB00", "#9C4820", "#009FE3", "#FFFFFF"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF",
+        "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424",
+        "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00",
+        "#FFEB00", "#009FE3", "#FFEB00", "#FFEB00", "#FFEB00", "#009FE3", "#FFEB00", "#FFEB00",
+        "#FFEB00", "#FFEB00", "#FFEB00", "#9C4820", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00",
+        "#FFEB00", "#FFEB00", "#FFEB00", "#9C4820", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00",
+        "#FFEB00", "#FFEB00", "#FFEB00", "#9C4820", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00"
+      ]
+    },
+    {
+      nome: "Coração Mágico",
+      paleta: ["#D91424", "#FBB1BD", "#FFFFFF", "#262638"],
+      matrizAlvo: [
+        "#FFFFFF", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#FFFFFF",
+        "#D91424", "#FBB1BD", "#D91424", "#D91424", "#D91424", "#D91424", "#FBB1BD", "#D91424",
+        "#D91424", "#FBB1BD", "#FBB1BD", "#D91424", "#D91424", "#FBB1BD", "#FBB1BD", "#D91424",
+        "#D91424", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#D91424",
+        "#FFFFFF", "#D91424", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#D91424", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#D91424", "#FBB1BD", "#FBB1BD", "#D91424", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Estrela Brilhante",
+      paleta: ["#FFEB00", "#F37022", "#FFFFFF"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFEB00", "#FFEB00", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFFFFF", "#FFFFFF",
+        "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00",
+        "#FFFFFF", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFEB00", "#FFEB00", "#FFEB00", "#FFEB00", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFEB00", "#FFEB00", "#FFFFFF", "#FFFFFF", "#FFEB00", "#FFEB00", "#FFFFFF",
+        "#FFEB00", "#FFEB00", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFEB00", "#FFEB00",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Maçã Colorida",
+      paleta: ["#D91424", "#23AA45", "#9C4820", "#FFFFFF"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#9C4820", "#23AA45", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#9C4820", "#23AA45", "#23AA45", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF",
+        "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF",
+        "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424",
+        "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424",
+        "#FFFFFF", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Gatinho Fofo",
+      paleta: ["#F37022", "#FFFFFF", "#262638", "#FBB1BD"],
+      matrizAlvo: [
+        "#F37022", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#F37022",
+        "#F37022", "#F37022", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#F37022", "#F37022",
+        "#F37022", "#F37022", "#F37022", "#F37022", "#F37022", "#F37022", "#F37022", "#F37022",
+        "#F37022", "#262638", "#F37022", "#FFFFFF", "#FFFFFF", "#F37022", "#262638", "#F37022",
+        "#F37022", "#F37022", "#F37022", "#FBB1BD", "#FBB1BD", "#F37022", "#F37022", "#F37022",
+        "#FFFFFF", "#F37022", "#F37022", "#F37022", "#F37022", "#F37022", "#F37022", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#F37022", "#F37022", "#F37022", "#F37022", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#F37022", "#FFFFFF", "#FFFFFF", "#F37022", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Árvore Verde",
+      paleta: ["#23AA45", "#9C4820", "#FFFFFF"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#FFFFFF",
+        "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#23AA45",
+        "#FFFFFF", "#FFFFFF", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#23AA45", "#23AA45", "#23AA45", "#23AA45", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#9C4820", "#9C4820", "#9C4820", "#9C4820", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#9C4820", "#9C4820", "#9C4820", "#9C4820", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#9C4820", "#9C4820", "#9C4820", "#9C4820", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Peixinho Azul",
+      paleta: ["#009FE3", "#FFEB00", "#FFFFFF", "#262638"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#009FE3", "#009FE3", "#009FE3", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#FFFFFF",
+        "#FFFFFF", "#009FE3", "#009FE3", "#FFEB00", "#009FE3", "#009FE3", "#009FE3", "#009FE3",
+        "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#262638",
+        "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#262638",
+        "#FFFFFF", "#009FE3", "#009FE3", "#FFEB00", "#009FE3", "#009FE3", "#009FE3", "#009FE3",
+        "#FFFFFF", "#FFFFFF", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#009FE3", "#009FE3", "#009FE3", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Sorvete Doce",
+      paleta: ["#FBB1BD", "#FFEB00", "#9C4820", "#FFFFFF"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FBB1BD", "#FBB1BD", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FBB1BD", "#FFEB00", "#FBB1BD", "#FBB1BD", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FBB1BD", "#FBB1BD", "#FBB1BD", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#9C4820", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#9C4820", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#9C4820", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#9C4820", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Flor Colorida",
+      paleta: ["#D91424", "#FFEB00", "#23AA45", "#FFFFFF"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#D91424", "#D91424", "#D91424", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#D91424", "#FFEB00", "#FFEB00", "#FFEB00", "#D91424", "#FFFFFF", "#FFFFFF",
+        "#D91424", "#FFEB00", "#FFEB00", "#23AA45", "#FFEB00", "#FFEB00", "#D91424", "#FFFFFF",
+        "#D91424", "#FFEB00", "#23AA45", "#23AA45", "#23AA45", "#FFEB00", "#D91424", "#FFFFFF",
+        "#D91424", "#FFEB00", "#FFEB00", "#23AA45", "#FFEB00", "#FFEB00", "#D91424", "#FFFFFF",
+        "#FFFFFF", "#D91424", "#FFEB00", "#FFEB00", "#FFEB00", "#D91424", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#D91424", "#23AA45", "#D91424", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#23AA45", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+      ]
+    },
+    {
+      nome: "Carro Desportivo",
+      paleta: ["#009FE3", "#262638", "#FFFFFF", "#FFEB00"],
+      matrizAlvo: [
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#FFFFFF", "#FFFFFF",
+        "#FFFFFF", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#FFFFFF",
+        "#009FE3", "#009FE3", "#FFEB00", "#009FE3", "#009FE3", "#FFEB00", "#009FE3", "#009FE3",
+        "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3", "#009FE3",
+        "#FFFFFF", "#262638", "#262638", "#FFFFFF", "#FFFFFF", "#262638", "#262638", "#FFFFFF",
+        "#FFFFFF", "#262638", "#262638", "#FFFFFF", "#FFFFFF", "#262638", "#262638", "#FFFFFF",
+        "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF", "#FFFFFF"
+      ]
+    }
+  ],
+
+  sons: {
+    certo: "",
+    errado: "",
+    clique: "",
+    instrucao: "f1_jogopre03.mp3"
+  },
+
+  cores: {
+    fundo: "#F3F3F8",
+    ceu1: "#FDF7E5",
+    ceu2: "#FBF0CC",
+    header: "#FBF0CC",
+    headerTopo: "#FDF7E5",
+    azulHeader: "#ECA607",
+    texto: "#3E3E59",
+    textoEscuro: "#262638",
+    branco: "#FFFFFF",
+    creme: "#ECECEF",
+    linha: "#E2D3AB",
+    sombra: "rgba(236,166,7,.18)",
+    sombraForte: "rgba(236,166,7,.28)"
+  },
+
+  dimensoes: {
+    larguraMaxima: 1200,
+    raioAno: 23,
+    pc: { alturaCartao: 450, tamanhoIcone: 220 },
+    telemovelVertical: { alturaCartao: 320, tamanhoIcone: 160 },
+    telemovelHorizontal: { alturaCartao: 220, tamanhoIcone: 100 },
+    tabletVertical: { alturaCartao: 400, tamanhoIcone: 190 },
+    tabletHorizontal: { alturaCartao: 380, tamanhoIcone: 180 }
+  },
+
+  jogos: [
+    { nome: "Estojo Mágico", idade: "Pré-Escolar", imagem: "../../icons/gatos&caes.png", cor: "#ECA607", cor2: "#3E3E59", pagina: "index.html" }
+  ],
+
+  menuAnos: [
+    { id: "inicio", nome: "Início", icon: "inicio", pagina: "../../" },
+    { id: "pre", nome: "Pré-Escolar", icon: "pre", pagina: "../../pre/" },
+    { id: "ano1", nome: "1.º Ano", icon: "ano1", pagina: "../../1/" },
+    { id: "ano2", nome: "2.º Ano", icon: "ano2", pagina: "../../2/" },
+    { id: "ano3", nome: "3.º Ano", icon: "ano3", pagina: "../../3/" },
+    { id: "ano4", nome: "4.º Ano", icon: "ano4", pagina: "../../4/" }
+  ]
+};
