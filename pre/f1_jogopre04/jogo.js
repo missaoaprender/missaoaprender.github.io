@@ -77,14 +77,14 @@ style.innerHTML = `
         transition: opacity 0.3s ease; opacity: 0; text-transform: uppercase;
     }
 
-    .btn-capa-som, .btn-menu-topo {
+    .btn-capa-som, .btn-menu-topo, .btn-fullscreen {
         height: 44px; background: white; color: #C2890B; border: 2px solid #E2D3AB;
-        padding: 0 16px; border-radius: 22px; font-weight: 900; font-size: 0.85rem;
+        padding: 0 14px; border-radius: 22px; font-weight: 900; font-size: 0.85rem;
         cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;
         box-shadow: 0 3px 8px rgba(0,0,0,0.08); transition: transform 0.2s ease, background 0.2s ease;
     }
     .btn-capa-som { width: 44px; padding: 0; border-radius: 50%; }
-    .btn-capa-som:hover, .btn-menu-topo:hover { transform: scale(1.05); background: #FFF9E6; }
+    .btn-capa-som:hover, .btn-menu-topo:hover, .btn-fullscreen:hover { transform: scale(1.05); background: #FFF9E6; }
     .btn-capa-som img { width: 22px; height: 22px; object-fit: contain; }
 
     .btn-capa-jogar {
@@ -128,7 +128,22 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA DO JOGO
+// 3. FUNÇÃO DE ECRÃ COMPLETO (FULLSCREEN)
+// ============================================================
+function alternarFullscreen() {
+    if (somClique.src) somClique.play().catch(()=>{});
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen().catch(() => {});
+        }
+    }
+}
+
+
+// ============================================================
+// 4. CAPA DO JOGO
 // ============================================================
 function mostrarCapa() {
     if (animacaoCapaInterval) clearInterval(animacaoCapaInterval);
@@ -137,8 +152,14 @@ function mostrarCapa() {
     const slotFundo = document.getElementById('slot-fundo');
 
     if (slotTopo) {
-        slotTopo.className = "barrita-fundo-cartao";
-        slotTopo.innerHTML = "";
+        slotTopo.className = "barra-jogo-topo";
+        slotTopo.innerHTML = `
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
+                <button class="btn-fullscreen" onclick="alternarFullscreen()"><i class="fas fa-expand"></i> Ecrã Cheio</button>
+            </div>
+            <button class="btn-menu-topo" onclick="window.history.back()"><i class="fas fa-arrow-left"></i> Voltar</button>
+        `;
     }
 
     const area = document.getElementById('contentor-jogo');
@@ -186,11 +207,8 @@ function mostrarCapa() {
     }
 
     if (slotFundo) {
-        slotFundo.className = "barra-jogo-topo";
-        slotFundo.innerHTML = `
-            <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
-            <button class="btn-capa-jogar" onclick="iniciarJogoMontagem()">COMEÇAR</button>
-        `;
+        slotFundo.className = "barrita-fundo-cartao";
+        slotFundo.innerHTML = "";
     }
 }
 
@@ -202,7 +220,7 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO JOGO DE MONTAGEM DE ANIMAIS
+// 5. LÓGICA DO JOGO DE MONTAGEM DE ANIMAIS
 // ============================================================
 function selecionar7AnimaisAleatorios() {
     const baralhados = [...listaCompletaAnimais].sort(() => 0.5 - Math.random());
@@ -230,8 +248,10 @@ function atualizarInterfaceJogo() {
     if (slotTopo) {
         slotTopo.className = "barra-jogo-topo";
         slotTopo.innerHTML = `
-            <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
-            <div></div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
+                <button class="btn-fullscreen" onclick="alternarFullscreen()"><i class="fas fa-expand"></i> Ecrã Cheio</button>
+            </div>
             <button class="btn-menu-topo" onclick="mostrarCapa()"><i class="fas fa-bars"></i> Menu</button>
         `;
     }
