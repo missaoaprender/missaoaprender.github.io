@@ -21,13 +21,18 @@ const style = document.createElement('style');
 style.innerHTML = `
     .montagem-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        width: 100%; height: 100%; flex: 1; gap: 10px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 6px 0;
+        width: 100%; height: 100%; flex: 1; gap: 12px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
         position: relative; box-sizing: border-box;
     }
     @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
+    /* Linha que agrupa a seta esquerda, a caixa da imagem e a seta direita */
+    .puzzle-linha-item {
+        display: flex; align-items: center; justify-content: center; gap: 14px; width: 100%;
+    }
+
     .puzzle-wrapper {
-        position: relative; width: 260px; height: 260px; background: white; border: 4px solid #E2D3AB; border-radius: 20px;
+        position: relative; width: 220px; height: 220px; background: white; border: 4px solid #E2D3AB; border-radius: 18px;
         box-shadow: 0 6px 20px rgba(0,0,0,0.08); overflow: hidden; display: flex; flex-direction: column;
     }
 
@@ -37,26 +42,26 @@ style.innerHTML = `
     .puzzle-seccao:last-child { border-bottom: none; }
 
     .puzzle-seccao img {
-        position: absolute; width: 260px; height: 260px; object-fit: cover; left: 0; pointer-events: none;
+        position: absolute; width: 220px; height: 220px; object-fit: cover; left: 0; pointer-events: none;
     }
     .fatia-cabeca { top: 0; }
-    .fatia-meio { top: -86.6px; }
-    .fatia-corpo { top: -173.3px; }
+    .fatia-meio { top: -73.3px; }
+    .fatia-corpo { top: -146.6px; }
 
-    .btn-seta-puzzle {
-        background: #ECA607; color: white; border: 2px solid #F4D06F; width: 40px; height: 40px;
-        border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 4px 10px rgba(236,166,7,0.3); transition: transform 0.15s ease, background 0.15s ease;
-        font-size: 0.9rem; font-weight: 900;
+    .btn-seta-lateral {
+        background: #000000; color: white; border: none; width: 44px; height: 44px;
+        border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.15s ease, background 0.15s ease;
+        font-size: 1.1rem; flex-shrink: 0;
     }
-    .btn-seta-puzzle:hover { transform: scale(1.1); background: #d99605; }
-    .btn-seta-puzzle:active { transform: scale(0.92); }
+    .btn-seta-lateral:hover { transform: scale(1.1); background: #333333; }
+    .btn-seta-lateral:active { transform: scale(0.92); }
 
     .btn-verificar-puzzle {
-        background: #23AA45; color: white; border: 2.5px solid #A3E4B5; padding: 8px 22px;
-        border-radius: 18px; font-weight: 900; font-size: 0.9rem; cursor: pointer;
+        background: #23AA45; color: white; border: 2.5px solid #A3E4B5; padding: 10px 26px;
+        border-radius: 18px; font-weight: 900; font-size: 0.95rem; cursor: pointer;
         box-shadow: 0 4px 12px rgba(35,170,69,0.35); text-transform: uppercase;
-        transition: transform 0.2s ease, background 0.2s ease;
+        transition: transform 0.2s ease, background 0.2s ease; margin-top: 4px;
     }
     .btn-verificar-puzzle:hover { transform: translateY(-2px); background: #1e913a; }
     .btn-verificar-puzzle:active { transform: scale(0.95); }
@@ -167,34 +172,35 @@ function iniciarJogoMontagem() {
     if (area) {
         area.innerHTML = `
             <div class="montagem-container">
-                <div class="puzzle-wrapper">
-                    <div class="puzzle-seccao">
-                        <img id="imgCabeca" src="${caminhoPasta}${listaAnimais[indiceCabeca].arquivo}" class="fatia-cabeca">
+                <div class="puzzle-linha-item">
+                    <!-- Setas da Cabeça -->
+                    <button class="btn-seta-lateral" onclick="mudarPeca('cabeca', -1)">◀</button>
+                    
+                    <div class="puzzle-wrapper">
+                        <div class="puzzle-seccao">
+                            <img id="imgCabeca" src="${caminhoPasta}${listaAnimais[indiceCabeca].arquivo}" class="fatia-cabeca">
+                        </div>
+                        <div class="puzzle-seccao">
+                            <img id="imgMeio" src="${caminhoPasta}${listaAnimais[indiceMeio].arquivo}" class="fatia-meio">
+                        </div>
+                        <div class="puzzle-seccao">
+                            <img id="imgCorpo" src="${caminhoPasta}${listaAnimais[indiceCorpo].arquivo}" class="fatia-corpo">
+                        </div>
                     </div>
-                    <div class="puzzle-seccao">
-                        <img id="imgMeio" src="${caminhoPasta}${listaAnimais[indiceMeio].arquivo}" class="fatia-meio">
-                    </div>
-                    <div class="puzzle-seccao">
-                        <img id="imgCorpo" src="${caminhoPasta}${listaAnimais[indiceCorpo].arquivo}" class="fatia-corpo">
-                    </div>
+
+                    <button class="btn-seta-lateral" onclick="mudarPeca('cabeca', 1)">▶</button>
                 </div>
 
-                <div style="display: flex; width: 100%; max-width: 300px; justify-content: space-between; align-items: center;">
-                    <button class="btn-seta-puzzle" onclick="mudarPeca('cabeca', -1)">◀</button>
-                    <span style="font-size: 0.75rem; font-weight: 800; color: #C2890B;">Cabeça</span>
-                    <button class="btn-seta-puzzle" onclick="mudarPeca('cabeca', 1)">▶</button>
+                <!-- Controlos para a secção do Meio -->
+                <div style="display: flex; width: 100%; max-width: 320px; justify-content: space-between; padding: 0 10px;">
+                    <button class="btn-seta-lateral" onclick="mudarPeca('meio', -1)">◀</button>
+                    <button class="btn-seta-lateral" onclick="mudarPeca('meio', 1)">▶</button>
                 </div>
 
-                <div style="display: flex; width: 100%; max-width: 300px; justify-content: space-between; align-items: center;">
-                    <button class="btn-seta-puzzle" onclick="mudarPeca('meio', -1)">◀</button>
-                    <span style="font-size: 0.75rem; font-weight: 800; color: #C2890B;">Meio</span>
-                    <button class="btn-seta-puzzle" onclick="mudarPeca('meio', 1)">▶</button>
-                </div>
-
-                <div style="display: flex; width: 100%; max-width: 300px; justify-content: space-between; align-items: center;">
-                    <button class="btn-seta-puzzle" onclick="mudarPeca('corpo', -1)">◀</button>
-                    <span style="font-size: 0.75rem; font-weight: 800; color: #C2890B;">Corpo</span>
-                    <button class="btn-seta-puzzle" onclick="mudarPeca('corpo', 1)">▶</button>
+                <!-- Controlos para a secção do Corpo -->
+                <div style="display: flex; width: 100%; max-width: 320px; justify-content: space-between; padding: 0 10px;">
+                    <button class="btn-seta-lateral" onclick="mudarPeca('corpo', -1)">◀</button>
+                    <button class="btn-seta-lateral" onclick="mudarPeca('corpo', 1)">▶</button>
                 </div>
 
                 <button class="btn-verificar-puzzle" onclick="verificarMontagem()">Verificar</button>
