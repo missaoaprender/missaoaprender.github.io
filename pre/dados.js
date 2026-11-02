@@ -83,7 +83,7 @@ const DADOS = {
       jogos: [
         { nome: "Desenho", idade: "Criativo", imagem: "iconjogos/f1_jogopre01.png", cor: "#FFB400", cor2: "#E09A00", pagina: "f1_jogopre01/" },
         { nome: "Pintura", idade: "Mágica", imagem: "iconjogos/f1_jogopre02.png", cor: "#FFB400", cor2: "#E09A00", pagina: "f1_jogopre02/" },
-        { nome: "Jogo 3", idade: "Subtítulo 3", imagem: "iconjogos/jogo3.png", cor: "#FFB400", cor2: "#E09A00", pagina: "jogo3/" },
+        { nome: "Jogo 3", idade: "Pix Arte", imagem: "iconjogos/f1_jogopre03.png", cor: "#FFB400", cor2: "#E09A00", pagina: "f1_jogopre03/" },
         { nome: "Jogo 4", idade: "Subtítulo 4", imagem: "iconjogos/jogo4.png", cor: "#FFB400", cor2: "#E09A00", pagina: "jogo4/" },
         { nome: "Jogo 5", idade: "Subtítulo 5", imagem: "iconjogos/jogo5.png", cor: "#FFB400", cor2: "#E09A00", pagina: "jogo5/" },
         { nome: "Jogo 6", idade: "Subtítulo 6", imagem: "iconjogos/jogo6.png", cor: "#FFB400", cor2: "#E09A00", pagina: "jogo6/" }
