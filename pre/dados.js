@@ -79,7 +79,7 @@ const DADOS = {
 
   fases: [
     {
-      tituloFase: "Fase 1",
+      tituloFase: "Identificar, colorir",
       jogos: [
         { nome: "Desenho", idade: "Criativo", imagem: "iconjogos/f1_jogopre01.png", cor: "#FFB400", cor2: "#E09A00", pagina: "f1_jogopre01/" },
         { nome: "Pintura", idade: "Mágica", imagem: "iconjogos/f1_jogopre02.png", cor: "#FFB400", cor2: "#E09A00", pagina: "f1_jogopre02/" },
