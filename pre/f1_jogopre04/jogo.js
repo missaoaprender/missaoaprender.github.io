@@ -21,51 +21,46 @@ const style = document.createElement('style');
 style.innerHTML = `
     .montagem-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        width: 100%; height: 100%; flex: 1; gap: 14px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
+        width: 100%; height: 100%; flex: 1; gap: 12px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
         position: relative; box-sizing: border-box;
     }
     @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    .puzzle-layout-principal {
-        display: flex; align-items: center; justify-content: center; gap: 16px; width: 100%;
-    }
-
-    .coluna-setas {
-        display: flex; flex-direction: column; justify-content: space-between; height: 260px; gap: 12px;
-    }
-
-    .btn-seta-quadrada {
-        background: #000000; border: 2px solid #262638; width: 42px; height: 42px;
-        border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.25); transition: transform 0.15s ease, background 0.15s ease;
-        padding: 0; flex-shrink: 0;
-    }
-    .btn-seta-quadrada:hover { transform: scale(1.1); background: #333333; }
-    .btn-seta-quadrada:active { transform: scale(0.92); }
-    .btn-seta-quadrada img { width: 22px; height: 22px; object-fit: contain; pointer-events: none; }
-
     .puzzle-wrapper {
-        position: relative; width: 260px; height: 260px; background: white; border: 4px solid #E2D3AB; border-radius: 16px;
+        position: relative; width: 260px; height: 260px; background: white; border: 4px solid #E2D3AB; border-radius: 18px;
         box-shadow: 0 6px 20px rgba(0,0,0,0.08); overflow: hidden; display: flex; flex-direction: column;
     }
 
     .puzzle-seccao {
         width: 100%; flex: 1; position: relative; overflow: hidden; border-bottom: 2px dashed #E2D3AB;
+        display: flex; align-items: center; justify-content: space-between; padding: 0 8px;
     }
     .puzzle-seccao:last-child { border-bottom: none; }
 
     .puzzle-seccao img {
-        position: absolute; width: 260px; height: 260px; object-fit: cover; left: 0; pointer-events: none;
+        position: absolute; width: 260px; height: 260px; object-fit: cover; left: 0; top: 0; pointer-events: none; z-index: 1;
     }
-    .fatia-cabeca { top: 0; }
-    .fatia-meio { top: -86.6px; }
-    .fatia-corpo { top: -173.3px; }
+    
+    /* Fatias posicionadas de acordo com a altura de cada secção */
+    .fatia-cabeca { object-position: 0 0; }
+    .fatia-meio { object-position: 0 -86.6px; }
+    .fatia-corpo { object-position: 0 -173.3px; }
+
+    /* Botões de setas laterais embutidos e perfeitamente alinhados com cada tira */
+    .btn-seta-tira {
+        background: #ECA607; color: white; border: 2px solid #F4D06F; width: 38px; height: 38px;
+        border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 3px 8px rgba(236,166,7,0.4); transition: transform 0.15s ease, background 0.15s ease;
+        z-index: 10; font-weight: 900; font-size: 1rem; flex-shrink: 0;
+    }
+    .btn-seta-tira:hover { transform: scale(1.12); background: #d99605; }
+    .btn-seta-tira:active { transform: scale(0.92); }
 
     .btn-verificar-puzzle {
         background: #23AA45; color: white; border: 2.5px solid #A3E4B5; padding: 10px 28px;
         border-radius: 18px; font-weight: 900; font-size: 0.95rem; cursor: pointer;
         box-shadow: 0 4px 12px rgba(35,170,69,0.35); text-transform: uppercase;
-        transition: transform 0.2s ease, background 0.2s ease;
+        transition: transform 0.2s ease, background 0.2s ease; margin-top: 4px;
     }
     .btn-verificar-puzzle:hover { transform: translateY(-2px); background: #1e913a; }
     .btn-verificar-puzzle:active { transform: scale(0.95); }
@@ -154,10 +149,8 @@ function tocarSomInstrucao() {
 function iniciarJogoMontagem() {
     if (somClique.src) somClique.play().catch(()=>{});
 
-    // Escolhe aleatoriamente o animal que o aluno deve construir
     indiceAnimalAlvo = Math.floor(Math.random() * listaAnimais.length);
     
-    // Baralha as partes iniciais para o desafio ser real
     indiceCabeca = Math.floor(Math.random() * listaAnimais.length);
     indiceMeio = Math.floor(Math.random() * listaAnimais.length);
     indiceCorpo = Math.floor(Math.random() * listaAnimais.length);
@@ -178,32 +171,26 @@ function iniciarJogoMontagem() {
     if (area) {
         area.innerHTML = `
             <div class="montagem-container">
-                <div class="puzzle-layout-principal">
-                    <!-- Coluna Esquerda: Setas para mover para trás nas peças -->
-                    <div class="coluna-setas">
-                        <button class="btn-seta-quadrada" onclick="mudarPeca('cabeca', -1)"><img src="${DADOS.icons.seta}" alt="Esquerda" style="transform: rotate(180deg);"></button>
-                        <button class="btn-seta-quadrada" onclick="mudarPeca('meio', -1)"><img src="${DADOS.icons.seta}" alt="Esquerda" style="transform: rotate(180deg);"></button>
-                        <button class="btn-seta-quadrada" onclick="mudarPeca('corpo', -1)"><img src="${DADOS.icons.seta}" alt="Esquerda" style="transform: rotate(180deg);"></button>
+                <div class="puzzle-wrapper">
+                    <!-- SECÇÃO DA CABEÇA (Com setas embutidas nas laterais) -->
+                    <div class="puzzle-seccao">
+                        <button class="btn-seta-tira" onclick="mudarPeca('cabeca', -1)">◀</button>
+                        <img id="imgCabeca" src="${caminhoPasta}${listaAnimais[indiceCabeca].arquivo}" class="fatia-cabeca">
+                        <button class="btn-seta-tira" onclick="mudarPeca('cabeca', 1)">▶</button>
                     </div>
 
-                    <!-- Bloco central com as 3 secções do animal divididas -->
-                    <div class="puzzle-wrapper">
-                        <div class="puzzle-seccao">
-                            <img id="imgCabeca" src="${caminhoPasta}${listaAnimais[indiceCabeca].arquivo}" class="fatia-cabeca">
-                        </div>
-                        <div class="puzzle-seccao">
-                            <img id="imgMeio" src="${caminhoPasta}${listaAnimais[indiceMeio].arquivo}" class="fatia-meio">
-                        </div>
-                        <div class="puzzle-seccao">
-                            <img id="imgCorpo" src="${caminhoPasta}${listaAnimais[indiceCorpo].arquivo}" class="fatia-corpo">
-                        </div>
+                    <!-- SECÇÃO DO MEIO (Com setas embutidas nas laterais) -->
+                    <div class="puzzle-seccao">
+                        <button class="btn-seta-tira" onclick="mudarPeca('meio', -1)">◀</button>
+                        <img id="imgMeio" src="${caminhoPasta}${listaAnimais[indiceMeio].arquivo}" class="fatia-meio">
+                        <button class="btn-seta-tira" onclick="mudarPeca('meio', 1)">▶</button>
                     </div>
 
-                    <!-- Coluna Direita: Setas para mover para a frente nas peças -->
-                    <div class="coluna-setas">
-                        <button class="btn-seta-quadrada" onclick="mudarPeca('cabeca', 1)"><img src="${DADOS.icons.seta}" alt="Direita"></button>
-                        <button class="btn-seta-quadrada" onclick="mudarPeca('meio', 1)"><img src="${DADOS.icons.seta}" alt="Direita"></button>
-                        <button class="btn-seta-quadrada" onclick="mudarPeca('corpo', 1)"><img src="${DADOS.icons.seta}" alt="Direita"></button>
+                    <!-- SECÇÃO DO CORPO (Com setas embutidas nas laterais) -->
+                    <div class="puzzle-seccao">
+                        <button class="btn-seta-tira" onclick="mudarPeca('corpo', -1)">◀</button>
+                        <img id="imgCorpo" src="${caminhoPasta}${listaAnimais[indiceCorpo].arquivo}" class="fatia-corpo">
+                        <button class="btn-seta-tira" onclick="mudarPeca('corpo', 1)">▶</button>
                     </div>
                 </div>
 
@@ -237,7 +224,6 @@ function mudarPeca(parte, direcao) {
 function verificarMontagem() {
     if (somAcerto.src) somAcerto.play().catch(()=>{});
 
-    // O jogador ganha se a cabeça, o meio e o corpo pertencerem todos ao animal alvo atual
     const acertou = (indiceCabeca === indiceAnimalAlvo && indiceMeio === indiceAnimalAlvo && indiceCorpo === indiceAnimalAlvo);
     const overlay = document.getElementById('round-feedback');
     const iconeFeedback = DADOS.icons.feedbacks.feedback1;
