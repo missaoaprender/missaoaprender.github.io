@@ -1,9 +1,10 @@
 // ============================================================
 // 1. ESTADO GLOBAL E CONFIGURAÇÃO DO JOGO
 // ============================================================
-const listaAnimais = DADOS.animaisSelvagens;
+const listaCompletaAnimais = DADOS.animaisSelvagens;
 const caminhoPasta = DADOS.caminhoAnimais;
 
+let animaisAtuais = [];
 let indiceAnimalAlvo = 0;
 let indiceCabeca = 0;
 let indiceMeio = 0;
@@ -21,17 +22,15 @@ const style = document.createElement('style');
 style.innerHTML = `
     .montagem-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        width: 100%; height: 100%; flex: 1; gap: 12px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
+        width: 100%; height: 100%; flex: 1; gap: 10px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
         position: relative; box-sizing: border-box;
     }
     @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* Layout principal que coloca as colunas de setas fora do quadrado central */
     .puzzle-layout-externo {
         display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;
     }
 
-    /* Colunas de setas verticais divididas exatamente em 3 partes para alinhar com as faixas */
     .coluna-setas-externas {
         display: flex; flex-direction: column; justify-content: space-between; height: 260px;
     }
@@ -61,6 +60,11 @@ style.innerHTML = `
     .fatia-cabeca { top: 0; }
     .fatia-meio { top: -86.6px; }
     .fatia-corpo { top: -173.3px; }
+
+    .selector-animal {
+        background: white; border: 2px solid #E2D3AB; border-radius: 12px; padding: 4px 10px;
+        font-weight: 800; font-size: 0.85rem; color: #C2890B; cursor: pointer; outline: none;
+    }
 
     .btn-verificar-puzzle {
         background: #23AA45; color: white; border: 2.5px solid #A3E4B5; padding: 10px 28px;
@@ -127,7 +131,7 @@ function mostrarCapa() {
         area.innerHTML = `
             <div style="font-size: 1.3rem; font-weight: 900; color: #C2890B; margin-bottom: 6px; text-transform: uppercase;">${tituloAnimacao}</div>
             <div class="animacao-capa-container">
-                <img src="${caminhoPasta}${listaAnimais[0].arquivo}" alt="Capa">
+                <img src="${caminhoPasta}${listaCompletaAnimais[0].arquivo}" alt="Capa">
             </div>
             <div id="round-feedback" style="display: none;"></div>
         `;
@@ -152,24 +156,50 @@ function tocarSomInstrucao() {
 // ============================================================
 // 4. LÓGICA DO JOGO DE MONTAGEM DE ANIMAIS
 // ============================================================
+function selecionar7AnimaisAleatorios() {
+    // Baralha a lista completa e pega apenas 7 animais
+    const baralhados = [...listaCompletaAnimais].sort(() => 0.5 - Math.random());
+    animaisAtuais = baralhados.slice(0, 7);
+}
+
 function iniciarJogoMontagem() {
     if (somClique.src) somClique.play().catch(()=>{});
 
-    indiceAnimalAlvo = Math.floor(Math.random() * listaAnimais.length);
-    
-    indiceCabeca = Math.floor(Math.random() * listaAnimais.length);
-    indiceMeio = Math.floor(Math.random() * listaAnimais.length);
-    indiceCorpo = Math.floor(Math.random() * listaAnimais.length);
+    // Seleciona 7 animais diferentes para esta sessão de jogo
+    selecionar7AnimaisAleatorios();
 
+    // Define um animal alvo inicial aleatório dentro dos 7 escolhidos
+    indiceAnimalAlvo = Math.floor(Math.random() * animaisAtuais.length);
+    
+    indiceCabeca = Math.floor(Math.random() * animaisAtuais.length);
+    indiceMeio = Math.floor(Math.random() * animaisAtuais.length);
+    indiceCorpo = Math.floor(Math.random() * animaisAtuais.length);
+
+    atualizarInterfaceJogo();
+}
+
+function atualizarInterfaceJogo() {
     const slotTopo = document.getElementById('slot-topo');
     const slotFundo = document.getElementById('slot-fundo');
     const area = document.getElementById('contentor-jogo');
 
     if (slotTopo) {
         slotTopo.className = "barra-jogo-topo";
+        
+        // Criar o seletor dropdown para o utilizador escolher o animal que quiser construir
+        let opcoesHtml = "";
+        animaisAtuais.forEach((anim, idx) => {
+            opcoesHtml += `<option value="${idx}" ${idx === indiceAnimalAlvo ? 'selected' : ''}>${anim.nome}</option>`;
+        });
+
         slotTopo.innerHTML = `
             <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
-            <div style="color: white; font-weight: 900; font-size: 0.95rem;">Constrói o animal: ${listaAnimais[indiceAnimalAlvo].nome}</div>
+            <div style="color: white; font-weight: 900; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+                <span>Constrói:</span>
+                <select class="selector-animal" onchange="mudarAnimalAlvo(this.value)">
+                    ${opcoesHtml}
+                </select>
+            </div>
             <button class="btn-menu-topo" onclick="mostrarCapa()"><i class="fas fa-bars"></i> Menu</button>
         `;
     }
@@ -188,13 +218,13 @@ function iniciarJogoMontagem() {
                     <!-- Caixa Central do Puzzle -->
                     <div class="puzzle-wrapper">
                         <div class="puzzle-seccao">
-                            <img id="imgCabeca" src="${caminhoPasta}${listaAnimais[indiceCabeca].arquivo}" class="fatia-cabeca">
+                            <img id="imgCabeca" src="${caminhoPasta}${animaisAtuais[indiceCabeca].arquivo}" class="fatia-cabeca">
                         </div>
                         <div class="puzzle-seccao">
-                            <img id="imgMeio" src="${caminhoPasta}${listaAnimais[indiceMeio].arquivo}" class="fatia-meio">
+                            <img id="imgMeio" src="${caminhoPasta}${animaisAtuais[indiceMeio].arquivo}" class="fatia-meio">
                         </div>
                         <div class="puzzle-seccao">
-                            <img id="imgCorpo" src="${caminhoPasta}${listaAnimais[indiceCorpo].arquivo}" class="fatia-corpo">
+                            <img id="imgCorpo" src="${caminhoPasta}${animaisAtuais[indiceCorpo].arquivo}" class="fatia-corpo">
                         </div>
                     </div>
 
@@ -218,23 +248,28 @@ function iniciarJogoMontagem() {
     }
 }
 
+function mudarAnimalAlvo(novoIndice) {
+    if (somClique.src) somClique.play().catch(()=>{});
+    indiceAnimalAlvo = parseInt(novoIndice);
+}
+
 function mudarPeca(parte, direcao) {
     if (somClique.src) somClique.play().catch(()=>{});
 
     if (parte === 'cabeca') {
-        indiceCabeca = (indiceCabeca + direcao + listaAnimais.length) % listaAnimais.length;
-        document.getElementById('imgCabeca').src = caminhoPasta + listaAnimais[indiceCabeca].arquivo;
+        indiceCabeca = (indiceCabeca + direcao + animaisAtuais.length) % animaisAtuais.length;
+        document.getElementById('imgCabeca').src = caminhoPasta + animaisAtuais[indiceCabeca].arquivo;
     } else if (parte === 'meio') {
-        indiceMeio = (indiceMeio + direcao + listaAnimais.length) % listaAnimais.length;
-        document.getElementById('imgMeio').src = caminhoPasta + listaAnimais[indiceMeio].arquivo;
+        indiceMeio = (indiceMeio + direcao + animaisAtuais.length) % animaisAtuais.length;
+        document.getElementById('imgMeio').src = caminhoPasta + animaisAtuais[indiceMeio].arquivo;
     } else if (parte === 'corpo') {
-        indiceCorpo = (indiceCorpo + direcao + listaAnimais.length) % listaAnimais.length;
-        document.getElementById('imgCorpo').src = caminhoPasta + listaAnimais[indiceCorpo].arquivo;
+        indiceCorpo = (indiceCorpo + direcao + animaisAtuais.length) % animaisAtuais.length;
+        document.getElementById('imgCorpo').src = caminhoPasta + animaisAtuais[indiceCorpo].arquivo;
     }
 }
 
 function verificarMontagem() {
-    // Valida estritamente se todas as 3 partes correspondem ao animal alvo
+    // Valida estritamente se todas as 3 partes correspondem ao animal alvo selecionado
     const acertou = (indiceCabeca === indiceAnimalAlvo && indiceMeio === indiceAnimalAlvo && indiceCorpo === indiceAnimalAlvo);
 
     if (!acertou) {
