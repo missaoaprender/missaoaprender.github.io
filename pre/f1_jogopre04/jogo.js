@@ -26,6 +26,25 @@ style.innerHTML = `
     }
     @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
+    /* Layout principal que coloca as colunas de setas fora do quadrado central */
+    .puzzle-layout-externo {
+        display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;
+    }
+
+    /* Colunas de setas verticais divididas exatamente em 3 partes para alinhar com as faixas */
+    .coluna-setas-externas {
+        display: flex; flex-direction: column; justify-content: space-between; height: 260px;
+    }
+
+    .btn-seta-externa {
+        background: #ECA607; color: white; border: 2px solid #F4D06F; width: 40px; height: 75px;
+        border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 4px 10px rgba(236,166,7,0.3); transition: transform 0.15s ease, background 0.15s ease;
+        font-weight: 900; font-size: 1.1rem; flex-shrink: 0;
+    }
+    .btn-seta-externa:hover { transform: scale(1.08); background: #d99605; }
+    .btn-seta-externa:active { transform: scale(0.92); }
+
     .puzzle-wrapper {
         position: relative; width: 260px; height: 260px; background: white; border: 4px solid #E2D3AB; border-radius: 18px;
         box-shadow: 0 6px 20px rgba(0,0,0,0.08); overflow: hidden; display: flex; flex-direction: column;
@@ -33,28 +52,15 @@ style.innerHTML = `
 
     .puzzle-seccao {
         width: 100%; flex: 1; position: relative; overflow: hidden; border-bottom: 2px dashed #E2D3AB;
-        display: flex; align-items: center; justify-content: space-between; padding: 0 8px;
     }
     .puzzle-seccao:last-child { border-bottom: none; }
 
     .puzzle-seccao img {
-        position: absolute; width: 260px; height: 260px; object-fit: cover; left: 0; top: 0; pointer-events: none; z-index: 1;
+        position: absolute; width: 260px; height: 260px; object-fit: cover; left: 0; pointer-events: none;
     }
-    
-    /* Fatias posicionadas de acordo com a altura de cada secção */
-    .fatia-cabeca { object-position: 0 0; }
-    .fatia-meio { object-position: 0 -86.6px; }
-    .fatia-corpo { object-position: 0 -173.3px; }
-
-    /* Botões de setas laterais embutidos e perfeitamente alinhados com cada tira */
-    .btn-seta-tira {
-        background: #ECA607; color: white; border: 2px solid #F4D06F; width: 38px; height: 38px;
-        border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 3px 8px rgba(236,166,7,0.4); transition: transform 0.15s ease, background 0.15s ease;
-        z-index: 10; font-weight: 900; font-size: 1rem; flex-shrink: 0;
-    }
-    .btn-seta-tira:hover { transform: scale(1.12); background: #d99605; }
-    .btn-seta-tira:active { transform: scale(0.92); }
+    .fatia-cabeca { top: 0; }
+    .fatia-meio { top: -86.6px; }
+    .fatia-corpo { top: -173.3px; }
 
     .btn-verificar-puzzle {
         background: #23AA45; color: white; border: 2.5px solid #A3E4B5; padding: 10px 28px;
@@ -171,26 +177,32 @@ function iniciarJogoMontagem() {
     if (area) {
         area.innerHTML = `
             <div class="montagem-container">
-                <div class="puzzle-wrapper">
-                    <!-- SECÇÃO DA CABEÇA (Com setas embutidas nas laterais) -->
-                    <div class="puzzle-seccao">
-                        <button class="btn-seta-tira" onclick="mudarPeca('cabeca', -1)">◀</button>
-                        <img id="imgCabeca" src="${caminhoPasta}${listaAnimais[indiceCabeca].arquivo}" class="fatia-cabeca">
-                        <button class="btn-seta-tira" onclick="mudarPeca('cabeca', 1)">▶</button>
+                <div class="puzzle-layout-externo">
+                    <!-- Coluna Esquerda de Setas Externa -->
+                    <div class="coluna-setas-externas">
+                        <button class="btn-seta-externa" onclick="mudarPeca('cabeca', -1)">◀</button>
+                        <button class="btn-seta-externa" onclick="mudarPeca('meio', -1)">◀</button>
+                        <button class="btn-seta-externa" onclick="mudarPeca('corpo', -1)">◀</button>
                     </div>
 
-                    <!-- SECÇÃO DO MEIO (Com setas embutidas nas laterais) -->
-                    <div class="puzzle-seccao">
-                        <button class="btn-seta-tira" onclick="mudarPeca('meio', -1)">◀</button>
-                        <img id="imgMeio" src="${caminhoPasta}${listaAnimais[indiceMeio].arquivo}" class="fatia-meio">
-                        <button class="btn-seta-tira" onclick="mudarPeca('meio', 1)">▶</button>
+                    <!-- Caixa Central do Puzzle -->
+                    <div class="puzzle-wrapper">
+                        <div class="puzzle-seccao">
+                            <img id="imgCabeca" src="${caminhoPasta}${listaAnimais[indiceCabeca].arquivo}" class="fatia-cabeca">
+                        </div>
+                        <div class="puzzle-seccao">
+                            <img id="imgMeio" src="${caminhoPasta}${listaAnimais[indiceMeio].arquivo}" class="fatia-meio">
+                        </div>
+                        <div class="puzzle-seccao">
+                            <img id="imgCorpo" src="${caminhoPasta}${listaAnimais[indiceCorpo].arquivo}" class="fatia-corpo">
+                        </div>
                     </div>
 
-                    <!-- SECÇÃO DO CORPO (Com setas embutidas nas laterais) -->
-                    <div class="puzzle-seccao">
-                        <button class="btn-seta-tira" onclick="mudarPeca('corpo', -1)">◀</button>
-                        <img id="imgCorpo" src="${caminhoPasta}${listaAnimais[indiceCorpo].arquivo}" class="fatia-corpo">
-                        <button class="btn-seta-tira" onclick="mudarPeca('corpo', 1)">▶</button>
+                    <!-- Coluna Direita de Setas Externa -->
+                    <div class="coluna-setas-externas">
+                        <button class="btn-seta-externa" onclick="mudarPeca('cabeca', 1)">▶</button>
+                        <button class="btn-seta-externa" onclick="mudarPeca('meio', 1)">▶</button>
+                        <button class="btn-seta-externa" onclick="mudarPeca('corpo', 1)">▶</button>
                     </div>
                 </div>
 
@@ -222,9 +234,16 @@ function mudarPeca(parte, direcao) {
 }
 
 function verificarMontagem() {
-    if (somAcerto.src) somAcerto.play().catch(()=>{});
-
+    // Valida estritamente se todas as 3 partes correspondem ao animal alvo
     const acertou = (indiceCabeca === indiceAnimalAlvo && indiceMeio === indiceAnimalAlvo && indiceCorpo === indiceAnimalAlvo);
+
+    if (!acertou) {
+        if (somClique.src) somClique.play().catch(()=>{});
+        alert("Ainda não está completo! Continua a ajustar as peças.");
+        return;
+    }
+
+    if (somAcerto.src) somAcerto.play().catch(()=>{});
     const overlay = document.getElementById('round-feedback');
     const iconeFeedback = DADOS.icons.feedbacks.feedback1;
 
@@ -234,8 +253,8 @@ function verificarMontagem() {
             <div style="width: 100%; display: flex; justify-content: center; align-items: center; flex: 1;">
                 <div class="vitoria-card">
                     <img src="${iconeFeedback}" style="width:140px; height:140px; object-fit:contain;">
-                    <h1 style="color:#C2890B; font-size:1.3rem; font-weight:900; margin:0;">${acertou ? 'EXCELENTE! ANIMAL MONTADO!' : 'QUASE! TENTA OUTRA VEZ!'}</h1>
-                    <p style="color:#555; font-weight:800; margin:0; font-size:0.8rem;">${acertou ? 'Conseguiste montar o animal correto!' : 'Experimenta ajustar as partes com as setas.'}</p>
+                    <h1 style="color:#C2890B; font-size:1.3rem; font-weight:900; margin:0;">EXCELENTE! ANIMAL MONTADO!</h1>
+                    <p style="color:#555; font-weight:800; margin:0; font-size:0.8rem;">Conseguiste montar o animal correto!</p>
                     <div style="display:flex; justify-content:center; gap:10px; margin-top:6px; width:100%; max-width:400px;">
                         <button class="btn-final-roxo" onclick="iniciarJogoMontagem()">Jogar Outro</button>
                         <button class="btn-final-branco" onclick="window.history.back()">Menu Principal</button>
