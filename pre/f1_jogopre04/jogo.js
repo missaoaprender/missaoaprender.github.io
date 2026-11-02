@@ -56,8 +56,9 @@ style.innerHTML = `
     }
     .puzzle-seccao:last-child { border-bottom: none; }
 
+    /* Imagem dimensionada exatamente para preencher a caixa inteira de 260x260 e deslocada por secção */
     .puzzle-seccao img {
-        position: absolute; width: 260px; height: 260px; object-fit: cover; left: 0; pointer-events: none;
+        position: absolute; width: 260px; height: 260px; left: 0; object-fit: fill; pointer-events: none;
     }
     .fatia-cabeca { top: 0; }
     .fatia-meio { top: -86.6px; }
@@ -110,7 +111,7 @@ style.innerHTML = `
         display: flex; flex-direction: column; position: relative; box-shadow: 0 10px 25px rgba(236,166,7,0.25); overflow: hidden;
     }
     .animacao-capa-fatia {
-        width: 190px; height: 63.3px; object-fit: cover; position: relative;
+        width: 190px; height: 190px; position: absolute; left: 0; object-fit: fill;
     }
 
     #round-feedback { 
@@ -160,9 +161,9 @@ function mostrarCapa() {
                 </div>
 
                 <div class="animacao-capa-container">
-                    <img id="capaCabeca" src="${caminhoPasta}${listaCompletaAnimais[r1].arquivo}" class="animacao-capa-fatia" style="object-position: 0 0;">
-                    <img id="capaMeio" src="${caminhoPasta}${listaCompletaAnimais[r2].arquivo}" class="animacao-capa-fatia" style="object-position: 0 -63.3px;">
-                    <img id="capaCorpo" src="${caminhoPasta}${listaCompletaAnimais[r3].arquivo}" class="animacao-capa-fatia" style="object-position: 0 -126.6px;">
+                    <img id="capaCabeca" src="${caminhoPasta}${listaCompletaAnimais[r1].arquivo}" class="animacao-capa-fatia" style="top: 0;">
+                    <img id="capaMeio" src="${caminhoPasta}${listaCompletaAnimais[r2].arquivo}" class="animacao-capa-fatia" style="top: -63.3px;">
+                    <img id="capaCorpo" src="${caminhoPasta}${listaCompletaAnimais[r3].arquivo}" class="animacao-capa-fatia" style="top: -126.6px;">
                 </div>
 
                 <div class="animacao-capa-coluna">
