@@ -9,6 +9,7 @@ let indiceAnimalAlvo = 0;
 let indiceCabeca = 0;
 let indiceMeio = 0;
 let indiceCorpo = 0;
+let animacaoCapaInterval = null;
 
 const somAcerto = new Audio(DADOS.sons && DADOS.sons.certo ? DADOS.sons.certo : "");
 const somClique = new Audio(DADOS.sons && DADOS.sons.clique ? DADOS.sons.clique : "");
@@ -61,11 +62,6 @@ style.innerHTML = `
     .fatia-meio { top: -86.6px; }
     .fatia-corpo { top: -173.3px; }
 
-    .selector-animal {
-        background: white; border: 2px solid #E2D3AB; border-radius: 12px; padding: 4px 10px;
-        font-weight: 800; font-size: 0.85rem; color: #C2890B; cursor: pointer; outline: none;
-    }
-
     .btn-verificar-puzzle {
         background: #23AA45; color: white; border: 2.5px solid #A3E4B5; padding: 10px 28px;
         border-radius: 18px; font-weight: 900; font-size: 0.95rem; cursor: pointer;
@@ -93,11 +89,14 @@ style.innerHTML = `
     .btn-capa-jogar:hover { transform: scale(1.05); background: #FFFDF0; }
 
     .animacao-capa-container {
-        width: 170px; height: 170px; background: white; border: 3px solid #E2D3AB; border-radius: 24px;
+        width: 190px; height: 190px; background: white; border: 3px solid #E2D3AB; border-radius: 24px;
         display: flex; align-items: center; justify-content: center; position: relative;
         box-shadow: 0 10px 25px rgba(236,166,7,0.25); margin-bottom: 10px; overflow: hidden;
     }
-    .animacao-capa-container img { width: 120px; height: 120px; object-fit: contain; animation: cardPop 0.5s ease; }
+    .animacao-capa-fatia {
+        width: 190px; height: 63.3px; object-fit: cover; position: absolute; left: 0;
+        transition: transform 0.5s ease;
+    }
 
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; 
@@ -114,9 +113,11 @@ document.head.appendChild(style);
 
 
 // ============================================================
-// 3. CAPA DO JOGO
+// 3. CAPA DO JOGO (COM ANIMAÇÃO REAL DE ROTACÃO DE PEÇAS)
 // ============================================================
 function mostrarCapa() {
+    if (animacaoCapaInterval) clearInterval(animacaoCapaInterval);
+
     const slotTopo = document.getElementById('slot-topo');
     const slotFundo = document.getElementById('slot-fundo');
 
@@ -128,13 +129,31 @@ function mostrarCapa() {
     const area = document.getElementById('contentor-jogo');
     if (area) {
         const tituloAnimacao = DADOS.animacaoCapa ? DADOS.animacaoCapa.titulo : "Monta o Animal";
+        
+        // Seleciona 3 animais aleatórios para animar na capa de forma divertida
+        let r1 = Math.floor(Math.random() * listaCompletaAnimais.length);
+        let r2 = Math.floor(Math.random() * listaCompletaAnimais.length);
+        let r3 = Math.floor(Math.random() * listaCompletaAnimais.length);
+
         area.innerHTML = `
             <div style="font-size: 1.3rem; font-weight: 900; color: #C2890B; margin-bottom: 6px; text-transform: uppercase;">${tituloAnimacao}</div>
             <div class="animacao-capa-container">
-                <img src="${caminhoPasta}${listaCompletaAnimais[0].arquivo}" alt="Capa">
+                <img id="capaCabeca" src="${caminhoPasta}${listaCompletaAnimais[r1].arquivo}" class="animacao-capa-fatia" style="top: 0; object-position: 0 0;">
+                <img id="capaMeio" src="${caminhoPasta}${listaCompletaAnimais[r2].arquivo}" class="animacao-capa-fatia" style="top: 63.3px; object-position: 0 -63.3px;">
+                <img id="capaCorpo" src="${caminhoPasta}${listaCompletaAnimais[r3].arquivo}" class="animacao-capa-fatia" style="top: 126.6px; object-position: 0 -126.6px;">
             </div>
             <div id="round-feedback" style="display: none;"></div>
         `;
+
+        // Intervalo para trocar as peças automaticamente na capa (animação real)
+        animacaoCapaInterval = setInterval(() => {
+            let idx1 = Math.floor(Math.random() * listaCompletaAnimais.length);
+            let idx2 = Math.floor(Math.random() * listaCompletaAnimais.length);
+            let hImg = document.getElementById('capaMeio');
+            let cImg = document.getElementById('capaCorpo');
+            if (hImg) hImg.src = caminhoPasta + listaCompletaAnimais[idx1].arquivo;
+            if (cImg) cImg.src = caminhoPasta + listaCompletaAnimais[idx2].arquivo;
+        }, 1800);
     }
 
     if (slotFundo) {
@@ -157,20 +176,21 @@ function tocarSomInstrucao() {
 // 4. LÓGICA DO JOGO DE MONTAGEM DE ANIMAIS
 // ============================================================
 function selecionar7AnimaisAleatorios() {
-    // Baralha a lista completa e pega apenas 7 animais
     const baralhados = [...listaCompletaAnimais].sort(() => 0.5 - Math.random());
     animaisAtuais = baralhados.slice(0, 7);
 }
 
 function iniciarJogoMontagem() {
+    if (animacaoCapaInterval) clearInterval(animacaoCapaInterval);
     if (somClique.src) somClique.play().catch(()=>{});
 
-    // Seleciona 7 animais diferentes para esta sessão de jogo
+    // Seleciona 7 animais diferentes para esta sessão[cite: 2]
     selecionar7AnimaisAleatorios();
 
-    // Define um animal alvo inicial aleatório dentro dos 7 escolhidos
+    // Define um animal alvo aleatório dentro dos 7 escolhidos
     indiceAnimalAlvo = Math.floor(Math.random() * animaisAtuais.length);
     
+    // Baralha as fatias iniciais
     indiceCabeca = Math.floor(Math.random() * animaisAtuais.length);
     indiceMeio = Math.floor(Math.random() * animaisAtuais.length);
     indiceCorpo = Math.floor(Math.random() * animaisAtuais.length);
@@ -185,20 +205,11 @@ function atualizarInterfaceJogo() {
 
     if (slotTopo) {
         slotTopo.className = "barra-jogo-topo";
-        
-        // Criar o seletor dropdown para o utilizador escolher o animal que quiser construir
-        let opcoesHtml = "";
-        animaisAtuais.forEach((anim, idx) => {
-            opcoesHtml += `<option value="${idx}" ${idx === indiceAnimalAlvo ? 'selected' : ''}>${anim.nome}</option>`;
-        });
-
         slotTopo.innerHTML = `
             <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
-            <div style="color: white; font-weight: 900; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
-                <span>Constrói:</span>
-                <select class="selector-animal" onchange="mudarAnimalAlvo(this.value)">
-                    ${opcoesHtml}
-                </select>
+            <div style="color: white; font-weight: 900; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                <img src="${caminhoPasta}${animaisAtuais[indiceAnimalAlvo].arquivo}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 50%; border: 2px solid white;" alt="Alvo">
+                <span>Monta este animal!</span>
             </div>
             <button class="btn-menu-topo" onclick="mostrarCapa()"><i class="fas fa-bars"></i> Menu</button>
         `;
@@ -248,11 +259,6 @@ function atualizarInterfaceJogo() {
     }
 }
 
-function mudarAnimalAlvo(novoIndice) {
-    if (somClique.src) somClique.play().catch(()=>{});
-    indiceAnimalAlvo = parseInt(novoIndice);
-}
-
 function mudarPeca(parte, direcao) {
     if (somClique.src) somClique.play().catch(()=>{});
 
@@ -269,7 +275,7 @@ function mudarPeca(parte, direcao) {
 }
 
 function verificarMontagem() {
-    // Valida estritamente se todas as 3 partes correspondem ao animal alvo selecionado
+    // Valida estritamente se todas as 3 partes correspondem ao animal alvo da ronda
     const acertou = (indiceCabeca === indiceAnimalAlvo && indiceMeio === indiceAnimalAlvo && indiceCorpo === indiceAnimalAlvo);
 
     if (!acertou) {
