@@ -4,7 +4,7 @@
 const listaAnimais = DADOS.animaisSelvagens;
 const caminhoPasta = DADOS.caminhoAnimais;
 
-let indiceAnimalAtual = 0;
+let indiceAnimalAlvo = 0;
 let indiceCabeca = 0;
 let indiceMeio = 0;
 let indiceCorpo = 0;
@@ -21,18 +21,31 @@ const style = document.createElement('style');
 style.innerHTML = `
     .montagem-container {
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        width: 100%; height: 100%; flex: 1; gap: 12px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
+        width: 100%; height: 100%; flex: 1; gap: 14px; animation: cardPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; padding: 4px 0;
         position: relative; box-sizing: border-box;
     }
     @keyframes cardPop { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-    /* Linha que agrupa a seta esquerda, a caixa da imagem e a seta direita */
-    .puzzle-linha-item {
-        display: flex; align-items: center; justify-content: center; gap: 14px; width: 100%;
+    .puzzle-layout-principal {
+        display: flex; align-items: center; justify-content: center; gap: 16px; width: 100%;
     }
 
+    .coluna-setas {
+        display: flex; flex-direction: column; justify-content: space-between; height: 260px; gap: 12px;
+    }
+
+    .btn-seta-quadrada {
+        background: #000000; border: 2px solid #262638; width: 42px; height: 42px;
+        border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.25); transition: transform 0.15s ease, background 0.15s ease;
+        padding: 0; flex-shrink: 0;
+    }
+    .btn-seta-quadrada:hover { transform: scale(1.1); background: #333333; }
+    .btn-seta-quadrada:active { transform: scale(0.92); }
+    .btn-seta-quadrada img { width: 22px; height: 22px; object-fit: contain; pointer-events: none; }
+
     .puzzle-wrapper {
-        position: relative; width: 220px; height: 220px; background: white; border: 4px solid #E2D3AB; border-radius: 18px;
+        position: relative; width: 260px; height: 260px; background: white; border: 4px solid #E2D3AB; border-radius: 16px;
         box-shadow: 0 6px 20px rgba(0,0,0,0.08); overflow: hidden; display: flex; flex-direction: column;
     }
 
@@ -42,26 +55,17 @@ style.innerHTML = `
     .puzzle-seccao:last-child { border-bottom: none; }
 
     .puzzle-seccao img {
-        position: absolute; width: 220px; height: 220px; object-fit: cover; left: 0; pointer-events: none;
+        position: absolute; width: 260px; height: 260px; object-fit: cover; left: 0; pointer-events: none;
     }
     .fatia-cabeca { top: 0; }
-    .fatia-meio { top: -73.3px; }
-    .fatia-corpo { top: -146.6px; }
-
-    .btn-seta-lateral {
-        background: #000000; color: white; border: none; width: 44px; height: 44px;
-        border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.15s ease, background 0.15s ease;
-        font-size: 1.1rem; flex-shrink: 0;
-    }
-    .btn-seta-lateral:hover { transform: scale(1.1); background: #333333; }
-    .btn-seta-lateral:active { transform: scale(0.92); }
+    .fatia-meio { top: -86.6px; }
+    .fatia-corpo { top: -173.3px; }
 
     .btn-verificar-puzzle {
-        background: #23AA45; color: white; border: 2.5px solid #A3E4B5; padding: 10px 26px;
+        background: #23AA45; color: white; border: 2.5px solid #A3E4B5; padding: 10px 28px;
         border-radius: 18px; font-weight: 900; font-size: 0.95rem; cursor: pointer;
         box-shadow: 0 4px 12px rgba(35,170,69,0.35); text-transform: uppercase;
-        transition: transform 0.2s ease, background 0.2s ease; margin-top: 4px;
+        transition: transform 0.2s ease, background 0.2s ease;
     }
     .btn-verificar-puzzle:hover { transform: translateY(-2px); background: #1e913a; }
     .btn-verificar-puzzle:active { transform: scale(0.95); }
@@ -145,13 +149,15 @@ function tocarSomInstrucao() {
 
 
 // ============================================================
-// 4. LÓGICA DO JOGO DE MONTAGEM
+// 4. LÓGICA DO JOGO DE MONTAGEM DE ANIMAIS
 // ============================================================
 function iniciarJogoMontagem() {
     if (somClique.src) somClique.play().catch(()=>{});
 
-    indiceAnimalAtual = Math.floor(Math.random() * listaAnimais.length);
+    // Escolhe aleatoriamente o animal que o aluno deve construir
+    indiceAnimalAlvo = Math.floor(Math.random() * listaAnimais.length);
     
+    // Baralha as partes iniciais para o desafio ser real
     indiceCabeca = Math.floor(Math.random() * listaAnimais.length);
     indiceMeio = Math.floor(Math.random() * listaAnimais.length);
     indiceCorpo = Math.floor(Math.random() * listaAnimais.length);
@@ -164,7 +170,7 @@ function iniciarJogoMontagem() {
         slotTopo.className = "barra-jogo-topo";
         slotTopo.innerHTML = `
             <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
-            <div style="color: white; font-weight: 900; font-size: 0.9rem;">Constrói: ${listaAnimais[indiceAnimalAtual].nome}</div>
+            <div style="color: white; font-weight: 900; font-size: 0.95rem;">Constrói o animal: ${listaAnimais[indiceAnimalAlvo].nome}</div>
             <button class="btn-menu-topo" onclick="mostrarCapa()"><i class="fas fa-bars"></i> Menu</button>
         `;
     }
@@ -172,10 +178,15 @@ function iniciarJogoMontagem() {
     if (area) {
         area.innerHTML = `
             <div class="montagem-container">
-                <div class="puzzle-linha-item">
-                    <!-- Setas da Cabeça -->
-                    <button class="btn-seta-lateral" onclick="mudarPeca('cabeca', -1)">◀</button>
-                    
+                <div class="puzzle-layout-principal">
+                    <!-- Coluna Esquerda: Setas para mover para trás nas peças -->
+                    <div class="coluna-setas">
+                        <button class="btn-seta-quadrada" onclick="mudarPeca('cabeca', -1)"><img src="${DADOS.icons.seta}" alt="Esquerda" style="transform: rotate(180deg);"></button>
+                        <button class="btn-seta-quadrada" onclick="mudarPeca('meio', -1)"><img src="${DADOS.icons.seta}" alt="Esquerda" style="transform: rotate(180deg);"></button>
+                        <button class="btn-seta-quadrada" onclick="mudarPeca('corpo', -1)"><img src="${DADOS.icons.seta}" alt="Esquerda" style="transform: rotate(180deg);"></button>
+                    </div>
+
+                    <!-- Bloco central com as 3 secções do animal divididas -->
                     <div class="puzzle-wrapper">
                         <div class="puzzle-seccao">
                             <img id="imgCabeca" src="${caminhoPasta}${listaAnimais[indiceCabeca].arquivo}" class="fatia-cabeca">
@@ -188,19 +199,12 @@ function iniciarJogoMontagem() {
                         </div>
                     </div>
 
-                    <button class="btn-seta-lateral" onclick="mudarPeca('cabeca', 1)">▶</button>
-                </div>
-
-                <!-- Controlos para a secção do Meio -->
-                <div style="display: flex; width: 100%; max-width: 320px; justify-content: space-between; padding: 0 10px;">
-                    <button class="btn-seta-lateral" onclick="mudarPeca('meio', -1)">◀</button>
-                    <button class="btn-seta-lateral" onclick="mudarPeca('meio', 1)">▶</button>
-                </div>
-
-                <!-- Controlos para a secção do Corpo -->
-                <div style="display: flex; width: 100%; max-width: 320px; justify-content: space-between; padding: 0 10px;">
-                    <button class="btn-seta-lateral" onclick="mudarPeca('corpo', -1)">◀</button>
-                    <button class="btn-seta-lateral" onclick="mudarPeca('corpo', 1)">▶</button>
+                    <!-- Coluna Direita: Setas para mover para a frente nas peças -->
+                    <div class="coluna-setas">
+                        <button class="btn-seta-quadrada" onclick="mudarPeca('cabeca', 1)"><img src="${DADOS.icons.seta}" alt="Direita"></button>
+                        <button class="btn-seta-quadrada" onclick="mudarPeca('meio', 1)"><img src="${DADOS.icons.seta}" alt="Direita"></button>
+                        <button class="btn-seta-quadrada" onclick="mudarPeca('corpo', 1)"><img src="${DADOS.icons.seta}" alt="Direita"></button>
+                    </div>
                 </div>
 
                 <button class="btn-verificar-puzzle" onclick="verificarMontagem()">Verificar</button>
@@ -233,7 +237,8 @@ function mudarPeca(parte, direcao) {
 function verificarMontagem() {
     if (somAcerto.src) somAcerto.play().catch(()=>{});
 
-    const acertou = (indiceCabeca === indiceAnimalAtual && indiceMeio === indiceAnimalAtual && indiceCorpo === indiceAnimalAtual);
+    // O jogador ganha se a cabeça, o meio e o corpo pertencerem todos ao animal alvo atual
+    const acertou = (indiceCabeca === indiceAnimalAlvo && indiceMeio === indiceAnimalAlvo && indiceCorpo === indiceAnimalAlvo);
     const overlay = document.getElementById('round-feedback');
     const iconeFeedback = DADOS.icons.feedbacks.feedback1;
 
@@ -243,8 +248,8 @@ function verificarMontagem() {
             <div style="width: 100%; display: flex; justify-content: center; align-items: center; flex: 1;">
                 <div class="vitoria-card">
                     <img src="${iconeFeedback}" style="width:140px; height:140px; object-fit:contain;">
-                    <h1 style="color:#C2890B; font-size:1.3rem; font-weight:900; margin:0;">${acertou ? 'EXCELENTE! MONTÁSTE O ANIMAL!' : 'QUASE! TENTA OUTRA VEZ!'}</h1>
-                    <p style="color:#555; font-weight:800; margin:0; font-size:0.8rem;">${acertou ? 'Fizeste um trabalho espetacular!' : 'Experimenta ajustar as peças para completar o desafio.'}</p>
+                    <h1 style="color:#C2890B; font-size:1.3rem; font-weight:900; margin:0;">${acertou ? 'EXCELENTE! ANIMAL MONTADO!' : 'QUASE! TENTA OUTRA VEZ!'}</h1>
+                    <p style="color:#555; font-weight:800; margin:0; font-size:0.8rem;">${acertou ? 'Conseguiste montar o animal correto!' : 'Experimenta ajustar as partes com as setas.'}</p>
                     <div style="display:flex; justify-content:center; gap:10px; margin-top:6px; width:100%; max-width:400px;">
                         <button class="btn-final-roxo" onclick="iniciarJogoMontagem()">Jogar Outro</button>
                         <button class="btn-final-branco" onclick="window.history.back()">Menu Principal</button>
