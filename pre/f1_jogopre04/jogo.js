@@ -122,7 +122,7 @@ style.innerHTML = `
     .vitoria-card { background: transparent; padding: 10px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 480px; margin: auto 0; }
     
     .btn-final-roxo { background: #ECA607; color: white; border: none; padding: 14px 22px; border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer; box-shadow: 0 6px 18px rgba(236,166,7,0.35); }
-    .btn-final-branco { background: white; color: #C2890B; border: 2px solid #E2D3AB; padding: 14px 22px; border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer; }
+    .btn-final-branco { background: white; color: #C2890B; border: 2px solid #ECA607; padding: 14px 22px; border-radius: 25px; font-weight: 900; font-size: 1rem; cursor: pointer; }
 `;
 document.head.appendChild(style);
 
@@ -231,7 +231,7 @@ function atualizarInterfaceJogo() {
         slotTopo.className = "barra-jogo-topo";
         slotTopo.innerHTML = `
             <div class="btn-capa-som" onclick="tocarSomInstrucao()"><img src="${DADOS.icons.som}" alt="Som"></div>
-            <div style="color: white; font-weight: 900; font-size: 0.95rem;">Monta um animal completo!</div>
+            <div></div>
             <button class="btn-menu-topo" onclick="mostrarCapa()"><i class="fas fa-bars"></i> Menu</button>
         `;
     }
@@ -297,17 +297,14 @@ function mudarPeca(parte, direcao) {
 }
 
 function verificarMontagem() {
-    // Valida se as 3 partes pertencem exatamente ao mesmo animal
     const acertou = (indiceCabeca === indiceMeio && indiceMeio === indiceCorpo);
 
     if (!acertou) {
-        // Toca o som de erro
         if (somErrado.src) {
             somErrado.currentTime = 0;
             somErrado.play().catch(()=>{});
         }
 
-        // Mostra aviso visual sem popups
         const aviso = document.getElementById('avisoErro');
         if (aviso) {
             aviso.style.opacity = '1';
