@@ -56,7 +56,6 @@ style.innerHTML = `
     }
     .puzzle-seccao:last-child { border-bottom: none; }
 
-    /* Imagem dimensionada exatamente para preencher a caixa inteira de 260x260 e deslocada por secção */
     .puzzle-seccao img {
         position: absolute; width: 260px; height: 260px; left: 0; object-fit: fill; pointer-events: none;
     }
@@ -114,6 +113,7 @@ style.innerHTML = `
         width: 190px; height: 190px; position: absolute; left: 0; object-fit: fill;
     }
 
+    /* Ecrã de Feedback limpo com apenas a barrita no fundo */
     #round-feedback { 
         position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #ffffff; 
         z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: space-between; 
@@ -271,7 +271,7 @@ function atualizarInterfaceJogo() {
 
                 <div id="avisoErro" class="aviso-tentar-novamente">Tenta outra vez!</div>
                 <button class="btn-verificar-puzzle" onclick="verificarMontagem()">Verificar</button>
-                <div id="round-feedback" style="display: none;"></div>
+                <div id="round-feedback"></div>
             </div>
         `;
     }
@@ -326,6 +326,7 @@ function verificarMontagem() {
 
     if (overlay) {
         overlay.style.display = 'flex';
+        // Ecrã de feedback limpo contendo apenas o cartão central e a barrita exata no fundo
         overlay.innerHTML = `
             <div style="width: 100%; display: flex; justify-content: center; align-items: center; flex: 1;">
                 <div class="vitoria-card">
