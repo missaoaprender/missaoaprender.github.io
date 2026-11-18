@@ -23,22 +23,93 @@
         .quiz-container {
             background: #ffffff;
             width: 100%;
-            max-width: 750px;
+            max-width: 780px;
             border-radius: 28px;
             padding: 35px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
             border: 6px solid #ffd166;
             position: relative;
         }
+
+        /* Capa Inicial */
+        .cover-screen {
+            text-align: center;
+            padding: 15px 10px;
+        }
+        .school-logo {
+            max-width: 190px;
+            max-height: 140px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            border-radius: 12px;
+        }
+        .cover-title {
+            color: #ef476f;
+            font-size: 2.5em;
+            margin: 10px 0;
+            text-shadow: 2px 2px 0px #ffe5ec;
+        }
+        .cover-subtitle {
+            font-size: 1.3em;
+            color: #118ab2;
+            font-weight: 600;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+        .cover-instructions {
+            background: #f0f9ff;
+            border: 3px dashed #118ab2;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 1.15em;
+            color: #073b4c;
+        }
+        .start-btn {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.5em;
+            font-weight: 700;
+            padding: 18px 45px;
+            border: none;
+            border-radius: 22px;
+            background: #06d6a0;
+            color: #073b4c;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #049a73;
+            transition: all 0.2s;
+        }
+        .start-btn:hover {
+            background: #05c290;
+            transform: translateY(-3px);
+            box-shadow: 0 9px 0 #049a73;
+        }
+        .start-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #049a73;
+        }
+
+        /* Ecrã do Jogo */
+        .quiz-screen {
+            display: none;
+        }
         .header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
-        .header h1 {
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .mini-logo {
+            height: 45px;
+            object-fit: contain;
+        }
+        .header h2 {
             color: #ef476f;
-            font-size: 2.1em;
-            margin: 0 0 10px 0;
-            text-shadow: 1px 1px 0px #ffe5ec;
+            font-size: 1.6em;
+            margin: 0;
         }
         .progress-wrapper {
             background: #edf2f7;
@@ -65,7 +136,7 @@
             font-size: 1.45em;
             font-weight: 700;
             color: #073b4c;
-            margin: 25px 0;
+            margin: 22px 0;
             line-height: 1.35;
             background: #f8fafc;
             padding: 20px;
@@ -116,78 +187,157 @@
             flex-shrink: 0;
             font-size: 1.1em;
         }
-        .option-btn.correct {
+
+        /* Popup Personalizado (Modal) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(7, 59, 76, 0.72);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-box {
+            background: #ffffff;
+            width: 100%;
+            max-width: 650px;
+            border-radius: 28px;
+            padding: 30px;
+            border: 6px solid #118ab2;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+            animation: popIn 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-box.is-correct {
+            border-color: #06d6a0;
+        }
+        .modal-box.is-wrong {
+            border-color: #ef476f;
+        }
+        .modal-header-title {
+            font-size: 1.6em;
+            font-weight: 700;
+            margin: 0 0 18px 0;
+            text-align: center;
+        }
+        .modal-header-title.correct-text {
+            color: #087f5b;
+        }
+        .modal-header-title.wrong-text {
+            color: #c92a2a;
+        }
+        .modal-options-review {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .review-item {
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 2px solid #e2e8f0;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 1.05em;
+        }
+        .review-item-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .review-letter {
+            font-weight: 700;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #cbd5e0;
+            color: #073b4c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .review-item.correct-option {
             background: #d8f3dc;
             border-color: #2d6a4f;
             color: #1b4332;
-            box-shadow: 0 4px 0 #2d6a4f;
+            font-weight: 600;
         }
-        .option-btn.correct .option-letter {
-            background: #40916c;
-            color: white;
+        .review-item.correct-option .review-letter {
+            background: #2d6a4f;
+            color: #ffffff;
         }
-        .option-btn.wrong {
+        .review-item.wrong-chosen {
             background: #ffe5ec;
             border-color: #ef476f;
             color: #800f2f;
-            box-shadow: 0 4px 0 #ef476f;
         }
-        .option-btn.wrong .option-letter {
+        .review-item.wrong-chosen .review-letter {
             background: #ef476f;
-            color: white;
+            color: #ffffff;
         }
-        .option-btn:disabled {
-            cursor: default;
-            opacity: 0.9;
+        .badge-tag {
+            font-size: 0.82em;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
-        .feedback-box {
-            display: none;
-            margin-top: 25px;
-            padding: 20px;
-            border-radius: 18px;
+        .tag-correct {
+            background: #2d6a4f;
+            color: #ffffff;
+        }
+        .tag-chosen-correct {
+            background: #087f5b;
+            color: #ffffff;
+        }
+        .tag-chosen-wrong {
+            background: #ef476f;
+            color: #ffffff;
+        }
+        .modal-explanation {
+            background: #fff9db;
+            border-left: 6px solid #fcc419;
+            padding: 16px 18px;
+            border-radius: 14px;
             font-size: 1.15em;
             line-height: 1.45;
-            animation: popIn 0.35s ease;
+            color: #2d3748;
+            margin-bottom: 22px;
         }
-        .feedback-box.success {
-            background: #e6fcf5;
-            border: 3px solid #0ca678;
-            color: #087f5b;
-        }
-        .feedback-box.error {
-            background: #fff5f5;
-            border: 3px solid #fa5252;
-            color: #c92a2a;
-        }
-        .feedback-title {
-            font-weight: 700;
-            font-size: 1.25em;
-            margin-bottom: 6px;
+        .modal-explanation strong {
+            color: #d97706;
             display: block;
+            margin-bottom: 4px;
         }
-        .next-btn {
-            display: none;
-            margin-top: 22px;
+        .modal-next-btn {
             width: 100%;
             font-family: 'Fredoka', sans-serif;
             font-size: 1.3em;
             font-weight: 700;
-            padding: 16px;
+            padding: 15px;
             border: none;
-            border-radius: 18px;
-            background: #06d6a0;
-            color: #073b4c;
+            border-radius: 16px;
+            background: #118ab2;
+            color: #ffffff;
             cursor: pointer;
-            box-shadow: 0 5px 0 #049a73;
+            box-shadow: 0 5px 0 #073b4c;
             transition: all 0.2s;
         }
-        .next-btn:hover {
-            background: #05c290;
+        .modal-next-btn:hover {
+            background: #0e7496;
             transform: translateY(-2px);
-        }
-        .next-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #049a73;
         }
 
         /* Ecrã Final */
@@ -195,13 +345,18 @@
             display: none;
             text-align: center;
         }
+        .final-title {
+            color: #118ab2;
+            font-size: 2.3em;
+            margin: 10px 0 5px 0;
+        }
         .score-badge {
             background: #ffd166;
             color: #073b4c;
             display: inline-block;
-            padding: 15px 35px;
+            padding: 14px 32px;
             border-radius: 50px;
-            font-size: 1.8em;
+            font-size: 1.65em;
             font-weight: 700;
             margin: 15px 0 25px 0;
             box-shadow: 0 6px 0 #e0a800;
@@ -211,13 +366,13 @@
             border: 4px dashed #fcc419;
             border-radius: 22px;
             padding: 25px;
-            margin-top: 20px;
+            margin-top: 15px;
             text-align: left;
         }
         .reflection-card h2 {
             color: #e67700;
             margin-top: 0;
-            font-size: 1.5em;
+            font-size: 1.45em;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -238,17 +393,17 @@
             padding: 14px 30px;
             border: none;
             border-radius: 16px;
-            background: #118ab2;
-            color: white;
+            background: #06d6a0;
+            color: #073b4c;
             cursor: pointer;
-            box-shadow: 0 5px 0 #073b4c;
+            box-shadow: 0 5px 0 #049a73;
         }
         .restart-btn:hover {
-            background: #0e7496;
+            background: #05c290;
         }
 
         @keyframes popIn {
-            0% { opacity: 0; transform: scale(0.95); }
+            0% { opacity: 0; transform: scale(0.92); }
             100% { opacity: 1; transform: scale(1); }
         }
     </style>
@@ -256,10 +411,30 @@
 <body>
 
 <div class="quiz-container">
-    <!-- Ecrã do Jogo -->
-    <div id="quiz-screen">
+    <!-- 1. CAPA DO JOGO -->
+    <div class="cover-screen" id="cover-screen">
+        <img src="logo.png" alt="Logótipo" class="school-logo" onerror="this.style.display='none'">
+        <h1 class="cover-title">🌈 Missão Inclusão! 🌟</h1>
+        <p class="cover-subtitle">Todos Diferentes, Todos Iguais!</p>
+        
+        <div class="cover-instructions">
+            <p style="margin: 0;">
+                Lê cada pergunta com atenção e escolhe a resposta que achas mais certa.<br>
+                No final, vamos conversar todos juntos sobre como tornar a nossa escola ainda melhor!
+            </p>
+        </div>
+
+        <button class="start-btn" onclick="startQuiz()">▶️ Começar o Jogo</button>
+    </div>
+
+    <!-- 2. ECRÃ DAS PERGUNTAS -->
+    <div class="quiz-screen" id="quiz-screen">
         <div class="header">
-            <h1>🌈 Missão Inclusão! 🌟</h1>
+            <div class="header-top">
+                <img src="logo.png" alt="Logótipo" class="mini-logo" onerror="this.style.display='none'">
+                <h2>🌈 Missão Inclusão</h2>
+                <div style="width: 45px;"></div>
+            </div>
             <div class="progress-wrapper">
                 <div class="progress-bar" id="progress-bar"></div>
             </div>
@@ -269,30 +444,40 @@
         <div class="question-text" id="question-text"></div>
 
         <div class="options-list" id="options-list"></div>
-
-        <div class="feedback-box" id="feedback-box">
-            <span class="feedback-title" id="feedback-title"></span>
-            <span id="feedback-description"></span>
-        </div>
-
-        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Próxima Pergunta ➡️</button>
     </div>
 
-    <!-- Ecrã Final e Reflexão -->
+    <!-- 3. ECRÃ FINAL -->
     <div class="final-screen" id="final-screen">
-        <h1 style="color: #ef476f; font-size: 2.3em; margin-bottom: 5px;">🎉 Parabéns, Explorador(a)! 🎉</h1>
-        <p style="font-size: 1.2em; color: #4a5568;">Completaste o desafio sobre a inclusão!</p>
+        <img src="logo.png" alt="Logótipo" class="school-logo" style="max-height: 90px;" onerror="this.style.display='none'">
+        <h1 class="final-title">Terminaste o jogo!</h1>
+        <p style="font-size: 1.2em; color: #4a5568; margin: 5px 0;">Aqui está o teu resultado:</p>
         
-        <div class="score-badge" id="final-score">Acertaste 0 em 10!</div>
+        <div class="score-badge" id="final-score">Acertaste 0 em 10</div>
 
         <div class="reflection-card">
-            <h2>💬 Momento de Conversa na Turma</h2>
+            <h2>💬 Pergunta para Reflexão Oral</h2>
             <p class="reflection-question">
                 "Se pudesses mudar uma coisa na tua escola para que todos os meninos e meninas se sentissem incluídos, o que mudarias?"
             </p>
         </div>
 
-        <button class="restart-btn" onclick="restartQuiz()">🔄 Jogar Novamente</button>
+        <button class="restart-btn" onclick="restartQuiz()">🔄 Voltar ao Início</button>
+    </div>
+</div>
+
+<!-- POPUP PERSONALIZADO DE EXPLICAÇÃO -->
+<div class="modal-overlay" id="feedback-modal">
+    <div class="modal-box" id="modal-box">
+        <h3 class="modal-header-title" id="modal-title"></h3>
+        
+        <div class="modal-options-review" id="modal-options-review"></div>
+
+        <div class="modal-explanation">
+            <strong>💡 Explicação:</strong>
+            <span id="modal-explanation-text"></span>
+        </div>
+
+        <button class="modal-next-btn" id="modal-next-btn" onclick="nextQuestion()">Próxima Pergunta ➡️</button>
     </div>
 </div>
 
@@ -403,6 +588,12 @@
     let currentQuestion = 0;
     let score = 0;
 
+    function startQuiz() {
+        document.getElementById("cover-screen").style.display = "none";
+        document.getElementById("quiz-screen").style.display = "block";
+        loadQuestion();
+    }
+
     function loadQuestion() {
         const q = quizData[currentQuestion];
         document.getElementById("question-text").textContent = q.question;
@@ -412,56 +603,73 @@
         const optionsList = document.getElementById("options-list");
         optionsList.innerHTML = "";
 
-        const feedbackBox = document.getElementById("feedback-box");
-        feedbackBox.style.display = "none";
-        feedbackBox.className = "feedback-box";
-
-        const nextBtn = document.getElementById("next-btn");
-        nextBtn.style.display = "none";
-        nextBtn.textContent = currentQuestion === quizData.length - 1 ? "Ver Resultado e Reflexão 🌟" : "Próxima Pergunta ➡️";
-
         q.options.forEach(opt => {
             const btn = document.createElement("button");
             btn.className = "option-btn";
             btn.innerHTML = `<span class="option-letter">${opt.letter}</span> <span>${opt.text}</span>`;
-            btn.onclick = () => selectAnswer(btn, opt.letter);
+            btn.onclick = () => selectAnswer(opt.letter);
             optionsList.appendChild(btn);
         });
     }
 
-    function selectAnswer(selectedBtn, chosenLetter) {
+    function selectAnswer(chosenLetter) {
         const q = quizData[currentQuestion];
-        const allButtons = document.querySelectorAll(".option-btn");
-        const feedbackBox = document.getElementById("feedback-box");
-        const feedbackTitle = document.getElementById("feedback-title");
-        const feedbackDesc = document.getElementById("feedback-description");
+        const isCorrect = chosenLetter === q.correct;
 
-        // Desativar todos os botões após escolher
-        allButtons.forEach(btn => {
-            btn.disabled = true;
-            const letter = btn.querySelector(".option-letter").textContent;
-            if (letter === q.correct) {
-                btn.classList.add("correct");
-            }
-        });
-
-        if (chosenLetter === q.correct) {
+        if (isCorrect) {
             score++;
-            feedbackBox.classList.add("success");
-            feedbackTitle.textContent = "⭐ Muito bem! Acertaste!";
-        } else {
-            selectedBtn.classList.add("wrong");
-            feedbackBox.classList.add("error");
-            feedbackTitle.textContent = "💡 Quase lá! Vamos aprender juntos:";
         }
 
-        feedbackDesc.textContent = q.explanation;
-        feedbackBox.style.display = "block";
         document.getElementById("progress-text").textContent = `Pergunta ${currentQuestion + 1} de ${quizData.length} • Pontos: ${score}`;
-        document.getElementById("next-btn").style.display = "block";
+
+        // Configurar Popup
+        const modal = document.getElementById("feedback-modal");
+        const modalBox = document.getElementById("modal-box");
+        const modalTitle = document.getElementById("modal-title");
+        const reviewContainer = document.getElementById("modal-options-review");
+        const explanationText = document.getElementById("modal-explanation-text");
+        const modalNextBtn = document.getElementById("modal-next-btn");
+
+        modalBox.className = "modal-box " + (isCorrect ? "is-correct" : "is-wrong");
+        modalTitle.className = "modal-header-title " + (isCorrect ? "correct-text" : "wrong-text");
+        modalTitle.textContent = isCorrect ? "⭐ Resposta Certa!" : "💡 Vamos ver a resposta certa!";
+
+        // Construir lista de opções no Popup com identificação
+        reviewContainer.innerHTML = "";
+        q.options.forEach(opt => {
+            const item = document.createElement("div");
+            item.className = "review-item";
+            
+            let badgeHTML = "";
+            if (opt.letter === q.correct && opt.letter === chosenLetter) {
+                item.classList.add("correct-option");
+                badgeHTML = `<span class="badge-tag tag-chosen-correct">✔ A tua escolha (Certa)</span>`;
+            } else if (opt.letter === q.correct) {
+                item.classList.add("correct-option");
+                badgeHTML = `<span class="badge-tag tag-correct">✔ Resposta Certa</span>`;
+            } else if (opt.letter === chosenLetter) {
+                item.classList.add("wrong-chosen");
+                badgeHTML = `<span class="badge-tag tag-chosen-wrong">✖ A tua escolha</span>`;
+            }
+
+            item.innerHTML = `
+                <div class="review-item-left">
+                    <span class="review-letter">${opt.letter}</span>
+                    <span>${opt.text}</span>
+                </div>
+                ${badgeHTML}
+            `;
+            reviewContainer.appendChild(item);
+        });
+
+        explanationText.textContent = q.explanation;
+        modalNextBtn.textContent = currentQuestion === quizData.length - 1 ? "Ver Resultado e Reflexão 🌟" : "Próxima Pergunta ➡️";
+
+        modal.style.display = "flex";
     }
 
     function nextQuestion() {
+        document.getElementById("feedback-modal").style.display = "none";
         currentQuestion++;
         if (currentQuestion < quizData.length) {
             loadQuestion();
@@ -473,19 +681,15 @@
     function showFinalScreen() {
         document.getElementById("quiz-screen").style.display = "none";
         document.getElementById("final-screen").style.display = "block";
-        document.getElementById("final-score").textContent = `Acertaste ${score} em ${quizData.length}! 🏆`;
+        document.getElementById("final-score").textContent = `Acertaste ${score} em ${quizData.length}`;
     }
 
     function restartQuiz() {
         currentQuestion = 0;
         score = 0;
         document.getElementById("final-screen").style.display = "none";
-        document.getElementById("quiz-screen").style.display = "block";
-        loadQuestion();
+        document.getElementById("cover-screen").style.display = "block";
     }
-
-    // Iniciar o jogo
-    loadQuestion();
 </script>
 
 </body>
