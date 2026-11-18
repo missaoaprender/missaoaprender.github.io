@@ -11,7 +11,8 @@
         }
         body {
             font-family: 'Fredoka', sans-serif;
-            background: linear-gradient(135deg, #1b4965 0%, #62b6cb 100%);
+            /* Fundo pastel suave inspirado na imagem de referência */
+            background: linear-gradient(135deg, #d8ecfa 0%, #f4f9fc 50%, #fdf2dc 100%);
             color: #2d3748;
             margin: 0;
             padding: 20px;
@@ -23,9 +24,9 @@
             overflow-x: hidden;
         }
 
-        /* SILHUETAS ESBATIDAS DE FUNDO (Pessoas com deficiência e diversidade) */
-        .bg-silhouettes {
-            position: absolute;
+        /* ÍCONES DE CONTORNO FINO (LINE ART) ESBATIDOS NO FUNDO */
+        .bg-line-art {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
@@ -34,30 +35,44 @@
             z-index: 0;
             pointer-events: none;
         }
-        .silhouette {
+        .outline-icon {
             position: absolute;
-            opacity: 0.08;
-            fill: #ffffff;
-            animation: floatSlow 18s ease-in-out infinite alternate;
+            fill: none;
+            stroke: #334155;
+            stroke-width: 1.7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0.14; /* Esbatido na medida certa para não interferir na leitura */
+            animation: floatGentle 16s ease-in-out infinite alternate;
         }
-        .s1 { top: 5%; left: 3%; width: 140px; animation-duration: 22s; }
-        .s2 { top: 10%; right: 5%; width: 160px; animation-duration: 25s; }
-        .s3 { bottom: 8%; left: 8%; width: 150px; animation-duration: 20s; }
-        .s4 { bottom: 12%; right: 7%; width: 170px; animation-duration: 28s; }
 
-        @keyframes floatSlow {
-            0% { transform: translateY(0px) rotate(0deg); }
-            100% { transform: translateY(-20px) rotate(2deg); }
+        /* Posicionamento distribuído pelo ecrã */
+        .ic-wheelchair-1 { top: 6%; left: 4%; width: 95px; animation-duration: 18s; }
+        .ic-people       { top: 5%; left: 28%; width: 95px; animation-duration: 21s; }
+        .ic-cane-1       { top: 7%; right: 26%; width: 90px; animation-duration: 19s; }
+        .ic-puzzle-1     { top: 6%; right: 5%; width: 90px; animation-duration: 23s; }
+
+        .ic-hands-shake  { top: 42%; left: 3%; width: 100px; animation-duration: 20s; }
+        .ic-globe        { top: 44%; right: 4%; width: 95px; animation-duration: 22s; }
+
+        .ic-open-hands   { bottom: 7%; left: 6%; width: 95px; animation-duration: 24s; }
+        .ic-puzzle-2     { bottom: 6%; left: 30%; width: 85px; animation-duration: 17s; }
+        .ic-wheelchair-2 { bottom: 7%; right: 27%; width: 95px; animation-duration: 21s; }
+        .ic-cane-2       { bottom: 6%; right: 5%; width: 90px; animation-duration: 19s; }
+
+        @keyframes floatGentle {
+            0% { transform: translateY(0px) rotate(-2deg); }
+            100% { transform: translateY(-14px) rotate(2deg); }
         }
 
         .quiz-container {
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(8px);
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(6px);
             width: 100%;
             max-width: 780px;
             border-radius: 28px;
             padding: 35px;
-            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.22);
+            box-shadow: 0 18px 40px rgba(30, 58, 95, 0.12);
             border: 6px solid #ffd166;
             position: relative;
             z-index: 1;
@@ -260,7 +275,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(7, 59, 76, 0.78);
+            background: rgba(7, 59, 76, 0.72);
             backdrop-filter: blur(4px);
             z-index: 1000;
             align-items: center;
@@ -336,7 +351,7 @@
         .video-frame-wrapper {
             position: relative;
             width: 100%;
-            padding-bottom: 56.25%; /* 16:9 */
+            padding-bottom: 56.25%;
             background: #000000;
             border-radius: 16px;
             overflow: hidden;
@@ -562,19 +577,81 @@
 </head>
 <body>
 
-    <!-- SILHUETAS DE FUNDO (Inclusão e Diversidade) -->
-    <div class="bg-silhouettes">
-        <!-- Pessoa em cadeira de rodas -->
-        <svg class="silhouette s1" viewBox="0 0 24 24"><path d="M19,19H20V21H18V19H19M16,11C16.8,11 17.5,10.3 17.5,9.5C17.5,8.7 16.8,8 16,8C15.2,8 14.5,8.7 14.5,9.5C14.5,10.3 15.2,11 16,11M19.3,13.5C18.6,13.2 17.8,13 17,13H15.5C14.7,13 14,13.7 14,14.5V17H12.5V13.5C12.5,12.1 13.6,11 15,11H17C17.7,11 18.3,11.3 18.8,11.7L20.3,10.2C19.5,9.5 18.6,9 17.5,8.7C16.9,7.1 15.6,6 14,6C11.8,6 10,7.8 10,10C10,12.2 11.8,14 14,14C14.7,14 15.3,13.8 15.9,13.6L16.8,14.5C15.9,15.2 15,15.5 14,15.5C10.7,15.5 8,12.8 8,9.5C8,6.2 10.7,3.5 14,3.5C17.1,3.5 19.7,5.9 20,9.1L21.5,7.6L22.2,8.3L19.3,11.2V13.5M6,10H2V12H6V10M7,7H3V9H7V7M5,13H1V15H5V13M8,16H4V18H8V16Z"/></svg>
-        
-        <!-- Pessoas de braços dados / Amizade -->
-        <svg class="silhouette s2" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-        
-        <!-- Criança / Aluno -->
-        <svg class="silhouette s3" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+    <!-- CONTORNOS ESBATIDOS DE FUNDO (Estilo Line-Art Inclusão) -->
+    <div class="bg-line-art">
+        <!-- 1. Pessoa em cadeira de rodas (contorno fino) -->
+        <svg class="outline-icon ic-wheelchair-1" viewBox="0 0 64 64">
+            <circle cx="26" cy="12" r="5"/>
+            <path d="M26 20v16h14l6 14"/>
+            <path d="M26 26h12"/>
+            <path d="M35 39a12 12 0 1 1-14-11.8"/>
+        </svg>
 
-        <!-- Coração / Inclusão -->
-        <svg class="silhouette s4" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <!-- 2. Duas pessoas lado a lado (contorno fino) -->
+        <svg class="outline-icon ic-people" viewBox="0 0 64 64">
+            <circle cx="20" cy="14" r="5"/>
+            <path d="M12 36l4-14h8l4 14h-4v16h-8V36z"/>
+            <line x1="32" y1="10" x2="32" y2="54"/>
+            <circle cx="44" cy="14" r="5"/>
+            <path d="M36 36l4-14h8l4 14h-4v16h-8V36z"/>
+        </svg>
+
+        <!-- 3. Pessoa com bengala / mobilidade reduzida (contorno fino) -->
+        <svg class="outline-icon ic-cane-1" viewBox="0 0 64 64">
+            <circle cx="30" cy="12" r="5"/>
+            <path d="M26 20l-4 16-4 16"/>
+            <path d="M30 20l6 14 4 18"/>
+            <path d="M28 24l10 8"/>
+            <path d="M40 32v20"/>
+            <path d="M37 32a3 3 0 0 1 6 0"/>
+        </svg>
+
+        <!-- 4. Peça de Puzzle (Inclusão/União) -->
+        <svg class="outline-icon ic-puzzle-1" viewBox="0 0 64 64">
+            <path d="M18 14h10a4 4 0 1 1 8 0h10v10a4 4 0 1 0 0 8v10H36a4 4 0 1 1-8 0H18V32a4 4 0 1 1 0-8V14z"/>
+        </svg>
+
+        <!-- 5. Mãos entrelaçadas / Apoio -->
+        <svg class="outline-icon ic-hands-shake" viewBox="0 0 64 64">
+            <path d="M10 34l12-12 10 8 10-8 12 12"/>
+            <path d="M16 40l10 8 6-6 6 6 10-8"/>
+            <path d="M22 22l-8-8M42 22l8-8"/>
+        </svg>
+
+        <!-- 6. Globo Terrestre (Todos no mesmo mundo) -->
+        <svg class="outline-icon ic-globe" viewBox="0 0 64 64">
+            <circle cx="32" cy="32" r="22"/>
+            <ellipse cx="32" cy="32" rx="10" ry="22"/>
+            <line x1="10" y1="32" x2="54" y2="32"/>
+            <path d="M14 21h36M14 43h36"/>
+        </svg>
+
+        <!-- 7. Duas mãos abertas (Acolhimento) -->
+        <svg class="outline-icon ic-open-hands" viewBox="0 0 64 64">
+            <path d="M14 52V32a2 2 0 0 1 4 0v8V24a2 2 0 0 1 4 0v14V22a2 2 0 0 1 4 0v16V26a2 2 0 0 1 4 0v26"/>
+            <path d="M34 52V26a2 2 0 0 1 4 0v12V22a2 2 0 0 1 4 0v16V24a2 2 0 0 1 4 0v14V32a2 2 0 0 1 4 0v20"/>
+        </svg>
+
+        <!-- 8. Peça de Puzzle 2 -->
+        <svg class="outline-icon ic-puzzle-2" viewBox="0 0 64 64">
+            <path d="M16 16h12a4 4 0 1 0 8 0h12v12a4 4 0 1 1 0 8v12H36a4 4 0 1 0-8 0H16V36a4 4 0 1 0 0-8V16z"/>
+        </svg>
+
+        <!-- 9. Pessoa em cadeira de rodas 2 -->
+        <svg class="outline-icon ic-wheelchair-2" viewBox="0 0 64 64">
+            <circle cx="26" cy="12" r="5"/>
+            <path d="M26 20v16h14l6 14"/>
+            <path d="M26 26h12"/>
+            <path d="M35 39a12 12 0 1 1-14-11.8"/>
+        </svg>
+
+        <!-- 10. Pessoa com bengala 2 -->
+        <svg class="outline-icon ic-cane-2" viewBox="0 0 64 64">
+            <circle cx="32" cy="12" r="5"/>
+            <path d="M28 20l-4 16-3 16"/>
+            <path d="M32 20l5 14 4 18"/>
+            <path d="M28 24l-8 8v20"/>
+        </svg>
     </div>
 
 <div class="quiz-container">
