@@ -34,42 +34,74 @@
         /* Capa Inicial */
         .cover-screen {
             text-align: center;
-            padding: 15px 10px;
+            padding: 10px;
         }
         .school-logo {
-            max-width: 190px;
-            max-height: 140px;
+            max-width: 180px;
+            max-height: 130px;
             object-fit: contain;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             border-radius: 12px;
         }
         .cover-title {
             color: #ef476f;
             font-size: 2.5em;
-            margin: 10px 0;
+            margin: 8px 0;
             text-shadow: 2px 2px 0px #ffe5ec;
         }
         .cover-subtitle {
             font-size: 1.3em;
             color: #118ab2;
             font-weight: 600;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             line-height: 1.4;
         }
         .cover-instructions {
             background: #f0f9ff;
             border: 3px dashed #118ab2;
             border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 30px;
+            padding: 18px;
+            margin-bottom: 25px;
             font-size: 1.15em;
             color: #073b4c;
         }
+        .cover-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            align-items: center;
+        }
+        .video-btn {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.35em;
+            font-weight: 700;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 22px;
+            background: #ef476f;
+            color: #ffffff;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #b8294a;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .video-btn:hover {
+            background: #d9385d;
+            transform: translateY(-3px);
+            box-shadow: 0 9px 0 #b8294a;
+        }
+        .video-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #b8294a;
+        }
         .start-btn {
             font-family: 'Fredoka', sans-serif;
-            font-size: 1.5em;
+            font-size: 1.45em;
             font-weight: 700;
-            padding: 18px 45px;
+            padding: 16px 40px;
             border: none;
             border-radius: 22px;
             background: #06d6a0;
@@ -188,7 +220,7 @@
             font-size: 1.1em;
         }
 
-        /* Popup Personalizado (Modal) */
+        /* Popups Gerais (Modais) */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -196,13 +228,101 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(7, 59, 76, 0.72);
+            background: rgba(7, 59, 76, 0.78);
             backdrop-filter: blur(4px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
+
+        /* Popup do Vídeo YouTube */
+        .video-modal-box {
+            background: #ffffff;
+            width: 100%;
+            max-width: 900px;
+            border-radius: 26px;
+            padding: 22px;
+            border: 6px solid #ef476f;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+            animation: popIn 0.3s ease;
+            transition: all 0.3s ease;
+        }
+        .video-modal-box.expanded {
+            max-width: 96vw;
+            height: 92vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .video-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .video-modal-header h3 {
+            margin: 0;
+            color: #ef476f;
+            font-size: 1.45em;
+        }
+        .video-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .ctrl-btn {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 0.95em;
+            font-weight: 700;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.15s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ctrl-btn:hover {
+            transform: scale(1.04);
+        }
+        .btn-expand {
+            background: #ffd166;
+            color: #073b4c;
+        }
+        .btn-newtab {
+            background: #118ab2;
+            color: #ffffff;
+        }
+        .btn-close-video {
+            background: #ef476f;
+            color: #ffffff;
+        }
+        .video-frame-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 */
+            background: #000000;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .video-modal-box.expanded .video-frame-wrapper {
+            padding-bottom: 0;
+            flex: 1;
+        }
+        .video-frame-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Popup de Explicação */
         .modal-box {
             background: #ffffff;
             width: 100%;
@@ -419,12 +539,15 @@
         
         <div class="cover-instructions">
             <p style="margin: 0;">
-                Lê cada pergunta com atenção e escolhe a resposta que achas mais certa.<br>
-                No final, vamos conversar todos juntos sobre como tornar a nossa escola ainda melhor!
+                Primeiro, vê o vídeo com atenção.<br>
+                Depois, responde às perguntas e descobre como podemos tornar a nossa escola um lugar onde todos se sintam incluídos!
             </p>
         </div>
 
-        <button class="start-btn" onclick="startQuiz()">▶️ Começar o Jogo</button>
+        <div class="cover-actions">
+            <button class="video-btn" onclick="openVideoModal()">🎬 Ver Vídeo</button>
+            <button class="start-btn" onclick="startQuiz()">▶️ Começar o Jogo</button>
+        </div>
     </div>
 
     <!-- 2. ECRÃ DAS PERGUNTAS -->
@@ -465,6 +588,28 @@
     </div>
 </div>
 
+<!-- POPUP DO VÍDEO DO YOUTUBE -->
+<div class="modal-overlay" id="video-modal">
+    <div class="video-modal-box" id="video-modal-box">
+        <div class="video-modal-header">
+            <h3>🎬 Vídeo: Missão Inclusão</h3>
+            <div class="video-controls">
+                <button class="ctrl-btn btn-expand" id="expand-btn" onclick="toggleExpandVideo()">⛶ Aumentar Janela</button>
+                <a href="https://youtu.be/Ztqaa-NWYQ8" target="_blank" rel="noopener noreferrer" class="ctrl-btn btn-newtab">↗️ Nova Aba</a>
+                <button class="ctrl-btn btn-close-video" onclick="closeVideoModal()">✖ Fechar</button>
+            </div>
+        </div>
+        <div class="video-frame-wrapper">
+            <iframe id="youtube-iframe" 
+                src="" 
+                title="Vídeo de Inclusão" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+</div>
+
 <!-- POPUP PERSONALIZADO DE EXPLICAÇÃO -->
 <div class="modal-overlay" id="feedback-modal">
     <div class="modal-box" id="modal-box">
@@ -482,123 +627,174 @@
 </div>
 
 <script>
-    const quizData = [
+    const baseQuizData = [
         {
-            question: "1. O que significa inclusão?",
+            question: "O que significa inclusão?",
             options: [
-                { letter: "A", text: "Deixar algumas pessoas de fora." },
-                { letter: "B", text: "Aceitar, respeitar e dar oportunidades a todos." },
-                { letter: "C", text: "Estar apenas com os nossos amigos." }
+                { text: "Deixar algumas pessoas de fora.", isCorrect: false },
+                { text: "Aceitar, respeitar e dar oportunidades a todos.", isCorrect: true },
+                { text: "Estar apenas com os nossos amigos.", isCorrect: false }
             ],
-            correct: "B",
             explanation: "Incluir é abrir a roda para que ninguém fique de fora! Significa respeitar cada pessoa tal como ela é e garantir que todos podem participar e brincar juntos."
         },
         {
-            question: "2. Somos todos iguais?",
+            question: "Somos todos iguais?",
             options: [
-                { letter: "A", text: "Sim, pensamos e fazemos tudo da mesma maneira." },
-                { letter: "B", text: "Não, somos diferentes, mas todos temos o mesmo valor." },
-                { letter: "C", text: "Sim, todos temos as mesmas capacidades." }
+                { text: "Sim, pensamos e fazemos tudo da mesma maneira.", isCorrect: false },
+                { text: "Não, somos diferentes, mas todos temos o mesmo valor.", isCorrect: true },
+                { text: "Sim, todos temos as mesmas capacidades.", isCorrect: false }
             ],
-            correct: "B",
             explanation: "Cada um de nós é único! Temos gostos, aspetos e jeitos diferentes, mas todos merecemos o mesmo respeito, carinho e oportunidades."
         },
         {
-            question: "3. Como devemos tratar uma pessoa com deficiência?",
+            question: "Como devemos tratar uma pessoa com deficiência?",
             options: [
-                { letter: "A", text: "Com respeito, amizade e naturalidade." },
-                { letter: "B", text: "Com pena e afastamento." },
-                { letter: "C", text: "Como se não existisse." }
+                { text: "Com respeito, amizade e naturalidade.", isCorrect: true },
+                { text: "Com pena e afastamento.", isCorrect: false },
+                { text: "Como se não existisse.", isCorrect: false }
             ],
-            correct: "A",
             explanation: "As pessoas com deficiência não precisam de pena, precisam de amigos! Devemos tratá-las com naturalidade, educação e alegria, como qualquer outro colega."
         },
         {
-            question: "4. Se um colega tiver dificuldade numa tarefa, devemos…",
+            question: "Se um colega tiver dificuldade numa tarefa, devemos…",
             options: [
-                { letter: "A", text: "Rir da sua dificuldade." },
-                { letter: "B", text: "Fazer a tarefa por ele sem perguntar." },
-                { letter: "C", text: "Oferecer ajuda e incentivá-lo." }
+                { text: "Rir da sua dificuldade.", isCorrect: false },
+                { text: "Fazer a tarefa por ele sem perguntar.", isCorrect: false },
+                { text: "Oferecer ajuda e incentivá-lo.", isCorrect: true }
             ],
-            correct: "C",
             explanation: "Todos precisamos de ajuda às vezes. Dar palavras de incentivo e perguntar 'Queres uma ajuda?' mostra amizade e ajuda o colega a aprender."
         },
         {
-            question: "5. Uma pessoa que utiliza cadeira de rodas…",
+            question: "Uma pessoa que utiliza cadeira de rodas…",
             options: [
-                { letter: "A", text: "Não pode brincar nem participar nas atividades." },
-                { letter: "B", text: "Pode participar, desde que existam condições adequadas." },
-                { letter: "C", text: "Não pode ir à escola." }
+                { text: "Não pode brincar nem participar nas atividades.", isCorrect: false },
+                { text: "Pode participar, desde que existam condições adequadas.", isCorrect: true },
+                { text: "Não pode ir à escola.", isCorrect: false }
             ],
-            correct: "B",
             explanation: "Com rampas, espaços acessíveis e jogos adaptados, quem usa cadeira de rodas pode estudar, divertir-se e participar em tudo!"
         },
         {
-            question: "6. Ter uma deficiência significa que uma pessoa…",
+            question: "Ter uma deficiência significa que uma pessoa…",
             options: [
-                { letter: "A", text: "Não tem capacidades." },
-                { letter: "B", text: "Não consegue aprender." },
-                { letter: "C", text: "Pode ter algumas dificuldades, mas também muitas capacidades." }
+                { text: "Não tem capacidades.", isCorrect: false },
+                { text: "Não consegue aprender.", isCorrect: false },
+                { text: "Pode ter algumas dificuldades, mas também muitas capacidades.", isCorrect: true }
             ],
-            correct: "C",
             explanation: "Todos nós temos coisas em que somos muito bons e outras que nos custam mais. Uma deficiência é apenas uma característica, e cada pessoa tem muitos talentos!"
         },
         {
-            question: "7. O que devemos fazer quando vemos alguém a ser excluído de uma brincadeira?",
+            question: "O que devemos fazer quando vemos alguém a ser excluído de uma brincadeira?",
             options: [
-                { letter: "A", text: "Convidá-lo a participar e mostrar amizade." },
-                { letter: "B", text: "Continuar a brincar sem fazer nada." },
-                { letter: "C", text: "Afastarmo-nos também." }
+                { text: "Convidá-lo a participar e mostrar amizade.", isCorrect: true },
+                { text: "Continuar a brincar sem fazer nada.", isCorrect: false },
+                { text: "Afastarmo-nos também.", isCorrect: false }
             ],
-            correct: "A",
             explanation: "Um simples 'Queres vir brincar connosco?' pode transformar o dia de alguém que está triste ou sozinho no recreio."
         },
         {
-            question: "8. Qual destas atitudes demonstra respeito pela diferença?",
+            question: "Qual destas atitudes demonstra respeito pela diferença?",
             options: [
-                { letter: "A", text: "Imitar alguém para provocar risos." },
-                { letter: "B", text: "Aceitar que cada pessoa tem o seu ritmo e as suas características." },
-                { letter: "C", text: "Fazer comentários desagradáveis." }
+                { text: "Imitar alguém para provocar risos.", isCorrect: false },
+                { text: "Aceitar que cada pessoa tem o seu ritmo e as suas características.", isCorrect: true },
+                { text: "Fazer comentários desagradáveis.", isCorrect: false }
             ],
-            correct: "B",
             explanation: "Cada pessoa aprende, anda e fala ao seu próprio ritmo. Respeitar o tempo e o jeito de cada um torna a nossa escola muito mais feliz."
         },
         {
-            question: "9. Para que todos possam aprender e participar na escola, devemos…",
+            question: "Para que todos possam aprender e participar na escola, devemos…",
             options: [
-                { letter: "A", text: "Dar as mesmas tarefas a todos, sem exceção." },
-                { letter: "B", text: "Ajudar apenas os alunos que aprendem mais depressa." },
-                { letter: "C", text: "Respeitar as necessidades de cada aluno e criar oportunidades para todos." }
+                { text: "Dar as mesmas tarefas a todos, sem exceção.", isCorrect: false },
+                { text: "Ajudar apenas os alunos que aprendem mais depressa.", isCorrect: false },
+                { text: "Respeitar as necessidades de cada aluno e criar oportunidades para todos.", isCorrect: true }
             ],
-            correct: "C",
             explanation: "A verdadeira igualdade na escola é dar a cada aluno o apoio de que ele precisa para conseguir aprender e brilhar."
         },
         {
-            question: "10. Qual é a mensagem mais importante do vídeo?",
+            question: "Qual é a mensagem mais importante do vídeo?",
             options: [
-                { letter: "A", text: "Todos devemos ser iguais." },
-                { letter: "B", text: "A diferença não nos impede de sermos amigos e de participar." },
-                { letter: "C", text: "Só algumas pessoas precisam de respeito." }
+                { text: "Todos devemos ser iguais.", isCorrect: false },
+                { text: "A diferença não nos impede de sermos amigos e de participar.", isCorrect: true },
+                { text: "Só algumas pessoas precisam de respeito.", isCorrect: false }
             ],
-            correct: "B",
             explanation: "As nossas diferenças tornam o mundo mais rico e interessante! Juntos e a respeitarmo-nos, todos podemos ser grandes amigos."
         }
     ];
 
+    let shuffledQuiz = [];
     let currentQuestion = 0;
     let score = 0;
+    const letters = ["A", "B", "C"];
 
+    // Função de baralhamento (Fisher-Yates)
+    function shuffleArray(array) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function prepareQuiz() {
+        // Baralha as questões e, dentro de cada questão, baralha as opções atribuindo A, B, C pela nova ordem
+        shuffledQuiz = shuffleArray(baseQuizData).map(item => {
+            const mixedOptions = shuffleArray(item.options).map((opt, idx) => ({
+                letter: letters[idx],
+                text: opt.text,
+                isCorrect: opt.isCorrect
+            }));
+            return {
+                question: item.question,
+                options: mixedOptions,
+                explanation: item.explanation
+            };
+        });
+    }
+
+    // Controlo do Modal de Vídeo
+    function openVideoModal() {
+        const modal = document.getElementById("video-modal");
+        const iframe = document.getElementById("youtube-iframe");
+        iframe.src = "https://www.youtube.com/embed/Ztqaa-NWYQ8?autoplay=1&rel=0";
+        modal.style.display = "flex";
+    }
+
+    function closeVideoModal() {
+        const modal = document.getElementById("video-modal");
+        const iframe = document.getElementById("youtube-iframe");
+        const box = document.getElementById("video-modal-box");
+        iframe.src = ""; // Pára o vídeo ao fechar
+        box.classList.remove("expanded");
+        document.getElementById("expand-btn").textContent = "⛶ Aumentar Janela";
+        modal.style.display = "none";
+    }
+
+    function toggleExpandVideo() {
+        const box = document.getElementById("video-modal-box");
+        const btn = document.getElementById("expand-btn");
+        box.classList.toggle("expanded");
+        if (box.classList.contains("expanded")) {
+            btn.textContent = "🗗 Reduzir Janela";
+        } else {
+            btn.textContent = "⛶ Aumentar Janela";
+        }
+    }
+
+    // Fluxo do Quiz
     function startQuiz() {
+        prepareQuiz();
+        currentQuestion = 0;
+        score = 0;
         document.getElementById("cover-screen").style.display = "none";
         document.getElementById("quiz-screen").style.display = "block";
         loadQuestion();
     }
 
     function loadQuestion() {
-        const q = quizData[currentQuestion];
-        document.getElementById("question-text").textContent = q.question;
-        document.getElementById("progress-text").textContent = `Pergunta ${currentQuestion + 1} de ${quizData.length} • Pontos: ${score}`;
-        document.getElementById("progress-bar").style.width = `${((currentQuestion + 1) / quizData.length) * 100}%`;
+        const q = shuffledQuiz[currentQuestion];
+        document.getElementById("question-text").textContent = `${currentQuestion + 1}. ${q.question}`;
+        document.getElementById("progress-text").textContent = `Pergunta ${currentQuestion + 1} de ${shuffledQuiz.length} • Pontos: ${score}`;
+        document.getElementById("progress-bar").style.width = `${((currentQuestion + 1) / shuffledQuiz.length) * 100}%`;
 
         const optionsList = document.getElementById("options-list");
         optionsList.innerHTML = "";
@@ -613,16 +809,17 @@
     }
 
     function selectAnswer(chosenLetter) {
-        const q = quizData[currentQuestion];
-        const isCorrect = chosenLetter === q.correct;
+        const q = shuffledQuiz[currentQuestion];
+        const chosenOption = q.options.find(o => o.letter === chosenLetter);
+        const isCorrect = chosenOption.isCorrect;
 
         if (isCorrect) {
             score++;
         }
 
-        document.getElementById("progress-text").textContent = `Pergunta ${currentQuestion + 1} de ${quizData.length} • Pontos: ${score}`;
+        document.getElementById("progress-text").textContent = `Pergunta ${currentQuestion + 1} de ${shuffledQuiz.length} • Pontos: ${score}`;
 
-        // Configurar Popup
+        // Configurar Popup de Explicação
         const modal = document.getElementById("feedback-modal");
         const modalBox = document.getElementById("modal-box");
         const modalTitle = document.getElementById("modal-title");
@@ -634,17 +831,16 @@
         modalTitle.className = "modal-header-title " + (isCorrect ? "correct-text" : "wrong-text");
         modalTitle.textContent = isCorrect ? "⭐ Resposta Certa!" : "💡 Vamos ver a resposta certa!";
 
-        // Construir lista de opções no Popup com identificação
         reviewContainer.innerHTML = "";
         q.options.forEach(opt => {
             const item = document.createElement("div");
             item.className = "review-item";
             
             let badgeHTML = "";
-            if (opt.letter === q.correct && opt.letter === chosenLetter) {
+            if (opt.isCorrect && opt.letter === chosenLetter) {
                 item.classList.add("correct-option");
                 badgeHTML = `<span class="badge-tag tag-chosen-correct">✔ A tua escolha (Certa)</span>`;
-            } else if (opt.letter === q.correct) {
+            } else if (opt.isCorrect) {
                 item.classList.add("correct-option");
                 badgeHTML = `<span class="badge-tag tag-correct">✔ Resposta Certa</span>`;
             } else if (opt.letter === chosenLetter) {
@@ -663,7 +859,7 @@
         });
 
         explanationText.textContent = q.explanation;
-        modalNextBtn.textContent = currentQuestion === quizData.length - 1 ? "Ver Resultado e Reflexão 🌟" : "Próxima Pergunta ➡️";
+        modalNextBtn.textContent = currentQuestion === shuffledQuiz.length - 1 ? "Ver Resultado e Reflexão 🌟" : "Próxima Pergunta ➡️";
 
         modal.style.display = "flex";
     }
@@ -671,7 +867,7 @@
     function nextQuestion() {
         document.getElementById("feedback-modal").style.display = "none";
         currentQuestion++;
-        if (currentQuestion < quizData.length) {
+        if (currentQuestion < shuffledQuiz.length) {
             loadQuestion();
         } else {
             showFinalScreen();
@@ -681,12 +877,10 @@
     function showFinalScreen() {
         document.getElementById("quiz-screen").style.display = "none";
         document.getElementById("final-screen").style.display = "block";
-        document.getElementById("final-score").textContent = `Acertaste ${score} em ${quizData.length}`;
+        document.getElementById("final-score").textContent = `Acertaste ${score} em ${shuffledQuiz.length}`;
     }
 
     function restartQuiz() {
-        currentQuestion = 0;
-        score = 0;
         document.getElementById("final-screen").style.display = "none";
         document.getElementById("cover-screen").style.display = "block";
     }
