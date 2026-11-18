@@ -3,247 +3,489 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz de Inclusão - 4º Ano</title>
+    <title>Quiz de Inclusão - 1º Ciclo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        * {
+            box-sizing: border-box;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f4f8;
-            color: #333;
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #2d3748;
             margin: 0;
             padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        .quiz-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 750px;
+            border-radius: 28px;
+            padding: 35px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+            border: 6px solid #ffd166;
+            position: relative;
         }
-        h1 {
+        .header {
             text-align: center;
-            color: #2c3e50;
+            margin-bottom: 25px;
         }
-        .intro {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #666;
+        .header h1 {
+            color: #ef476f;
+            font-size: 2.1em;
+            margin: 0 0 10px 0;
+            text-shadow: 1px 1px 0px #ffe5ec;
         }
-        .question-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .question-title {
-            font-weight: bold;
-            font-size: 1.1em;
-            margin-bottom: 15px;
-            color: #1e293b;
-        }
-        .options label {
-            display: block;
-            padding: 10px 12px;
+        .progress-wrapper {
+            background: #edf2f7;
+            border-radius: 20px;
+            height: 22px;
+            width: 100%;
+            overflow: hidden;
+            border: 2px solid #cbd5e0;
             margin-bottom: 8px;
-            background: white;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #06d6a0, #118ab2);
+            height: 100%;
+            width: 10%;
+            border-radius: 20px;
+            transition: width 0.4s ease;
+        }
+        .progress-text {
+            font-size: 1.05em;
+            font-weight: 600;
+            color: #118ab2;
+        }
+        .question-text {
+            font-size: 1.45em;
+            font-weight: 700;
+            color: #073b4c;
+            margin: 25px 0;
+            line-height: 1.35;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 18px;
+            border-left: 8px solid #118ab2;
+        }
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .option-btn {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.15em;
+            text-align: left;
+            padding: 16px 20px;
+            border-radius: 18px;
+            border: 3px solid #cbd5e0;
+            background: #ffffff;
+            color: #2d3748;
             cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 4px 0 #cbd5e0;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: #118ab2;
+            background: #f0f9ff;
+            box-shadow: 0 6px 0 #118ab2;
+        }
+        .option-btn:active:not(:disabled) {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #118ab2;
+        }
+        .option-letter {
+            background: #ffd166;
+            color: #073b4c;
+            font-weight: 700;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.1em;
+        }
+        .option-btn.correct {
+            background: #d8f3dc;
+            border-color: #2d6a4f;
+            color: #1b4332;
+            box-shadow: 0 4px 0 #2d6a4f;
+        }
+        .option-btn.correct .option-letter {
+            background: #40916c;
+            color: white;
+        }
+        .option-btn.wrong {
+            background: #ffe5ec;
+            border-color: #ef476f;
+            color: #800f2f;
+            box-shadow: 0 4px 0 #ef476f;
+        }
+        .option-btn.wrong .option-letter {
+            background: #ef476f;
+            color: white;
+        }
+        .option-btn:disabled {
+            cursor: default;
+            opacity: 0.9;
+        }
+        .feedback-box {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 18px;
+            font-size: 1.15em;
+            line-height: 1.45;
+            animation: popIn 0.35s ease;
+        }
+        .feedback-box.success {
+            background: #e6fcf5;
+            border: 3px solid #0ca678;
+            color: #087f5b;
+        }
+        .feedback-box.error {
+            background: #fff5f5;
+            border: 3px solid #fa5252;
+            color: #c92a2a;
+        }
+        .feedback-title {
+            font-weight: 700;
+            font-size: 1.25em;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .next-btn {
+            display: none;
+            margin-top: 22px;
+            width: 100%;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.3em;
+            font-weight: 700;
+            padding: 16px;
+            border: none;
+            border-radius: 18px;
+            background: #06d6a0;
+            color: #073b4c;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #049a73;
             transition: all 0.2s;
         }
-        .options label:hover {
-            background: #e2e8f0;
+        .next-btn:hover {
+            background: #05c290;
+            transform: translateY(-2px);
         }
-        .options input {
-            margin-right: 10px;
+        .next-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #049a73;
         }
-        .btn-submit {
-            display: block;
-            width: 100%;
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-            padding: 15px;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 20px;
-        }
-        .btn-submit:hover {
-            background-color: #2563eb;
-        }
-        #result {
+
+        /* Ecrã Final */
+        .final-screen {
             display: none;
-            margin-top: 30px;
-            padding: 20px;
-            background: #dbeafe;
-            border-radius: 8px;
             text-align: center;
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #1e40af;
         }
-        .reflection-box {
-            margin-top: 40px;
-            padding: 20px;
-            background: #fef3c7;
-            border-left: 5px solid #d97706;
-            border-radius: 6px;
+        .score-badge {
+            background: #ffd166;
+            color: #073b4c;
+            display: inline-block;
+            padding: 15px 35px;
+            border-radius: 50px;
+            font-size: 1.8em;
+            font-weight: 700;
+            margin: 15px 0 25px 0;
+            box-shadow: 0 6px 0 #e0a800;
         }
-        .reflection-box h3 {
+        .reflection-card {
+            background: #fff9db;
+            border: 4px dashed #fcc419;
+            border-radius: 22px;
+            padding: 25px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .reflection-card h2 {
+            color: #e67700;
             margin-top: 0;
-            color: #b45309;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .reflection-question {
+            font-size: 1.35em;
+            font-weight: 600;
+            color: #2d3748;
+            font-style: italic;
+            line-height: 1.4;
+            margin: 15px 0 0 0;
+        }
+        .restart-btn {
+            margin-top: 25px;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.2em;
+            font-weight: 700;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 16px;
+            background: #118ab2;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #073b4c;
+        }
+        .restart-btn:hover {
+            background: #0e7496;
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Quiz: Todos Diferentes, Todos Iguais!</h1>
-    <p class="intro">Responde às 10 perguntas e descobre o que sabes sobre inclusão e respeito.</p>
-
-    <form id="quizForm">
-        <!-- Pergunta 1 -->
-        <div class="question-card" data-correct="B">
-            <div class="question-title">1. O que significa inclusão?</div>
-            <div class="options">
-                <label><input type="radio" name="q1" value="A"> A – Deixar algumas pessoas de fora.</label>
-                <label><input type="radio" name="q1" value="B"> B – Aceitar, respeitar e dar oportunidades a todos.</label>
-                <label><input type="radio" name="q1" value="C"> C – Estar apenas com os nossos amigos.</label>
+<div class="quiz-container">
+    <!-- Ecrã do Jogo -->
+    <div id="quiz-screen">
+        <div class="header">
+            <h1>🌈 Missão Inclusão! 🌟</h1>
+            <div class="progress-wrapper">
+                <div class="progress-bar" id="progress-bar"></div>
             </div>
+            <div class="progress-text" id="progress-text">Pergunta 1 de 10 • Pontos: 0</div>
         </div>
 
-        <!-- Pergunta 2 -->
-        <div class="question-card" data-correct="B">
-            <div class="question-title">2. Somos todos iguais?</div>
-            <div class="options">
-                <label><input type="radio" name="q2" value="A"> A – Sim, pensamos e fazemos tudo da mesma maneira.</label>
-                <label><input type="radio" name="q2" value="B"> B – Não, somos diferentes, mas todos temos o mesmo valor.</label>
-                <label><input type="radio" name="q2" value="C"> C – Sim, todos temos as mesmas capacidades.</label>
-            </div>
+        <div class="question-text" id="question-text"></div>
+
+        <div class="options-list" id="options-list"></div>
+
+        <div class="feedback-box" id="feedback-box">
+            <span class="feedback-title" id="feedback-title"></span>
+            <span id="feedback-description"></span>
         </div>
 
-        <!-- Pergunta 3 -->
-        <div class="question-card" data-correct="A">
-            <div class="question-title">3. Como devemos tratar uma pessoa com deficiência?</div>
-            <div class="options">
-                <label><input type="radio" name="q3" value="A"> A – Com respeito, amizade e naturalidade.</label>
-                <label><input type="radio" name="q3" value="B"> B – Com pena e afastamento.</label>
-                <label><input type="radio" name="q3" value="C"> C – Como se não existisse.</label>
-            </div>
+        <button class="next-btn" id="next-btn" onclick="nextQuestion()">Próxima Pergunta ➡️</button>
+    </div>
+
+    <!-- Ecrã Final e Reflexão -->
+    <div class="final-screen" id="final-screen">
+        <h1 style="color: #ef476f; font-size: 2.3em; margin-bottom: 5px;">🎉 Parabéns, Explorador(a)! 🎉</h1>
+        <p style="font-size: 1.2em; color: #4a5568;">Completaste o desafio sobre a inclusão!</p>
+        
+        <div class="score-badge" id="final-score">Acertaste 0 em 10!</div>
+
+        <div class="reflection-card">
+            <h2>💬 Momento de Conversa na Turma</h2>
+            <p class="reflection-question">
+                "Se pudesses mudar uma coisa na tua escola para que todos os meninos e meninas se sentissem incluídos, o que mudarias?"
+            </p>
         </div>
 
-        <!-- Pergunta 4 -->
-        <div class="question-card" data-correct="C">
-            <div class="question-title">4. Se um colega tiver dificuldade numa tarefa, devemos…</div>
-            <div class="options">
-                <label><input type="radio" name="q4" value="A"> A – Rir da sua dificuldade.</label>
-                <label><input type="radio" name="q4" value="B"> B – Fazer a tarefa por ele sem perguntar.</label>
-                <label><input type="radio" name="q4" value="C"> C – Oferecer ajuda e incentivá-lo.</label>
-            </div>
-        </div>
-
-        <!-- Pergunta 5 -->
-        <div class="question-card" data-correct="B">
-            <div class="question-title">5. Uma pessoa que utiliza cadeira de rodas…</div>
-            <div class="options">
-                <label><input type="radio" name="q5" value="A"> A – Não pode brincar nem participar nas atividades.</label>
-                <label><input type="radio" name="q5" value="B"> B – Pode participar, desde que existam condições adequadas.</label>
-                <label><input type="radio" name="q5" value="C"> C – Não pode ir à escola.</label>
-            </div>
-        </div>
-
-        <!-- Pergunta 6 -->
-        <div class="question-card" data-correct="C">
-            <div class="question-title">6. Ter uma deficiência significa que uma pessoa…</div>
-            <div class="options">
-                <label><input type="radio" name="q6" value="A"> A – Não tem capacidades.</label>
-                <label><input type="radio" name="q6" value="B"> B – Não consegue aprender.</label>
-                <label><input type="radio" name="q6" value="C"> C – Pode ter algumas dificuldades, mas também muitas capacidades.</label>
-            </div>
-        </div>
-
-        <!-- Pergunta 7 -->
-        <div class="question-card" data-correct="A">
-            <div class="question-title">7. O que devemos fazer quando vemos alguém a ser excluído de uma brincadeira?</div>
-            <div class="options">
-                <label><input type="radio" name="q7" value="A"> A – Convidá-lo a participar e mostrar amizade.</label>
-                <label><input type="radio" name="q7" value="B"> B – Continuar a brincar sem fazer nada.</label>
-                <label><input type="radio" name="q7" value="C"> C – Afastarmo-nos também.</label>
-            </div>
-        </div>
-
-        <!-- Pergunta 8 -->
-        <div class="question-card" data-correct="B">
-            <div class="question-title">8. Qual destas atitudes demonstra respeito pela diferença?</div>
-            <div class="options">
-                <label><input type="radio" name="q8" value="A"> A – Imitar alguém para provocar risos.</label>
-                <label><input type="radio" name="q8" value="B"> B – Aceitar que cada pessoa tem o seu ritmo e as suas características.</label>
-                <label><input type="radio" name="q8" value="C"> C – Fazer comentários desagradáveis.</label>
-            </div>
-        </div>
-
-        <!-- Pergunta 9 -->
-        <div class="question-card" data-correct="C">
-            <div class="question-title">9. Para que todos possam aprender e participar na escola, devemos…</div>
-            <div class="options">
-                <label><input type="radio" name="q9" value="A"> A – Dar as mesmas tarefas a todos, sem exceção.</label>
-                <label><input type="radio" name="q9" value="B"> B – Ajudar apenas os alunos que aprendem mais depressa.</label>
-                <label><input type="radio" name="q9" value="C"> C – Respeitar as necessidades de cada aluno e criar oportunidades para todos.</label>
-            </div>
-        </div>
-
-        <!-- Pergunta 10 -->
-        <div class="question-card" data-correct="B">
-            <div class="question-title">10. Qual é a mensagem mais importante do vídeo?</div>
-            <div class="options">
-                <label><input type="radio" name="q10" value="A"> A – Todos devemos ser iguais.</label>
-                <label><input type="radio" name="q10" value="B"> B – A diferença não nos impede de sermos amigos e de participar.</label>
-                <label><input type="radio" name="q10" value="C"> C – Só algumas pessoas precisam de respeito.</label>
-            </div>
-        </div>
-
-        <button type="button" class="btn-submit" onclick="calcularResultado()">Ver Resultado</button>
-    </form>
-
-    <div id="result"></div>
-
-    <!-- Reflexão Oral -->
-    <div class="reflection-box">
-        <h3>Momento de Reflexão Oral</h3>
-        <p><em>"Se pudesses mudar uma coisa na tua escola para que todos os meninos e meninas se sentissem incluídos, o que mudarias?"</em></p>
+        <button class="restart-btn" onclick="restartQuiz()">🔄 Jogar Novamente</button>
     </div>
 </div>
 
 <script>
-function calcularResultado() {
-    const cards = document.querySelectorAll('.question-card');
-    let acertos = 0;
-    let total = cards.length;
-
-    cards.forEach((card, index) => {
-        const qNum = index + 1;
-        const respostaCerta = card.getAttribute('data-correct');
-        const selecionada = document.querySelector(`input[name="q${qNum}"]:checked`);
-
-        if (selecionada && selecionada.value === respostaCerta) {
-            acertos++;
-            card.style.borderColor = '#22c55e';
-            card.style.backgroundColor = '#f0fdf4';
-        } else {
-            card.style.borderColor = '#ef4444';
-            card.style.backgroundColor = '#fef2f2';
+    const quizData = [
+        {
+            question: "1. O que significa inclusão?",
+            options: [
+                { letter: "A", text: "Deixar algumas pessoas de fora." },
+                { letter: "B", text: "Aceitar, respeitar e dar oportunidades a todos." },
+                { letter: "C", text: "Estar apenas com os nossos amigos." }
+            ],
+            correct: "B",
+            explanation: "Incluir é abrir a roda para que ninguém fique de fora! Significa respeitar cada pessoa tal como ela é e garantir que todos podem participar e brincar juntos."
+        },
+        {
+            question: "2. Somos todos iguais?",
+            options: [
+                { letter: "A", text: "Sim, pensamos e fazemos tudo da mesma maneira." },
+                { letter: "B", text: "Não, somos diferentes, mas todos temos o mesmo valor." },
+                { letter: "C", text: "Sim, todos temos as mesmas capacidades." }
+            ],
+            correct: "B",
+            explanation: "Cada um de nós é único! Temos gostos, aspetos e jeitos diferentes, mas todos merecemos o mesmo respeito, carinho e oportunidades."
+        },
+        {
+            question: "3. Como devemos tratar uma pessoa com deficiência?",
+            options: [
+                { letter: "A", text: "Com respeito, amizade e naturalidade." },
+                { letter: "B", text: "Com pena e afastamento." },
+                { letter: "C", text: "Como se não existisse." }
+            ],
+            correct: "A",
+            explanation: "As pessoas com deficiência não precisam de pena, precisam de amigos! Devemos tratá-las com naturalidade, educação e alegria, como qualquer outro colega."
+        },
+        {
+            question: "4. Se um colega tiver dificuldade numa tarefa, devemos…",
+            options: [
+                { letter: "A", text: "Rir da sua dificuldade." },
+                { letter: "B", text: "Fazer a tarefa por ele sem perguntar." },
+                { letter: "C", text: "Oferecer ajuda e incentivá-lo." }
+            ],
+            correct: "C",
+            explanation: "Todos precisamos de ajuda às vezes. Dar palavras de incentivo e perguntar 'Queres uma ajuda?' mostra amizade e ajuda o colega a aprender."
+        },
+        {
+            question: "5. Uma pessoa que utiliza cadeira de rodas…",
+            options: [
+                { letter: "A", text: "Não pode brincar nem participar nas atividades." },
+                { letter: "B", text: "Pode participar, desde que existam condições adequadas." },
+                { letter: "C", text: "Não pode ir à escola." }
+            ],
+            correct: "B",
+            explanation: "Com rampas, espaços acessíveis e jogos adaptados, quem usa cadeira de rodas pode estudar, divertir-se e participar em tudo!"
+        },
+        {
+            question: "6. Ter uma deficiência significa que uma pessoa…",
+            options: [
+                { letter: "A", text: "Não tem capacidades." },
+                { letter: "B", text: "Não consegue aprender." },
+                { letter: "C", text: "Pode ter algumas dificuldades, mas também muitas capacidades." }
+            ],
+            correct: "C",
+            explanation: "Todos nós temos coisas em que somos muito bons e outras que nos custam mais. Uma deficiência é apenas uma característica, e cada pessoa tem muitos talentos!"
+        },
+        {
+            question: "7. O que devemos fazer quando vemos alguém a ser excluído de uma brincadeira?",
+            options: [
+                { letter: "A", text: "Convidá-lo a participar e mostrar amizade." },
+                { letter: "B", text: "Continuar a brincar sem fazer nada." },
+                { letter: "C", text: "Afastarmo-nos também." }
+            ],
+            correct: "A",
+            explanation: "Um simples 'Queres vir brincar connosco?' pode transformar o dia de alguém que está triste ou sozinho no recreio."
+        },
+        {
+            question: "8. Qual destas atitudes demonstra respeito pela diferença?",
+            options: [
+                { letter: "A", text: "Imitar alguém para provocar risos." },
+                { letter: "B", text: "Aceitar que cada pessoa tem o seu ritmo e as suas características." },
+                { letter: "C", text: "Fazer comentários desagradáveis." }
+            ],
+            correct: "B",
+            explanation: "Cada pessoa aprende, anda e fala ao seu próprio ritmo. Respeitar o tempo e o jeito de cada um torna a nossa escola muito mais feliz."
+        },
+        {
+            question: "9. Para que todos possam aprender e participar na escola, devemos…",
+            options: [
+                { letter: "A", text: "Dar as mesmas tarefas a todos, sem exceção." },
+                { letter: "B", text: "Ajudar apenas os alunos que aprendem mais depressa." },
+                { letter: "C", text: "Respeitar as necessidades de cada aluno e criar oportunidades para todos." }
+            ],
+            correct: "C",
+            explanation: "A verdadeira igualdade na escola é dar a cada aluno o apoio de que ele precisa para conseguir aprender e brilhar."
+        },
+        {
+            question: "10. Qual é a mensagem mais importante do vídeo?",
+            options: [
+                { letter: "A", text: "Todos devemos ser iguais." },
+                { letter: "B", text: "A diferença não nos impede de sermos amigos e de participar." },
+                { letter: "C", text: "Só algumas pessoas precisam de respeito." }
+            ],
+            correct: "B",
+            explanation: "As nossas diferenças tornam o mundo mais rico e interessante! Juntos e a respeitarmo-nos, todos podemos ser grandes amigos."
         }
-    });
+    ];
 
-    const resultDiv = document.getElementById('result');
-    resultDiv.style.display = 'block';
-    resultDiv.innerHTML = `Acertaste ${acertos} em ${total} perguntas! 🎉`;
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-}
+    let currentQuestion = 0;
+    let score = 0;
+
+    function loadQuestion() {
+        const q = quizData[currentQuestion];
+        document.getElementById("question-text").textContent = q.question;
+        document.getElementById("progress-text").textContent = `Pergunta ${currentQuestion + 1} de ${quizData.length} • Pontos: ${score}`;
+        document.getElementById("progress-bar").style.width = `${((currentQuestion + 1) / quizData.length) * 100}%`;
+
+        const optionsList = document.getElementById("options-list");
+        optionsList.innerHTML = "";
+
+        const feedbackBox = document.getElementById("feedback-box");
+        feedbackBox.style.display = "none";
+        feedbackBox.className = "feedback-box";
+
+        const nextBtn = document.getElementById("next-btn");
+        nextBtn.style.display = "none";
+        nextBtn.textContent = currentQuestion === quizData.length - 1 ? "Ver Resultado e Reflexão 🌟" : "Próxima Pergunta ➡️";
+
+        q.options.forEach(opt => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.innerHTML = `<span class="option-letter">${opt.letter}</span> <span>${opt.text}</span>`;
+            btn.onclick = () => selectAnswer(btn, opt.letter);
+            optionsList.appendChild(btn);
+        });
+    }
+
+    function selectAnswer(selectedBtn, chosenLetter) {
+        const q = quizData[currentQuestion];
+        const allButtons = document.querySelectorAll(".option-btn");
+        const feedbackBox = document.getElementById("feedback-box");
+        const feedbackTitle = document.getElementById("feedback-title");
+        const feedbackDesc = document.getElementById("feedback-description");
+
+        // Desativar todos os botões após escolher
+        allButtons.forEach(btn => {
+            btn.disabled = true;
+            const letter = btn.querySelector(".option-letter").textContent;
+            if (letter === q.correct) {
+                btn.classList.add("correct");
+            }
+        });
+
+        if (chosenLetter === q.correct) {
+            score++;
+            feedbackBox.classList.add("success");
+            feedbackTitle.textContent = "⭐ Muito bem! Acertaste!";
+        } else {
+            selectedBtn.classList.add("wrong");
+            feedbackBox.classList.add("error");
+            feedbackTitle.textContent = "💡 Quase lá! Vamos aprender juntos:";
+        }
+
+        feedbackDesc.textContent = q.explanation;
+        feedbackBox.style.display = "block";
+        document.getElementById("progress-text").textContent = `Pergunta ${currentQuestion + 1} de ${quizData.length} • Pontos: ${score}`;
+        document.getElementById("next-btn").style.display = "block";
+    }
+
+    function nextQuestion() {
+        currentQuestion++;
+        if (currentQuestion < quizData.length) {
+            loadQuestion();
+        } else {
+            showFinalScreen();
+        }
+    }
+
+    function showFinalScreen() {
+        document.getElementById("quiz-screen").style.display = "none";
+        document.getElementById("final-screen").style.display = "block";
+        document.getElementById("final-score").textContent = `Acertaste ${score} em ${quizData.length}! 🏆`;
+    }
+
+    function restartQuiz() {
+        currentQuestion = 0;
+        score = 0;
+        document.getElementById("final-screen").style.display = "none";
+        document.getElementById("quiz-screen").style.display = "block";
+        loadQuestion();
+    }
+
+    // Iniciar o jogo
+    loadQuestion();
 </script>
 
 </body>
