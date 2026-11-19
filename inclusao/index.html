@@ -42,7 +42,7 @@
             stroke-width: 1.7;
             stroke-linecap: round;
             stroke-linejoin: round;
-            opacity: 0.14; /* Esbatido na medida certa para não interferir na leitura */
+            opacity: 0.14;
             animation: floatGentle 16s ease-in-out infinite alternate;
         }
 
@@ -280,7 +280,8 @@
             z-index: 1000;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 14px;
+            overflow-y: auto;
         }
 
         /* Popup do Vídeo YouTube */
@@ -294,6 +295,8 @@
             box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
             animation: popIn 0.3s ease;
             transition: all 0.3s ease;
+            max-height: 92vh;
+            overflow-y: auto;
         }
         .video-modal-box.expanded {
             max-width: 96vw;
@@ -318,6 +321,7 @@
             display: flex;
             gap: 10px;
             align-items: center;
+            flex-wrap: wrap;
         }
         .ctrl-btn {
             font-family: 'Fredoka', sans-serif;
@@ -359,6 +363,7 @@
         .video-modal-box.expanded .video-frame-wrapper {
             padding-bottom: 0;
             flex: 1;
+            min-height: 220px;
         }
         .video-frame-wrapper iframe {
             position: absolute;
@@ -379,7 +384,7 @@
             border: 6px solid #118ab2;
             box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
             animation: popIn 0.3s ease;
-            max-height: 90vh;
+            max-height: 92vh;
             overflow-y: auto;
         }
         .modal-box.is-correct {
@@ -421,6 +426,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            min-width: 0;
         }
         .review-letter {
             font-weight: 700;
@@ -573,6 +579,145 @@
             0% { opacity: 0; transform: scale(0.92); }
             100% { opacity: 1; transform: scale(1); }
         }
+
+        /* RESPONSIVIDADE PARA TELEMÓVEL */
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+                align-items: flex-start;
+            }
+            .outline-icon {
+                opacity: 0.09;
+            }
+            .ic-wheelchair-1, .ic-people, .ic-cane-1, .ic-puzzle-1,
+            .ic-hands-shake, .ic-globe, .ic-open-hands, .ic-puzzle-2,
+            .ic-wheelchair-2, .ic-cane-2 {
+                width: 65px;
+            }
+            .quiz-container {
+                padding: 20px 16px;
+                border-radius: 22px;
+                border-width: 4px;
+            }
+            .cover-title, .final-title {
+                font-size: 1.8em;
+            }
+            .cover-subtitle {
+                font-size: 1.1em;
+            }
+            .cover-instructions {
+                padding: 14px;
+                font-size: 1em;
+            }
+            .cover-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            .video-btn, .start-btn {
+                width: 100%;
+                justify-content: center;
+                font-size: 1.2em;
+                padding: 14px 20px;
+            }
+            .header h2 {
+                font-size: 1.25em;
+            }
+            .mini-logo {
+                height: 36px;
+            }
+            .question-text {
+                font-size: 1.18em;
+                padding: 15px;
+                margin: 16px 0;
+            }
+            .option-btn {
+                font-size: 1em;
+                padding: 13px 14px;
+                gap: 10px;
+            }
+            .option-letter {
+                width: 32px;
+                height: 32px;
+                font-size: 1em;
+            }
+            .score-badge {
+                font-size: 1.3em;
+                padding: 12px 24px;
+            }
+            .reflection-card {
+                padding: 18px;
+            }
+            .reflection-card h2 {
+                font-size: 1.2em;
+            }
+            .reflection-question {
+                font-size: 1.1em;
+            }
+
+            /* Popups em Telemóvel */
+            .modal-overlay {
+                padding: 10px;
+            }
+            .modal-box, .video-modal-box {
+                padding: 18px 14px;
+                border-radius: 20px;
+                border-width: 4px;
+                max-height: 94vh;
+            }
+            .modal-header-title {
+                font-size: 1.25em;
+                margin-bottom: 14px;
+            }
+            .review-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 10px 12px;
+                gap: 8px;
+                font-size: 0.96em;
+            }
+            .review-letter {
+                width: 26px;
+                height: 26px;
+                font-size: 0.9em;
+            }
+            .badge-tag {
+                align-self: flex-end;
+                font-size: 0.78em;
+            }
+            .modal-explanation {
+                padding: 12px 14px;
+                font-size: 1em;
+                margin-bottom: 16px;
+            }
+            .modal-next-btn {
+                font-size: 1.1em;
+                padding: 13px;
+            }
+            .video-modal-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .video-modal-header h3 {
+                font-size: 1.15em;
+            }
+            .video-controls {
+                width: 100%;
+                justify-content: space-between;
+                gap: 6px;
+            }
+            .ctrl-btn {
+                font-size: 0.82em;
+                padding: 7px 10px;
+                flex: 1;
+                justify-content: center;
+            }
+            .video-modal-box.expanded {
+                width: 100%;
+                max-width: 100%;
+                height: 90vh;
+            }
+        }
     </style>
 </head>
 <body>
@@ -718,7 +863,7 @@
         <div class="video-modal-header">
             <h3>🎬 Vídeo: Missão Inclusão</h3>
             <div class="video-controls">
-                <button class="ctrl-btn btn-expand" id="expand-btn" onclick="toggleExpandVideo()">⛶ Aumentar Janela</button>
+                <button class="ctrl-btn btn-expand" id="expand-btn" onclick="toggleExpandVideo()">⛶ Aumentar</button>
                 <a href="https://youtu.be/Ztqaa-NWYQ8" target="_blank" rel="noopener noreferrer" class="ctrl-btn btn-newtab">↗️ Nova Aba</a>
                 <button class="ctrl-btn btn-close-video" onclick="closeVideoModal()">✖ Fechar</button>
             </div>
@@ -886,7 +1031,7 @@
         const box = document.getElementById("video-modal-box");
         iframe.src = "";
         box.classList.remove("expanded");
-        document.getElementById("expand-btn").textContent = "⛶ Aumentar Janela";
+        document.getElementById("expand-btn").textContent = "⛶ Aumentar";
         modal.style.display = "none";
     }
 
@@ -895,9 +1040,9 @@
         const btn = document.getElementById("expand-btn");
         box.classList.toggle("expanded");
         if (box.classList.contains("expanded")) {
-            btn.textContent = "🗗 Reduzir Janela";
+            btn.textContent = "🗗 Reduzir";
         } else {
-            btn.textContent = "⛶ Aumentar Janela";
+            btn.textContent = "⛶ Aumentar";
         }
     }
 
